@@ -1,6 +1,6 @@
 # webs
 
-Static sites hosted on GitHub Pages: https://leons45.github.io/webs/
+Static sites hosted on GitHub Pages: https://leons45.github.io/Webs/
 
 ## Pages
 
@@ -18,4 +18,4 @@ Static sites hosted on GitHub Pages: https://leons45.github.io/webs/
 
 ## Adding a new page
 
-Create a new folder with its own `index.html` (self-contained — fonts via Google Fonts `<link>`, no external build tooling), commit, push to `main`. GitHub Pages serves it at `https://leons45.github.io/webs/<folder>/` automatically.
+Create a new folder with its own `index.html` (self-contained — fonts via Google Fonts `<link>`, no external build tooling), commit, push to `main`. GitHub Pages serves it at `https://leons45.github.io/Webs/<folder>/` automatically.
