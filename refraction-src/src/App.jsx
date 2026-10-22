@@ -1,14 +1,25 @@
 import { useRef, useState, useEffect, Suspense } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { useProgress } from '@react-three/drei'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import Scene from './Scene.jsx'
 import CanvasErrorBoundary from './ErrorBoundary.jsx'
 
+// This scene loads no textures, GLTF models, or anything else that drei's
+// useProgress() tracks — so gating this overlay on useProgress() meant it
+// could never reach 100% and never hide, permanently covering the whole
+// page with an opaque panel (the "completely blank screen" bug). There's
+// nothing real to wait for here, so this just fades out on a short fixed
+// timer as a stylistic flourish, and the Canvas itself gets mounted
+// immediately underneath it rather than after some async signal.
 function Loader() {
-  const { progress, active } = useProgress()
+  const [hidden, setHidden] = useState(false)
+  useEffect(() => {
+    const t = setTimeout(() => setHidden(true), 700)
+    return () => clearTimeout(t)
+  }, [])
+  const progress = hidden ? 100 : 0
   return (
-    <div className={`loader ${!active && progress >= 100 ? 'hidden' : ''}`}>
+    <div className={`loader ${hidden ? 'hidden' : ''}`}>
       <div className="pct">{Math.round(progress).toString().padStart(2, '0')}%</div>
       <div className="track"><div className="fill" style={{ width: `${progress}%` }} /></div>
       <div className="pct" style={{ letterSpacing: '.22em', fontSize: 10 }}>LOADING THE SCENE</div>

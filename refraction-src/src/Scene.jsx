@@ -108,14 +108,14 @@ export default function Scene({ scrollRef, pointer }) {
       <pointLight position={[3, -3, 2]} intensity={7} color="#D8FF4F" />
       <pointLight position={[0, 4, -5]} intensity={5} color="#FFFFFF" />
 
-      {/* Simple bright panels floating in the scene give the glass real
-          hard-edged highlights to refract, standing in for a studio softbox
-          without needing any loaded texture. */}
-      <mesh position={[-3.4, 1.2, -2]}>
+      {/* Bright panels well outside the camera's view give the glass real
+          hard-edged highlights to refract, standing in for a studio softbox,
+          without ever being directly visible as flat rectangles themselves. */}
+      <mesh position={[-9, 3, -5]} rotation={[0, 0.5, 0]}>
         <planeGeometry args={[2.2, 3]} />
         <meshBasicMaterial color="#EAF3FF" toneMapped={false} />
       </mesh>
-      <mesh position={[3.2, -1, -2.4]} rotation={[0, 0.3, 0]}>
+      <mesh position={[8.5, -2.5, -6]} rotation={[0, -0.4, 0]}>
         <planeGeometry args={[1.8, 2.4]} />
         <meshBasicMaterial color="#D8FF4F" toneMapped={false} />
       </mesh>
