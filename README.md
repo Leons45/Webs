@@ -7,6 +7,7 @@ Static sites hosted on GitHub Pages: https://leons45.github.io/webs/
 - **`/`** — The Iron Sovereign: original dark-fantasy concept landing page (not affiliated with any film/comic/studio).
 - **`/portfolio/`** — Personal portfolio. Exaggerated-minimalism + motion-driven style, with a Three.js wireframe scene in the hero.
 - **`/atlas/`** — An Atlas of Imaginary Insects: a pannable/zoomable specimen drawer, not a scrolling page. Every creature is procedurally generated SVG (deterministic seeded RNG, no stock art), individually draggable, with a detail drawer per specimen.
+- **`/refraction/`** — "Refraction": a real WebGL piece built with **React 19 + Three.js + React Three Fiber + drei + postprocessing + Framer Motion**, compiled with Vite. A hand-jittered glass crystal with physically based transmission/refraction/chromatic aberration, bloom + vignette postprocessing, scroll-driven camera dolly, and cursor parallax. Source lives in `/refraction-src/` (not auto-built by Pages — rebuild locally with `npm install && npm run build`, then copy `dist/` over `/refraction/`).
 
 ## Stack / tooling notes
 
