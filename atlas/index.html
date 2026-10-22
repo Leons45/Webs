@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>An Atlas of Imaginary Insects</title>
+<meta name="description" content="A pannable, zoomable specimen drawer of invented insects — every creature generated in pure SVG. A generative-art field guide, not real taxonomy.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Special+Elite&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --wood-dark:#1C140F; --wood:#2B1F17; --wood-light:#3A2A1E;
+    --paper:#EFE7D4; --paper-line:#D9CBAA; --ink:#241B12; --ink-dim:#6B5D45;
+    --brass:#B98A3E; --brass-bright:#D9A850;
+    --ui-bg:rgba(28,20,15,.88);
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0; overflow:hidden; background:var(--wood-dark); color:var(--paper);
+    font-family:'Inter',sans-serif; touch-action:none;
+  }
+  button{font-family:inherit; cursor:pointer;}
+  .vis-hidden{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0);}
+
+  /* ---------- Stage / board (pan + zoom world) ---------- */
+  #stage{position:fixed; inset:0; cursor:grab;}
+  #stage.panning{cursor:grabbing;}
+  #board{
+    position:absolute; left:0; top:0; width:2400px; height:1500px;
+    transform-origin:0 0;
+    background:
+      radial-gradient(ellipse at 20% 15%, rgba(255,255,255,.05), transparent 45%),
+      repeating-linear-gradient(90deg, var(--paper-line) 0 1px, transparent 1px 64px),
+      repeating-linear-gradient(0deg, var(--paper-line) 0 1px, transparent 1px 64px),
+      var(--paper);
+    box-shadow:0 0 0 14px var(--wood-light), 0 0 0 22px var(--wood), 0 40px 120px rgba(0,0,0,.6);
+  }
+
+  /* ---------- Pins ---------- */
+  .pin{
+    position:absolute; width:168px; padding:14px 12px 12px; background:var(--paper);
+    border:1px solid rgba(36,27,18,.18); border-radius:2px;
+    box-shadow:0 10px 22px rgba(20,14,8,.22), 0 2px 4px rgba(20,14,8,.18);
+    text-align:center; user-select:none; touch-action:none;
+    transition:box-shadow .2s, filter .25s;
+  }
+  .pin:focus-visible{outline:2px solid var(--brass-bright); outline-offset:3px;}
+  .pin.lifted{box-shadow:0 26px 40px rgba(20,14,8,.35); z-index:50;}
+  .pin.dim{filter:opacity(.22) saturate(.3);}
+  .pin .nail{
+    position:absolute; left:50%; top:-7px; transform:translateX(-50%);
+    width:13px; height:13px; border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, var(--brass-bright), var(--brass) 70%, #7a5a26 100%);
+    box-shadow:0 2px 3px rgba(0,0,0,.45);
+  }
+  .pin svg.specimen{width:100%; height:100px; display:block;}
+  .pin .sci{font-family:'Fraunces',serif; font-style:italic; font-weight:500; font-size:13.5px; color:var(--ink); margin-top:8px; line-height:1.2;}
+  .pin .common{font-family:'Special Elite',monospace; font-size:9.5px; letter-spacing:.04em; color:var(--ink-dim); margin-top:3px; text-transform:uppercase;}
+  .pin-btn{all:unset; display:block; width:100%; cursor:pointer;}
+
+  /* ---------- Chrome: title plate ---------- */
+  .plate{
+    position:fixed; top:22px; left:22px; z-index:30; background:var(--ui-bg); backdrop-filter:blur(6px);
+    border:1px solid rgba(217,168,80,.35); padding:16px 20px; max-width:300px;
+  }
+  .plate h1{font-family:'Fraunces',serif; font-weight:600; font-size:19px; line-height:1.25; margin:0; color:var(--paper);}
+  .plate p{font-family:'Special Elite',monospace; font-size:10.5px; color:#B7A98C; margin:8px 0 0; line-height:1.5;}
+
+  /* ---------- Chrome: filter chips ---------- */
+  .chips{position:fixed; top:22px; right:22px; z-index:30; display:flex; flex-wrap:wrap; gap:8px; max-width:280px; justify-content:flex-end;}
+  .chip{
+    background:var(--ui-bg); border:1px solid rgba(217,168,80,.3); color:#D8CBB0;
+    font-size:11px; letter-spacing:.06em; text-transform:uppercase; padding:8px 13px; border-radius:999px;
+  }
+  .chip[aria-pressed="true"]{background:var(--brass); border-color:var(--brass); color:#201405; font-weight:600;}
+
+  /* ---------- Chrome: zoom controls ---------- */
+  .zoomctl{position:fixed; bottom:22px; right:22px; z-index:30; display:flex; flex-direction:column; gap:1px; background:var(--ui-bg); border:1px solid rgba(217,168,80,.3);}
+  .zoomctl button{all:unset; width:40px; height:40px; display:flex; align-items:center; justify-content:center; color:#D8CBB0; font-size:18px;}
+  .zoomctl button:hover{background:rgba(217,168,80,.18); color:var(--brass-bright);}
+  .zoomctl button + button{border-top:1px solid rgba(217,168,80,.2);}
+
+  .hint{position:fixed; bottom:22px; left:22px; z-index:30; font-family:'Special Elite',monospace; font-size:10.5px; color:#9A8C70; background:var(--ui-bg); border:1px solid rgba(217,168,80,.25); padding:9px 13px; max-width:230px; line-height:1.5;}
+
+  /* ---------- Detail drawer ---------- */
+  #drawer{
+    position:fixed; top:0; right:0; height:100%; width:min(420px, 92vw); z-index:60;
+    background:#17110C; border-left:1px solid rgba(217,168,80,.35);
+    transform:translateX(100%); transition:transform .42s cubic-bezier(.2,.8,.2,1);
+    overflow-y:auto; padding:26px 26px 40px;
+  }
+  #drawer.open{transform:translateX(0);}
+  #drawer .close{all:unset; position:absolute; top:18px; right:18px; width:34px; height:34px; display:flex; align-items:center; justify-content:center; color:#D8CBB0; border:1px solid rgba(217,168,80,.3); cursor:pointer;}
+  #drawer .close:hover{color:var(--brass-bright); border-color:var(--brass-bright);}
+  #drawer .big{width:100%; height:240px; background:var(--paper); border:1px solid rgba(0,0,0,.2);}
+  #drawer .big svg{width:100%; height:100%; display:block;}
+  #drawer h2{font-family:'Fraunces',serif; font-style:italic; font-weight:500; font-size:26px; color:var(--paper); margin:20px 0 2px;}
+  #drawer .common2{font-family:'Special Elite',monospace; font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:var(--brass-bright); margin:0 0 20px;}
+  #drawer dl{display:grid; grid-template-columns:auto 1fr; gap:9px 16px; font-size:13px; margin:0 0 22px;}
+  #drawer dt{font-family:'Special Elite',monospace; font-size:10px; letter-spacing:.06em; text-transform:uppercase; color:#8A7B60;}
+  #drawer dd{margin:0; color:#E7DCC4;}
+  #drawer .note{font-family:'Fraunces',serif; font-style:italic; color:#CBBD9E; font-size:15px; line-height:1.6; border-top:1px solid rgba(217,168,80,.2); padding-top:18px;}
+
+  #overlay{position:fixed; inset:0; background:rgba(10,7,4,.5); z-index:55; opacity:0; pointer-events:none; transition:opacity .35s;}
+  #overlay.open{opacity:1; pointer-events:auto;}
+
+  .disclaimer{position:fixed; bottom:22px; left:50%; transform:translateX(-50%); z-index:30; font-family:'Special Elite',monospace; font-size:9.5px; color:#7A6C52; letter-spacing:.03em;}
+  @media (max-width:760px){ .plate{max-width:220px;} .hint,.disclaimer{display:none;} }
+</style>
+</head>
+<body>
+
+<div class="plate">
+  <h1>An Atlas of<br>Imaginary Insects</h1>
+  <p>Twelve invented specimens, generated — not photographed. Drag any pin to rearrange the drawer; click one to examine it.</p>
+</div>
+
+<div class="chips" id="chips" role="group" aria-label="Filter by habitat"></div>
+
+<div class="zoomctl">
+  <button id="zin" aria-label="Zoom in">+</button>
+  <button id="zreset" aria-label="Reset view" style="font-size:13px;">&#9678;</button>
+  <button id="zout" aria-label="Zoom out">&minus;</button>
+</div>
+
+<div class="hint">Drag the board to pan &middot; scroll to zoom &middot; drag a pin to move it &middot; click a pin to examine</div>
+<div class="disclaimer">A generative-art piece. Every specimen here is invented, not a real species.</div>
+
+<div id="stage">
+  <div id="board" role="group" aria-label="Specimen drawer, pannable and zoomable"></div>
+</div>
+
+<div id="overlay"></div>
+<aside id="drawer" aria-hidden="true">
+  <button class="close" id="drawerClose" aria-label="Close examination panel">&times;</button>
+  <div class="big" id="drawerBig"></div>
+  <h2 id="drawerSci"></h2>
+  <p class="common2" id="drawerCommon"></p>
+  <dl id="drawerStats"></dl>
+  <p class="note" id="drawerNote"></p>
+</aside>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------------- deterministic PRNG ---------------- */
+  function mulberry32(seed){
+    return function(){
+      seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+      var t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function pick(rng, arr){ return arr[Math.floor(rng() * arr.length)]; }
+  function range(rng, a, b){ return a + rng() * (b - a); }
+
+  /* ---------------- vocabulary for invented binomial names ---------------- */
+  var GENUS = ['Lumenoptera','Cinderwing','Vesperal','Glassveil','Emberthorax','Duskcrawl','Mossarion','Thistleon','Quillantis','Brambletus','Hollowwing','Pallidor'];
+  var SPECIES = ['nocturna','auriflora','palustris','minimus','cineracea','ventosa','umbrarum','luminis','agrestis','vitrea','sylvana','obscurior'];
+  var COMMON_PREFIX = ['Lantern','Ash','Quiet','Copper','Glass','Hollow','Drift','Pale','Marsh','Ember','Dust','Veil'];
+  var COMMON_SUFFIX = ['Moth','Beetle','Wisp','Hopper','Drone','Flutterer','Borer','Skimmer','Cicada','Weevil'];
+  var NOTES = [
+    'Known to hum faintly in minor thirds at dusk.',
+    'Folds its wings twice before settling, never once.',
+    'Observed only in the hour after rain.',
+    'Attracted to brass more than to light.',
+    'Walks in perfect figure-eights when undisturbed.',
+    'Its markings are never the same twice, even on one wing.',
+    'Rests head-down, as if reading the ground.',
+    'Leaves a faint cinnamon scent on the fingers.',
+    'Silent except for a single click at dawn.',
+    'Mistaken, twice, for a dropped button.',
+    'Prefers the undersides of things.',
+    'Vanishes mid-flight if watched too closely — or seems to.'
+  ];
+
+  var HABITATS = [
+    { id:'canopy', label:'Canopy', body:'#4B5E3A', body2:'#7C8F5A', wing:'rgba(124,143,90,.38)' },
+    { id:'marsh',  label:'Marsh',  body:'#33524A', body2:'#6E8C7B', wing:'rgba(110,140,123,.38)' },
+    { id:'dune',   label:'Dune',   body:'#A9762C', body2:'#D9A95C', wing:'rgba(217,169,92,.4)'  },
+    { id:'reef',   label:'Reef',   body:'#2C4A63', body2:'#5B8FA3', wing:'rgba(91,143,163,.4)'  },
+    { id:'cavern', label:'Cavern', body:'#4A3B5C', body2:'#8572A3', wing:'rgba(133,114,163,.4)' },
+    { id:'tundra', label:'Tundra', body:'#51677A', body2:'#9FB4C4', wing:'rgba(159,180,196,.4)' }
+  ];
+  var RARITY = ['Common','Common','Uncommon','Uncommon','Rare','Unrecorded'];
+
+  /* ---------------- procedural specimen SVG ---------------- */
+  function wingPath(len, wid){
+    // symmetric leaf/teardrop pointing "up" (negative y), centered at 0,0 base
+    return 'M0,0 C' + (-wid) + ',' + (-len*0.32) + ' ' + (-wid*0.55) + ',' + (-len) + ' 0,' + (-len*1.08) +
+           ' C' + (wid*0.55) + ',' + (-len) + ' ' + wid + ',' + (-len*0.32) + ' 0,0 Z';
+  }
+
+  function makeSpecimen(seed, index){
+    var rng = mulberry32(seed);
+    var hab = pick(rng, HABITATS);
+    var rarity = pick(rng, RARITY);
+    var bodyLen = range(rng, 34, 46);
+    var wingLen = range(rng, 46, 70);
+    var wingWid = range(rng, 16, 26);
+    var wingAngle = range(rng, 24, 46);
+    var legCount = pick(rng, [6, 6, 8]);
+    var dotCount = Math.floor(range(rng, 3, 9));
+    var sci = pick(rng, GENUS) + ' ' + pick(rng, SPECIES);
+    var common = pick(rng, COMMON_PREFIX) + ' ' + pick(rng, COMMON_SUFFIX);
+    var note = pick(rng, NOTES);
+    var wingspan = Math.round(wingLen * 1.9) + '–' + Math.round(wingLen * 2.3) + 'mm';
+    var clipId = 'clip' + index;
+
+    var cx = 90, cy = 56; // body center within a 180x110 viewbox-ish area
+    var segA = bodyLen * 0.30, segB = bodyLen * 0.4, segC = bodyLen * 0.3;
+
+    var dots = '';
+    for (var i = 0; i < dotCount; i++){
+      var a = rng() * Math.PI * 2, r = range(rng, 2, segB * 0.95);
+      var dx = cx + Math.cos(a) * r * 0.6, dy = cy + Math.sin(a) * r * 0.9;
+      dots += '<circle cx="' + dx.toFixed(1) + '" cy="' + dy.toFixed(1) + '" r="' + range(rng,1.1,2.4).toFixed(1) + '" fill="' + hab.body2 + '" opacity="0.8"/>';
+    }
+
+    var legs = '';
+    for (var l = 0; l < legCount; l++){
+      var side = l % 2 === 0 ? -1 : 1;
+      var t = Math.floor(l / 2);
+      var baseY = cy - 6 + t * 9;
+      var spread = 20 + t * 7;
+      var bend = side * (10 + t * 4);
+      legs += '<path d="M' + cx + ',' + baseY + ' Q' + (cx + side*10) + ',' + (baseY + 6) + ' ' + (cx + bend) + ',' + (baseY + spread) + '" stroke="' + hab.body + '" stroke-width="1.6" fill="none" stroke-linecap="round" opacity="0.85"/>';
+    }
+
+    var antennae =
+      '<path d="M' + (cx-5) + ',' + (cy-segA-6) + ' Q' + (cx-16) + ',' + (cy-segA-26) + ' ' + (cx-20) + ',' + (cy-segA-34) + '" stroke="' + hab.body + '" stroke-width="1.4" fill="none" stroke-linecap="round"/>' +
+      '<circle cx="' + (cx-20) + '" cy="' + (cy-segA-34) + '" r="1.6" fill="' + hab.body + '"/>' +
+      '<path d="M' + (cx+5) + ',' + (cy-segA-6) + ' Q' + (cx+16) + ',' + (cy-segA-26) + ' ' + (cx+20) + ',' + (cy-segA-34) + '" stroke="' + hab.body + '" stroke-width="1.4" fill="none" stroke-linecap="round"/>' +
+      '<circle cx="' + (cx+20) + '" cy="' + (cy-segA-34) + '" r="1.6" fill="' + hab.body + '"/>';
+
+    var svg =
+      '<svg viewBox="0 0 180 112" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Illustration of ' + sci + '">' +
+        '<defs><clipPath id="' + clipId + '"><ellipse cx="' + cx + '" cy="' + cy + '" rx="' + (segB*0.9) + '" ry="' + (bodyLen*0.95) + '"/></clipPath></defs>' +
+        '<g transform="translate(' + (-wingWid*0.1) + ',6) rotate(-' + wingAngle + ' ' + cx + ' ' + (cy-segA*0.4) + ')">' +
+          '<path d="' + wingPath(wingLen, wingWid) + '" transform="translate(' + cx + ',' + (cy-segA*0.4) + ')" fill="' + hab.wing + '" stroke="' + hab.body + '" stroke-width="0.8"/>' +
+        '</g>' +
+        '<g transform="rotate(' + wingAngle + ' ' + cx + ' ' + (cy-segA*0.4) + ')">' +
+          '<path d="' + wingPath(wingLen, wingWid) + '" transform="translate(' + cx + ',' + (cy-segA*0.4) + ')" fill="' + hab.wing + '" stroke="' + hab.body + '" stroke-width="0.8"/>' +
+        '</g>' +
+        legs +
+        antennae +
+        '<ellipse cx="' + cx + '" cy="' + (cy-segA-segB*0.35) + '" rx="' + (segA*0.68) + '" ry="' + (segA*0.8) + '" fill="' + hab.body + '"/>' +
+        '<ellipse cx="' + cx + '" cy="' + (cy-segC*0.1) + '" rx="' + (segB*0.78) + '" ry="' + (segB*0.95) + '" fill="' + hab.body + '"/>' +
+        '<ellipse cx="' + cx + '" cy="' + (cy+segC*0.85) + '" rx="' + (segC*0.6) + '" ry="' + (segC*0.95) + '" fill="' + hab.body2 + '"/>' +
+        '<g clip-path="url(#' + clipId + ')">' + dots + '</g>' +
+      '</svg>';
+
+    return {
+      id: 'sp' + index, sci: sci, common: common, habitat: hab, rarity: rarity,
+      wingspan: wingspan, note: note, svg: svg
+    };
+  }
+
+  var SPECIES_LIST = [];
+  for (var i = 0; i < 12; i++) SPECIES_LIST.push(makeSpecimen(1000 + i * 37, i));
+
+  /* ---------------- layout: scatter pins across the board ---------------- */
+  var BOARD_W = 2400, BOARD_H = 1500;
+  var layoutRng = mulberry32(777);
+  var cols = 4, rows = 3, cellW = BOARD_W / cols, cellH = BOARD_H / rows;
+  SPECIES_LIST.forEach(function(sp, idx){
+    var col = idx % cols, row = Math.floor(idx / cols);
+    sp.x = col * cellW + range(layoutRng, 70, cellW - 240);
+    sp.y = row * cellH + range(layoutRng, 60, cellH - 220);
+    sp.rot = range(layoutRng, -4, 4);
+  });
+
+  /* ---------------- render pins ---------------- */
+  var board = document.getElementById('board');
+  SPECIES_LIST.forEach(function(sp){
+    var el = document.createElement('div');
+    el.className = 'pin';
+    el.dataset.id = sp.id;
+    el.dataset.habitat = sp.habitat.id;
+    el.style.left = sp.x + 'px';
+    el.style.top = sp.y + 'px';
+    el.style.transform = 'rotate(' + sp.rot.toFixed(2) + 'deg)';
+    el.innerHTML =
+      '<div class="nail" aria-hidden="true"></div>' +
+      '<button class="pin-btn" aria-label="Examine ' + sp.sci + ', ' + sp.common + '">' +
+        '<div class="specimen">' + sp.svg + '</div>' +
+        '<div class="sci">' + sp.sci + '</div>' +
+        '<div class="common">' + sp.common + '</div>' +
+      '</button>';
+    board.appendChild(el);
+  });
+
+  /* ---------------- filter chips ---------------- */
+  var chipsWrap = document.getElementById('chips');
+  var activeHabitats = new Set(HABITATS.map(function(h){ return h.id; }));
+  HABITATS.forEach(function(h){
+    var b = document.createElement('button');
+    b.className = 'chip'; b.type = 'button'; b.textContent = h.label;
+    b.setAttribute('aria-pressed', 'true');
+    b.addEventListener('click', function(){
+      if (activeHabitats.has(h.id)) { activeHabitats.delete(h.id); b.setAttribute('aria-pressed','false'); }
+      else { activeHabitats.add(h.id); b.setAttribute('aria-pressed','true'); }
+      document.querySelectorAll('.pin').forEach(function(p){
+        p.classList.toggle('dim', !activeHabitats.has(p.dataset.habitat));
+      });
+    });
+    chipsWrap.appendChild(b);
+  });
+
+  /* ---------------- pan + zoom ---------------- */
+  var stage = document.getElementById('stage');
+  var panX = -(BOARD_W/2 - window.innerWidth/2 + 300), panY = -(BOARD_H/2 - window.innerHeight/2);
+  var zoom = 0.62;
+  function applyTransform(){
+    board.style.transform = 'translate(' + panX + 'px,' + panY + 'px) scale(' + zoom + ')';
+  }
+  applyTransform();
+
+  var panState = null;
+  stage.addEventListener('pointerdown', function(e){
+    if (e.target.closest('.pin')) return;
+    panState = { x0: e.clientX, y0: e.clientY, px0: panX, py0: panY, id: e.pointerId };
+    stage.classList.add('panning');
+    stage.setPointerCapture(e.pointerId);
+  });
+  stage.addEventListener('pointermove', function(e){
+    if (!panState || panState.id !== e.pointerId) return;
+    panX = panState.px0 + (e.clientX - panState.x0);
+    panY = panState.py0 + (e.clientY - panState.y0);
+    applyTransform();
+  });
+  function endPan(e){ if (panState && panState.id === e.pointerId){ panState = null; stage.classList.remove('panning'); } }
+  stage.addEventListener('pointerup', endPan);
+  stage.addEventListener('pointercancel', endPan);
+
+  function zoomAt(cx, cy, factor){
+    var newZoom = Math.min(2.4, Math.max(0.32, zoom * factor));
+    var boardX = (cx - panX) / zoom, boardY = (cy - panY) / zoom;
+    panX = cx - boardX * newZoom;
+    panY = cy - boardY * newZoom;
+    zoom = newZoom;
+    applyTransform();
+  }
+  stage.addEventListener('wheel', function(e){
+    e.preventDefault();
+    zoomAt(e.clientX, e.clientY, e.deltaY < 0 ? 1.1 : 0.9);
+  }, { passive:false });
+
+  document.getElementById('zin').addEventListener('click', function(){ zoomAt(window.innerWidth/2, window.innerHeight/2, 1.2); });
+  document.getElementById('zout').addEventListener('click', function(){ zoomAt(window.innerWidth/2, window.innerHeight/2, 0.83); });
+  document.getElementById('zreset').addEventListener('click', function(){
+    zoom = 0.62; panX = -(BOARD_W/2 - window.innerWidth/2 + 300); panY = -(BOARD_H/2 - window.innerHeight/2); applyTransform();
+  });
+
+  /* ---------------- per-pin drag (and click-to-open) ---------------- */
+  var dragState = null;
+  board.querySelectorAll('.pin').forEach(function(pinEl){
+    pinEl.addEventListener('pointerdown', function(e){
+      var startLeft = parseFloat(pinEl.style.left), startTop = parseFloat(pinEl.style.top);
+      dragState = { el: pinEl, id: e.pointerId, x0: e.clientX, y0: e.clientY, left0: startLeft, top0: startTop, moved:false };
+      pinEl.setPointerCapture(e.pointerId);
+      pinEl.classList.add('lifted');
+      e.stopPropagation();
+    });
+    pinEl.addEventListener('pointermove', function(e){
+      if (!dragState || dragState.el !== pinEl || dragState.id !== e.pointerId) return;
+      var dx = (e.clientX - dragState.x0) / zoom, dy = (e.clientY - dragState.y0) / zoom;
+      if (Math.abs(dx) + Math.abs(dy) > 3) dragState.moved = true;
+      pinEl.style.left = (dragState.left0 + dx) + 'px';
+      pinEl.style.top = (dragState.top0 + dy) + 'px';
+      e.stopPropagation();
+    });
+    function endDrag(e){
+      if (!dragState || dragState.el !== pinEl) return;
+      pinEl.classList.remove('lifted');
+      var wasClick = !dragState.moved;
+      dragState = null;
+      if (wasClick) openDrawer(pinEl.dataset.id);
+    }
+    pinEl.addEventListener('pointerup', endDrag);
+    pinEl.addEventListener('pointercancel', endDrag);
+  });
+
+  /* ---------------- detail drawer ---------------- */
+  var drawer = document.getElementById('drawer'), overlay = document.getElementById('overlay');
+  var dBig = document.getElementById('drawerBig'), dSci = document.getElementById('drawerSci'),
+      dCommon = document.getElementById('drawerCommon'), dStats = document.getElementById('drawerStats'),
+      dNote = document.getElementById('drawerNote');
+  var lastFocused = null;
+
+  function openDrawer(id){
+    var sp = SPECIES_LIST.find(function(s){ return s.id === id; });
+    if (!sp) return;
+    lastFocused = document.activeElement;
+    dBig.innerHTML = sp.svg;
+    dSci.textContent = sp.sci;
+    dCommon.textContent = sp.common;
+    dStats.innerHTML =
+      '<dt>Habitat</dt><dd>' + sp.habitat.label + '</dd>' +
+      '<dt>Status</dt><dd>' + sp.rarity + '</dd>' +
+      '<dt>Wingspan</dt><dd>' + sp.wingspan + '</dd>';
+    dNote.textContent = '“' + sp.note + '”';
+    drawer.classList.add('open'); drawer.setAttribute('aria-hidden','false');
+    overlay.classList.add('open');
+    document.getElementById('drawerClose').focus();
+  }
+  function closeDrawer(){
+    drawer.classList.remove('open'); drawer.setAttribute('aria-hidden','true');
+    overlay.classList.remove('open');
+    if (lastFocused) lastFocused.focus();
+  }
+  document.getElementById('drawerClose').addEventListener('click', closeDrawer);
+  overlay.addEventListener('click', closeDrawer);
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeDrawer(); });
+})();
+</script>
+</body>
+</html>
