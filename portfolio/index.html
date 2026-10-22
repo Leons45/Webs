@@ -42,7 +42,9 @@
   .pill{display:flex; align-items:center; gap:7px; font-size:11.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--dim); border:1px solid var(--line-strong); padding:6px 12px;}
   .pill .dot{width:6px; height:6px; border-radius:50%; background:var(--accent); display:inline-block;}
 
-  .hero{padding:110px 0 0; overflow:hidden;}
+  .hero{padding:110px 0 0; overflow:hidden; position:relative;}
+  #hero3d{position:absolute; inset:0; z-index:0; pointer-events:none; opacity:.9;}
+  .hero .wrap{position:relative; z-index:1;}
   .hero h1{font-size:clamp(42px,9vw,148px); line-height:.92; font-weight:700; letter-spacing:-.02em; margin-top:18px;}
   .outline{-webkit-text-stroke:1.5px var(--ink); color:var(--paper);}
   .hl{background:var(--accent); padding:0 10px; box-decoration-break:clone; -webkit-box-decoration-break:clone;}
@@ -99,6 +101,7 @@
 </nav>
 
 <section id="top" class="hero">
+  <canvas id="hero3d" aria-hidden="true"></canvas>
   <div class="wrap reveal">
     <p class="kicker">Multimedia Designer &middot; Motion &amp; AI Content &middot; Toronto, CA</p>
     <h1>
@@ -212,6 +215,72 @@
   <span>&copy; Rohit Kumar</span>
   <span>Based in North York, Ontario</span>
 </footer>
+
+<script type="module">
+  import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+
+  (function initHero3D(){
+    var canvas = document.getElementById('hero3d');
+    var hero = document.getElementById('top');
+    if (!canvas || !hero) return;
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    var renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
+    camera.position.set(0, 0, 9);
+
+    // Wireframe icosahedron: a geometric "ink stroke" shape, matching the
+    // black/accent-lime line-art language used across the rest of the page.
+    var geo = new THREE.IcosahedronGeometry(3.1, 1);
+    var wire = new THREE.WireframeGeometry(geo);
+    var lineMat = new THREE.LineBasicMaterial({ color: 0x0a0a0a, transparent: true, opacity: 0.16 });
+    var mesh = new THREE.LineSegments(wire, lineMat);
+    scene.add(mesh);
+
+    // A second, accent-colored inner shell, sparse and slow, for depth.
+    var geo2 = new THREE.IcosahedronGeometry(2.1, 0);
+    var wire2 = new THREE.WireframeGeometry(geo2);
+    var lineMat2 = new THREE.LineBasicMaterial({ color: 0xC7FF3D, transparent: true, opacity: 0.55 });
+    var mesh2 = new THREE.LineSegments(wire2, lineMat2);
+    scene.add(mesh2);
+
+    function sizeToHero(){
+      var r = hero.getBoundingClientRect();
+      var w = Math.max(r.width, 1), h = Math.max(r.height, 1);
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    }
+    sizeToHero();
+    window.addEventListener('resize', sizeToHero);
+
+    var running = !reduce && document.visibilityState === 'visible';
+    document.addEventListener('visibilitychange', function(){
+      running = !reduce && document.visibilityState === 'visible';
+      if (running) requestAnimationFrame(tick);
+    });
+
+    function tick(){
+      if (!running) return;
+      mesh.rotation.y += 0.0016;
+      mesh.rotation.x += 0.0007;
+      mesh2.rotation.y -= 0.0022;
+      mesh2.rotation.x += 0.0011;
+      renderer.render(scene, camera);
+      requestAnimationFrame(tick);
+    }
+
+    if (reduce) {
+      // Static single frame: present, on-brand, no motion.
+      renderer.render(scene, camera);
+    } else {
+      requestAnimationFrame(tick);
+    }
+  })();
+</script>
 
 <script>
   var skills = ['Motion Graphics','After Effects','AI Content','InDesign Scripting','UX Design','Multilingual Flyers','Framer','Photoshop'];
