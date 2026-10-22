@@ -3,6 +3,7 @@ import { Canvas } from '@react-three/fiber'
 import { useProgress } from '@react-three/drei'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import Scene from './Scene.jsx'
+import CanvasErrorBoundary from './ErrorBoundary.jsx'
 
 function Loader() {
   const { progress, active } = useProgress()
@@ -69,15 +70,20 @@ export default function App() {
       </nav>
 
       <div className="canvas-fixed">
-        <Canvas
-          camera={{ position: [0, 0, 6.2], fov: 42 }}
-          dpr={[1, 1.75]}
-          gl={{ antialias: true, powerPreference: 'high-performance' }}
-        >
-          <Suspense fallback={null}>
-            <Scene scrollRef={scrollRef} pointer={pointer} />
-          </Suspense>
-        </Canvas>
+        <CanvasErrorBoundary>
+          <Canvas
+            camera={{ position: [0, 0, 6.2], fov: 42 }}
+            dpr={[1, 1.75]}
+            gl={{ antialias: true, powerPreference: 'high-performance' }}
+            onCreated={({ gl }) => {
+              gl.domElement.addEventListener('webglcontextlost', (e) => e.preventDefault())
+            }}
+          >
+            <Suspense fallback={null}>
+              <Scene scrollRef={scrollRef} pointer={pointer} />
+            </Suspense>
+          </Canvas>
+        </CanvasErrorBoundary>
       </div>
 
       <motion.div className="scrollcue" style={{ opacity: cueOpacity }}>

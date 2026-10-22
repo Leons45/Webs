@@ -2,7 +2,6 @@ import { useRef, useMemo } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import {
   MeshTransmissionMaterial,
-  Environment,
   Sparkles,
   Float,
   ContactShadows,
@@ -92,12 +91,34 @@ export default function Scene({ scrollRef, pointer }) {
       <color attach="background" args={['#07080A']} />
       <fog attach="fog" args={['#07080A', 6, 16]} />
 
-      <ambientLight intensity={0.25} />
-      <directionalLight position={[4, 5, 3]} intensity={1.1} color="#EAF3FF" />
-      <pointLight position={[-4, -2, -3]} intensity={6} color="#8EC9FF" />
-      <pointLight position={[3, -3, 2]} intensity={4} color="#D8FF4F" />
+      {/*
+        No external HDRI / Environment preset here on purpose: that fetches
+        an asset from a third-party CDN at runtime, and if that request
+        fails in a visitor's browser (network, ad-block, CORS) it throws
+        past the Suspense boundary with nothing to catch it. Everything the
+        crystal needs to look like glass instead comes from real geometry
+        and light sources placed directly in the scene below, which
+        MeshTransmissionMaterial renders a live reflection/refraction of —
+        so the "environment" it reflects is this scene itself, not a file.
+      */}
+      <ambientLight intensity={0.22} />
+      <directionalLight position={[4, 5, 3]} intensity={1.3} color="#EAF3FF" />
+      <directionalLight position={[-3, -4, -4]} intensity={0.5} color="#8EC9FF" />
+      <pointLight position={[-4, -2, -3]} intensity={10} color="#8EC9FF" />
+      <pointLight position={[3, -3, 2]} intensity={7} color="#D8FF4F" />
+      <pointLight position={[0, 4, -5]} intensity={5} color="#FFFFFF" />
 
-      <Environment preset="studio" />
+      {/* Simple bright panels floating in the scene give the glass real
+          hard-edged highlights to refract, standing in for a studio softbox
+          without needing any loaded texture. */}
+      <mesh position={[-3.4, 1.2, -2]}>
+        <planeGeometry args={[2.2, 3]} />
+        <meshBasicMaterial color="#EAF3FF" toneMapped={false} />
+      </mesh>
+      <mesh position={[3.2, -1, -2.4]} rotation={[0, 0.3, 0]}>
+        <planeGeometry args={[1.8, 2.4]} />
+        <meshBasicMaterial color="#D8FF4F" toneMapped={false} />
+      </mesh>
 
       <Crystal scrollRef={scrollRef} />
 
