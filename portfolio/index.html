@@ -7,146 +7,173 @@
 <meta name="description" content="Portfolio of Rohit Kumar — multimedia designer working across motion graphics, AI content, and design tooling.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#0A0A0A; --paper:#F6F5F1;
-    --line:rgba(10,10,10,0.12); --line-strong:rgba(10,10,10,0.25);
-    --dim:#5B584F; --accent:#C7FF3D;
+    --bg:#0A0A0A; --surface:#141414; --surface2:#1B1B1B;
+    --ink:#F5F4EF; --dim:#938F85; --dim2:#625F58;
+    --line:rgba(245,244,239,0.09); --line-strong:rgba(245,244,239,0.18);
+    --accent:#C9FF3A; --accent-deep:#8FCB00;
   }
   *{box-sizing:border-box;}
   html{scroll-behavior:smooth;}
-  body{margin:0; background:var(--paper); color:var(--ink); font-family:'Archivo',sans-serif; cursor:none;}
+  body{margin:0; background:var(--bg); color:var(--ink); font-family:'Manrope',sans-serif; overflow-x:hidden;}
   a{color:inherit; text-decoration:none;}
-  h1,h2,h3{font-family:'Space Grotesk',sans-serif; margin:0;}
-  ::selection{background:var(--ink); color:var(--paper);}
-  @media (hover:none){ body{cursor:auto;} #cdot,#cring{display:none!important;} }
+  h1,h2,h3,h4{font-family:'Unbounded',sans-serif; margin:0; font-weight:700;}
+  ::selection{background:var(--accent); color:var(--bg);}
+  img{max-width:100%; display:block;}
 
-  #cdot,#cring{position:fixed; top:0; left:0; pointer-events:none; z-index:999; border-radius:50%; transform:translate(-50%,-50%);}
-  #cdot{width:7px; height:7px; background:var(--ink);}
-  #cring{width:34px; height:34px; border:1px solid var(--line-strong); transition:width .2s,height .2s,border-color .2s,background .2s;}
-  #cring.big{width:76px; height:76px; background:var(--accent); border-color:var(--accent);}
+  .wrap{max-width:1320px; margin:0 auto; padding-left:44px; padding-right:44px;}
+  @media (max-width:640px){ .wrap{padding-left:22px; padding-right:22px;} }
 
-  .kicker{font-weight:700; font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--dim);}
-  .wrap{max-width:1280px; margin:0 auto; padding-left:40px; padding-right:40px;}
-
-  @keyframes marquee{ from{transform:translateX(0);} to{transform:translateX(-50%);} }
-  .reveal{opacity:0; transform:translateY(26px); transition:opacity .75s cubic-bezier(.2,.7,.2,1), transform .75s cubic-bezier(.2,.7,.2,1);}
+  .reveal{opacity:0; transform:translateY(22px); transition:opacity .7s cubic-bezier(.2,.7,.2,1), transform .7s cubic-bezier(.2,.7,.2,1);}
   .reveal.in{opacity:1; transform:translateY(0);}
-  @media (prefers-reduced-motion: reduce){ .reveal{opacity:1!important; transform:none!important;} .marq{animation:none!important;} }
+  @media (prefers-reduced-motion: reduce){ .reveal{opacity:1!important; transform:none!important;} .marq,.tmarq{animation:none!important;} }
 
-  nav{position:sticky; top:0; z-index:40; display:flex; align-items:center; justify-content:space-between; padding:26px 40px; background:rgba(246,245,241,.86); backdrop-filter:blur(10px); border-bottom:1px solid var(--line); flex-wrap:wrap; gap:14px;}
-  .brand{font-weight:700; font-size:16px; letter-spacing:.02em; font-family:'Space Grotesk',sans-serif;}
-  .navlinks{display:flex; align-items:center; gap:34px; flex-wrap:wrap;}
-  .navlinks a{font-size:12.5px; letter-spacing:.1em; text-transform:uppercase;}
-  .pill{display:flex; align-items:center; gap:7px; font-size:11.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--dim); border:1px solid var(--line-strong); padding:6px 12px;}
-  .pill .dot{width:6px; height:6px; border-radius:50%; background:var(--accent); display:inline-block;}
+  /* ---------- nav: floating pill ---------- */
+  .navbar{position:fixed; top:20px; left:0; right:0; z-index:50; display:flex; justify-content:center; padding:0 20px;}
+  nav{display:flex; align-items:center; gap:10px; background:rgba(20,20,20,.72); backdrop-filter:blur(14px); border:1px solid var(--line-strong); border-radius:999px; padding:9px 10px 9px 20px; box-shadow:0 12px 30px rgba(0,0,0,.35);}
+  .brand{font-family:'Unbounded',sans-serif; font-weight:700; font-size:13px; letter-spacing:.01em; padding-right:16px; border-right:1px solid var(--line-strong); margin-right:4px;}
+  .navlinks{display:flex; align-items:center; gap:4px;}
+  .navlinks a{font-size:13px; color:var(--dim); padding:8px 14px; border-radius:999px; transition:color .2s, background .2s;}
+  .navlinks a:hover{color:var(--ink); background:var(--line);}
+  .navlinks .cta{background:var(--accent); color:#0A0A0A; font-weight:700; margin-left:4px;}
+  .navlinks .cta:hover{background:var(--ink); color:#0A0A0A;}
+  @media (max-width:760px){ .navlinks a:not(.cta){display:none;} .brand{padding-right:12px;} }
 
-  .hero{padding:110px 0 0; overflow:hidden; position:relative;}
-  #hero3d{position:absolute; inset:0; z-index:0; pointer-events:none; opacity:.9;}
-  .hero .wrap{position:relative; z-index:1; display:grid; grid-template-columns:1fr 300px; align-items:start; gap:20px;}
-  @media (max-width:900px){ .hero .wrap{grid-template-columns:1fr;} .hero-portrait{display:none;} }
-  .hero h1{font-size:clamp(42px,9vw,148px); line-height:.92; font-weight:700; letter-spacing:-.02em; margin-top:18px;}
-  .outline{-webkit-text-stroke:1.5px var(--ink); color:var(--paper);}
-  .hl{background:var(--accent); padding:0 10px; box-decoration-break:clone; -webkit-box-decoration-break:clone;}
-  .hero p.lede{font-size:19px; line-height:1.6; color:var(--dim); max-width:46ch; margin-top:30px;}
-  .hero-portrait{position:relative; justify-self:end; margin-top:30px;}
-  .hero-portrait img{width:220px; height:220px; object-fit:cover; border-radius:50%; border:1.5px solid var(--line-strong); filter:grayscale(1) contrast(1.05);}
-  .hero-portrait .ring{position:absolute; inset:-14px; border:1px dashed var(--line-strong); border-radius:50%; animation:spin 30s linear infinite;}
-  .hero-portrait .tag{position:absolute; bottom:-6px; right:-10px; background:var(--accent); color:var(--ink); font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:11px; letter-spacing:.06em; text-transform:uppercase; padding:6px 10px;}
-  @keyframes spin{ to{ transform:rotate(360deg); } }
-  @media (prefers-reduced-motion: reduce){ .hero-portrait .ring{animation:none!important;} }
+  /* ---------- hero: asymmetric ---------- */
+  .hero{padding:168px 0 0; position:relative; overflow:hidden;}
+  .hero-grid{position:relative; display:grid; grid-template-columns:1.25fr .9fr; align-items:end; gap:20px;}
+  @media (max-width:880px){ .hero-grid{grid-template-columns:1fr;} }
+  .kicker{font-size:14px; color:var(--dim); margin:0 0 18px;}
+  .hero h1{font-size:clamp(40px,7.4vw,104px); line-height:.98; letter-spacing:-.01em;}
+  .hero h1 em{font-style:normal; color:var(--accent);}
+  .hero p.lede{font-size:17px; line-height:1.65; color:var(--dim); max-width:46ch; margin-top:26px; font-weight:500;}
 
-  .marqband{margin-top:70px; border-top:1px solid var(--line); border-bottom:1px solid var(--line); background:var(--ink); overflow:hidden;}
-  .marq{display:flex; width:max-content; animation:marquee 26s linear infinite;}
-  .marq span{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:17px; color:var(--paper); white-space:nowrap; padding:16px 28px; display:flex; align-items:center; gap:28px;}
-  .marq span em{color:var(--accent); font-style:normal; font-size:14px;}
+  .hero-portrait{position:relative; justify-self:end; width:min(100%,360px);}
+  .hero-portrait .glow{position:absolute; inset:-30px; background:radial-gradient(closest-side, rgba(201,255,58,.28), transparent 70%); filter:blur(6px); z-index:0;}
+  .hero-portrait figure{position:relative; z-index:1; margin:0; border-radius:28px; overflow:hidden; border:1px solid var(--line-strong); background:var(--surface);}
+  .hero-portrait img{width:100%; height:auto; display:block; filter:saturate(1.05) contrast(1.04);}
+  .hero-portrait .cap{position:absolute; z-index:2; bottom:14px; left:14px; right:14px; display:flex; justify-content:space-between; align-items:center; font-size:11px; color:var(--ink); background:rgba(10,10,10,.55); backdrop-filter:blur(6px); border:1px solid var(--line-strong); border-radius:999px; padding:7px 12px;}
+  .hero-portrait .cap .dot{width:6px; height:6px; border-radius:50%; background:var(--accent); display:inline-block; margin-right:6px;}
 
-  .about{padding:120px 0; display:grid; grid-template-columns:120px 1fr; gap:40px;}
-  @media (max-width:640px){ .about{grid-template-columns:1fr; gap:16px;} }
-  .about .num{font-family:'Space Grotesk',sans-serif; font-size:15px; color:var(--dim);}
-  .about h2{font-size:clamp(24px,3vw,38px); font-weight:500; line-height:1.3; max-width:68ch;}
-  .about p{font-size:16px; line-height:1.75; color:var(--dim); margin-top:28px; max-width:60ch;}
+  .filters{display:flex; gap:10px; flex-wrap:wrap; margin-top:54px;}
+  .filters span{font-size:12.5px; color:var(--dim); border:1px solid var(--line-strong); border-radius:999px; padding:8px 16px;}
+  .filters span:first-child{color:var(--bg); background:var(--accent); border-color:var(--accent); font-weight:700;}
 
-  .work-head{padding:60px 40px 0; max-width:1280px; margin:0 auto;}
-  .proj{display:block; border-top:1px solid var(--line);}
-  .proj-inner{display:grid; grid-template-columns:70px 1fr auto; align-items:center; gap:28px; padding:36px 0;}
-  @media (max-width:640px){ .proj-inner{grid-template-columns:1fr auto; } .proj-inner .pidx{display:none;} }
-  .proj h3{font-size:clamp(22px,3.4vw,42px); font-weight:600; letter-spacing:-.01em;}
-  .proj p{font-size:14.5px; color:var(--dim); margin-top:8px; max-width:60ch;}
-  .tags{display:flex; gap:10px; margin-top:14px; flex-wrap:wrap;}
-  .tags span{font-size:11px; letter-spacing:.08em; text-transform:uppercase; border:1px solid var(--line-strong); padding:5px 10px; color:var(--dim);}
-  .arrow{font-size:26px; font-family:'Space Grotesk',sans-serif; transition:transform .25s;}
-  .proj:hover .arrow{transform:translate(4px,-4px);}
+  .marqband{margin-top:60px; border-top:1px solid var(--line); border-bottom:1px solid var(--line); overflow:hidden;}
+  @keyframes marquee{ from{transform:translateX(0);} to{transform:translateX(-50%);} }
+  .marq{display:flex; width:max-content; animation:marquee 32s linear infinite;}
+  .marq span{font-family:'Unbounded',sans-serif; font-weight:500; font-size:14px; color:var(--dim2); white-space:nowrap; padding:16px 30px; display:flex; align-items:center; gap:30px;}
+  .marq span i{color:var(--accent); font-style:normal; font-size:12px;}
 
-  .gd-head{padding:70px 40px 20px; max-width:1280px; margin:0 auto; display:flex; justify-content:space-between; align-items:flex-end; gap:20px; flex-wrap:wrap;}
-  .gd-head p{color:var(--dim); font-size:14px; max-width:50ch; margin:10px 0 0;}
-  .gd-grid{max-width:1280px; margin:0 auto; padding:0 40px 90px; display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:22px;}
-  .gd-card{display:block; border:1px solid var(--line); overflow:hidden; background:var(--paper);}
-  .gd-card .thumb{aspect-ratio:1/1; overflow:hidden; display:flex; align-items:center; justify-content:center; position:relative; transition:transform .5s cubic-bezier(.2,.7,.2,1);}
-  .gd-card:hover .thumb{transform:scale(1.04);}
-  .gd-card .thumb .mono{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13px; letter-spacing:.08em; text-transform:uppercase; color:rgba(0,0,0,.55); mix-blend-mode:multiply;}
+  /* ---------- about ---------- */
+  .about{padding:120px 0; display:grid; grid-template-columns:.7fr 1fr; gap:60px;}
+  @media (max-width:760px){ .about{grid-template-columns:1fr; gap:24px;} }
+  .section-label{font-family:'Unbounded',sans-serif; font-size:12.5px; color:var(--accent); font-weight:700;}
+  .about h2{font-size:clamp(23px,2.7vw,33px); font-weight:600; line-height:1.35; max-width:30ch;}
+  .about p{font-size:15.5px; line-height:1.8; color:var(--dim); margin-top:0; max-width:58ch; font-weight:500;}
+
+  /* ---------- work: offset cards ---------- */
+  .work{padding:30px 0 10px; border-top:1px solid var(--line);}
+  .work-head{padding-top:80px; display:flex; justify-content:space-between; align-items:flex-end; gap:20px; flex-wrap:wrap;}
+  .work-head h3{font-size:clamp(26px,3.4vw,42px); font-weight:600; max-width:16ch;}
+  .proj-grid{margin-top:50px; display:grid; grid-template-columns:repeat(2,1fr); gap:26px;}
+  @media (max-width:760px){ .proj-grid{grid-template-columns:1fr;} .proj:nth-child(even){margin-top:0 !important;} }
+  .proj{display:block; background:var(--surface); border:1px solid var(--line); border-radius:20px; padding:30px 28px; transition:border-color .25s, transform .25s;}
+  .proj:nth-child(even){margin-top:46px;}
+  .proj:hover{border-color:var(--line-strong); transform:translateY(-4px);}
+  .proj .pidx{font-family:'Unbounded',sans-serif; font-size:12px; color:var(--dim2);}
+  .proj h4{font-size:clamp(19px,2.4vw,24px); font-weight:600; margin-top:14px; letter-spacing:-.01em;}
+  .proj p{font-size:14px; color:var(--dim); margin-top:10px; line-height:1.6; font-weight:500;}
+  .tags{display:flex; gap:8px; margin-top:18px; flex-wrap:wrap;}
+  .tags span{font-size:11px; color:var(--dim); border:1px solid var(--line-strong); border-radius:999px; padding:5px 11px;}
+  .arrow-tab{display:inline-flex; align-items:center; gap:6px; margin-top:20px; font-size:12.5px; color:var(--accent); font-weight:700;}
+
+  /* ---------- graphic design strip ---------- */
+  .gd{padding:100px 0 30px;}
+  .gd-head{display:flex; justify-content:space-between; align-items:flex-end; gap:20px; flex-wrap:wrap;}
+  .gd-head h3{font-size:clamp(24px,3vw,36px); font-weight:600; max-width:20ch;}
+  .gd-head a{font-size:13px; color:var(--accent); font-weight:700; border-bottom:1px solid var(--accent); padding-bottom:3px;}
+  .gd-grid{margin-top:40px; display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:20px;}
+  .gd-card{display:block; border-radius:18px; overflow:hidden; border:1px solid var(--line); background:var(--surface); transition:transform .35s cubic-bezier(.2,.7,.2,1);}
+  .gd-card:hover{transform:translateY(-5px);}
+  .gd-card .thumb{aspect-ratio:1/1; display:flex; align-items:center; justify-content:center; position:relative;}
+  .gd-card .thumb .mono{font-family:'Unbounded',sans-serif; font-weight:700; font-size:13px; letter-spacing:.01em;}
   .gd-card .thumb.c1{background:#E3762C;} .gd-card .thumb.c2{background:#2A3FE0; color:#fff;}
-  .gd-card .thumb.c3{background:#C7FF3D;} .gd-card .thumb.c4{background:#D8302A; color:#fff;}
-  .gd-card .thumb.c2 .mono, .gd-card .thumb.c4 .mono{color:rgba(255,255,255,.75); mix-blend-mode:normal;}
-  .gd-card .meta{padding:14px 16px;}
-  .gd-card .meta h4{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:15px; margin:0 0 4px;}
-  .gd-card .meta span{font-size:11.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--dim);}
+  .gd-card .thumb.c3{background:#C9FF3A; color:#0A0A0A;} .gd-card .thumb.c4{background:#D8302A; color:#fff;}
+  .gd-card .meta{padding:16px 18px; border-top:1px solid var(--line);}
+  .gd-card .meta h5{font-family:'Unbounded',sans-serif; font-weight:600; font-size:14.5px; margin:0 0 4px;}
+  .gd-card .meta span{font-size:11.5px; color:var(--dim);}
 
-  .testi{padding:100px 40px; border-top:1px solid var(--line);}
-  .testi-head{max-width:1280px; margin:0 auto;}
-  .testi-grid{max-width:1280px; margin:40px auto 0; display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:20px;}
-  .t-card{border:1px solid var(--line); padding:28px 24px; background:var(--paper);}
-  .t-card .quotemark{font-family:'Space Grotesk',sans-serif; font-size:30px; color:var(--accent); line-height:1; -webkit-text-stroke:1px var(--ink);}
-  .t-card p{font-size:14px; line-height:1.65; color:var(--dim); margin:16px 0 20px; min-height:110px;}
-  .t-card .who{display:flex; flex-direction:column; border-top:1px solid var(--line); padding-top:14px;}
-  .t-card .who b{font-family:'Space Grotesk',sans-serif; font-size:14px;}
-  .t-card .who span{font-size:12px; color:var(--dim); margin-top:2px;}
-
-  .statement{background:var(--ink); color:var(--paper); padding:140px 40px; text-align:center;}
-  .statement p{font-family:'Space Grotesk',sans-serif; font-size:clamp(26px,5vw,64px); font-weight:500; line-height:1.15; max-width:18ch; margin:0 auto;}
+  /* ---------- statement ---------- */
+  .statement{padding:150px 44px; text-align:center;}
+  .statement p{font-family:'Unbounded',sans-serif; font-size:clamp(24px,4.4vw,56px); font-weight:600; line-height:1.2; max-width:19ch; margin:0 auto; letter-spacing:-.01em;}
   .statement .accentword{color:var(--accent);}
 
-  .contact{padding:140px 0 100px; border-top:1px solid var(--line);}
-  .contact h2{font-size:clamp(38px,9vw,110px); font-weight:700; letter-spacing:-.02em; margin-top:16px;}
-  .clinks{display:flex; gap:40px; flex-wrap:wrap; margin-top:46px; font-size:14px; letter-spacing:.06em; text-transform:uppercase;}
-  .clinks a{border-bottom:1px solid var(--ink); padding-bottom:4px;}
-  .clinks .muted{color:var(--dim); border-bottom:none;}
+  /* ---------- testimonials: horizontal marquee ---------- */
+  .testi{padding:30px 0 110px; overflow:hidden;}
+  .testi-head{padding:0 44px;}
+  .testi-head h3{font-size:clamp(24px,3vw,36px); font-weight:600; max-width:20ch;}
+  @keyframes tscroll{ from{transform:translateX(0);} to{transform:translateX(-50%);} }
+  .tmarq-mask{margin-top:44px; mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);}
+  .tmarq{display:flex; width:max-content; gap:20px; animation:tscroll 58s linear infinite;}
+  .tmarq:hover{animation-play-state:paused;}
+  .t-card{width:360px; flex:none; border:1px solid var(--line); border-radius:20px; padding:28px 26px; background:var(--surface);}
+  .t-card .quotemark{font-family:'Unbounded',sans-serif; font-size:30px; color:var(--accent); line-height:1;}
+  .t-card p{font-size:14px; line-height:1.65; color:var(--dim); margin:16px 0 22px; font-weight:500; min-height:115px;}
+  .t-card .who{display:flex; flex-direction:column; border-top:1px solid var(--line); padding-top:14px;}
+  .t-card .who b{font-family:'Unbounded',sans-serif; font-size:13.5px; font-weight:600;}
+  .t-card .who span{font-size:12px; color:var(--dim2); margin-top:3px;}
 
-  footer{border-top:1px solid var(--line); padding:28px 40px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; font-size:12px; color:var(--dim);}
+  /* ---------- contact ---------- */
+  .contact{padding:40px 0 120px; border-top:1px solid var(--line);}
+  .contact-top{padding-top:100px; display:grid; grid-template-columns:1.2fr .8fr; gap:40px; align-items:end;}
+  @media (max-width:760px){ .contact-top{grid-template-columns:1fr;} }
+  .contact h2{font-size:clamp(34px,7vw,88px); font-weight:700; letter-spacing:-.01em; line-height:1.02;}
+  .contact h2 em{font-style:normal; color:var(--accent);}
+  .contact-sub{font-size:15.5px; color:var(--dim); line-height:1.7; max-width:40ch; font-weight:500;}
+  .copybtn{margin-top:26px; display:inline-flex; align-items:center; gap:10px; background:var(--accent); color:#0A0A0A; font-family:'Unbounded',sans-serif; font-weight:700; font-size:13px; border:none; border-radius:999px; padding:14px 22px; cursor:pointer;}
+  .copybtn:hover{background:var(--ink);}
+  .clinks{display:flex; gap:10px; flex-wrap:wrap; margin-top:60px;}
+  .clinks a{font-size:13px; color:var(--dim); border:1px solid var(--line-strong); border-radius:999px; padding:10px 18px; transition:color .2s, border-color .2s;}
+  .clinks a:hover{color:var(--ink); border-color:var(--ink);}
+
+  footer{border-top:1px solid var(--line); padding:26px 44px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; font-size:12px; color:var(--dim2);}
 </style>
 </head>
 <body>
 
-<div id="cdot"></div>
-<div id="cring"></div>
-
-<nav>
-  <a href="#top" class="brand" data-hoverable>ROHIT KUMAR</a>
-  <div class="navlinks">
-    <a href="#work" data-hoverable>Work</a>
-    <a href="#about" data-hoverable>About</a>
-    <a href="#contact" data-hoverable>Contact</a>
-    <span class="pill"><span class="dot"></span> Open to collabs</span>
-  </div>
-</nav>
+<div class="navbar">
+  <nav>
+    <a href="#top" class="brand">ROHIT KUMAR</a>
+    <div class="navlinks">
+      <a href="#work">Work</a>
+      <a href="#about">About</a>
+      <a href="#contact" class="cta">Contact</a>
+    </div>
+  </nav>
+</div>
 
 <section id="top" class="hero">
-  <canvas id="hero3d" aria-hidden="true"></canvas>
-  <div class="wrap">
+  <div class="wrap hero-grid">
     <div class="reveal">
-      <p class="kicker">Multimedia Designer &middot; Motion &amp; AI Content &middot; Toronto, CA</p>
-      <h1>
-        DESIGN THAT<br>
-        <span class="outline">MOVES</span>&nbsp;&mdash; AND<br>
-        <span class="hl">CONVERTS.</span>
-      </h1>
-      <p class="lede">I'm a multimedia designer working across graphic design, motion graphics and AI-driven content &mdash; currently full-time at Leon's Furniture, building tools and templates that turn static retail content into something that moves.</p>
+      <p class="kicker">Multimedia designer — motion, graphic design &amp; AI content, based in Toronto</p>
+      <h1>Design that<br>moves, and<br><em>gets noticed.</em></h1>
+      <p class="lede">I work across graphic design, motion graphics and AI-driven content — currently full-time at Leon's Furniture, building the tools and templates that turn static retail content into something that moves.</p>
+      <div class="filters">
+        <span>Graphic Design</span>
+        <span>Web Design</span>
+        <span>Motion</span>
+        <span>AI Tooling</span>
+      </div>
     </div>
-    <div class="hero-portrait reveal" aria-hidden="true">
-      <div class="ring"></div>
-      <img src="https://framerusercontent.com/images/zv1BYD3XQVfT2BnFuynQ0smvum4.png?width=600&height=804" alt="" loading="lazy">
-      <span class="tag">Est. 2025</span>
+    <div class="hero-portrait reveal">
+      <div class="glow" aria-hidden="true"></div>
+      <figure>
+        <img src="https://framerusercontent.com/images/zv1BYD3XQVfT2BnFuynQ0smvum4.png?width=700&height=938" alt="Portrait of Rohit Kumar" loading="lazy">
+        <div class="cap"><span><span class="dot"></span>Open to collabs</span><span>Toronto, CA</span></div>
+      </figure>
     </div>
   </div>
 
@@ -156,152 +183,115 @@
 </section>
 
 <section id="about" class="wrap about">
-  <div class="num reveal">01 &mdash; Intro</div>
+  <div class="section-label reveal">About</div>
   <div class="reveal">
-    <h2>Background in graphic design, UX experience before this, now living at the intersection of design, motion and AI tooling &mdash; building the templates and pipelines other designers use, not just one-off visuals.</h2>
-    <p>I design and ship multilingual flyers, social content, and motion assets for one of Canada's major furniture retailers, and build the custom tooling &mdash; InDesign scripting, browser-based template engines, AI image pipelines &mdash; that make that production faster for the whole team. Outside of that, I take on client-facing creative work and the occasional award-submission concept piece.</p>
+    <h2>Background in graphic design, UX experience before this, now living at the intersection of design, motion and AI tooling.</h2>
+    <p>I design and ship multilingual flyers, social content, and motion assets for one of Canada's major furniture retailers, and build the custom tooling — InDesign scripting, browser-based template engines, AI image pipelines — that make that production faster for the whole team. Outside of that, I take on client-facing creative work and the occasional award-submission concept piece.</p>
   </div>
 </section>
 
-<section id="work" style="border-top:1px solid var(--line);">
-  <div class="work-head"><div class="num reveal">02 &mdash; Selected Work</div></div>
+<section id="work" class="wrap work">
+  <div class="work-head">
+    <h3 class="reveal">Selected work</h3>
+  </div>
 
-  <a class="proj reveal" href="#" data-hoverable>
-    <div class="wrap proj-inner">
+  <div class="proj-grid">
+    <a class="proj reveal" href="#" data-tilt>
       <span class="pidx">01</span>
-      <div>
-        <h3>Motion Poster Studio</h3>
-        <p>A browser portal that turns Leon&rsquo;s static social posts into animated template posters, built on the brand&rsquo;s Proxima Nova system.</p>
-        <div class="tags"><span>Web App</span><span>Motion</span><span>Brand System</span></div>
-      </div>
-      <span class="arrow">&#8599;</span>
-    </div>
-  </a>
-  <a class="proj reveal" href="#" data-hoverable>
-    <div class="wrap proj-inner">
+      <h4>Motion Poster Studio</h4>
+      <p>A browser portal that turns Leon's static social posts into animated template posters, built on the brand's Proxima Nova system.</p>
+      <div class="tags"><span>Web App</span><span>Motion</span><span>Brand System</span></div>
+      <span class="arrow-tab">View project &#8594;</span>
+    </a>
+    <a class="proj reveal" href="#">
       <span class="pidx">02</span>
-      <div>
-        <h3>LENS / MAISON / SHOTLIST</h3>
-        <p>A custom offline HTML tools ecosystem for AI image generation &mdash; built for a repeatable, controllable creative pipeline.</p>
-        <div class="tags"><span>AI Tooling</span><span>Internal Tools</span></div>
-      </div>
-      <span class="arrow">&#8599;</span>
-    </div>
-  </a>
-  <a class="proj reveal" href="#" data-hoverable>
-    <div class="wrap proj-inner">
+      <h4>LENS / MAISON / SHOTLIST</h4>
+      <p>A custom offline HTML tools ecosystem for AI image generation — built for a repeatable, controllable creative pipeline.</p>
+      <div class="tags"><span>AI Tooling</span><span>Internal Tools</span></div>
+      <span class="arrow-tab">View project &#8594;</span>
+    </a>
+    <a class="proj reveal" href="#">
       <span class="pidx">03</span>
-      <div>
-        <h3>Meridian</h3>
-        <p>A luxury real-estate one-pager concept, designed as an award-submission piece aimed at Awwwards / FWA.</p>
-        <div class="tags"><span>Concept</span><span>Web Design</span></div>
-      </div>
-      <span class="arrow">&#8599;</span>
-    </div>
-  </a>
-  <a class="proj reveal" href="#" data-hoverable>
-    <div class="wrap proj-inner">
+      <h4>Meridian</h4>
+      <p>A luxury real-estate one-pager concept, designed as an award-submission piece aimed at Awwwards / FWA.</p>
+      <div class="tags"><span>Concept</span><span>Web Design</span></div>
+      <span class="arrow-tab">View project &#8594;</span>
+    </a>
+    <a class="proj reveal" href="#">
       <span class="pidx">04</span>
-      <div>
-        <h3>Mira</h3>
-        <p>An AI virtual influencer built for the home-interiors niche, with a focus on consistent character identity across content.</p>
-        <div class="tags"><span>AI Character</span><span>Content</span></div>
-      </div>
-      <span class="arrow">&#8599;</span>
-    </div>
-  </a>
-  <a class="proj reveal" href="#" data-hoverable>
-    <div class="wrap proj-inner">
+      <h4>Mira</h4>
+      <p>An AI virtual influencer built for the home-interiors niche, with a focus on consistent character identity across content.</p>
+      <div class="tags"><span>AI Character</span><span>Content</span></div>
+      <span class="arrow-tab">View project &#8594;</span>
+    </a>
+    <a class="proj reveal" href="#">
       <span class="pidx">05</span>
-      <div>
-        <h3>Oxford College &mdash; Cloud Computing Promo</h3>
-        <p>Client-facing promo video produced for Oxford College&rsquo;s Cloud Computing Diploma program.</p>
-        <div class="tags"><span>Video</span><span>Client Work</span></div>
-      </div>
-      <span class="arrow">&#8599;</span>
-    </div>
-  </a>
-  <a class="proj reveal" href="#" data-hoverable>
-    <div class="wrap proj-inner">
+      <h4>Oxford College — Cloud Computing Promo</h4>
+      <p>Client-facing promo video produced for Oxford College's Cloud Computing Diploma program.</p>
+      <div class="tags"><span>Video</span><span>Client Work</span></div>
+      <span class="arrow-tab">View project &#8594;</span>
+    </a>
+    <a class="proj reveal" href="#">
       <span class="pidx">06</span>
-      <div>
-        <h3>Flyer Production System</h3>
-        <p>A multi-zone InDesign workflow plus a JSX scripting toolkit, built to speed up Leon&rsquo;s weekly flyer production.</p>
-        <div class="tags"><span>InDesign</span><span>JSX Tooling</span></div>
-      </div>
-      <span class="arrow">&#8599;</span>
-    </div>
-  </a>
-  <div style="border-top:1px solid var(--line);"></div>
+      <h4>Flyer Production System</h4>
+      <p>A multi-zone InDesign workflow plus a JSX scripting toolkit, built to speed up Leon's weekly flyer production.</p>
+      <div class="tags"><span>InDesign</span><span>JSX Tooling</span></div>
+      <span class="arrow-tab">View project &#8594;</span>
+    </a>
+  </div>
+</section>
 
+<section class="wrap gd">
   <div class="gd-head reveal">
-    <div>
-      <div class="num">Graphic Design &amp; Branding</div>
-      <p>Selected packaging, identity and typography work &mdash; full case studies live on Behance.</p>
-    </div>
-    <a href="https://www.behance.net/rk215" target="_blank" rel="noopener" data-hoverable style="font-size:13px; letter-spacing:.08em; text-transform:uppercase; border-bottom:1px solid var(--ink); padding-bottom:3px;">View Behance &#8599;</a>
+    <h3>Graphic design &amp; branding</h3>
+    <a href="https://www.behance.net/rk215" target="_blank" rel="noopener">Full case studies on Behance &#8599;</a>
   </div>
   <div class="gd-grid">
-    <a class="gd-card reveal" href="https://drive.google.com/file/d/1n8R5PVxZccqTZ7tN8e0luDUkDqPPnbcZ/view?usp=sharing" target="_blank" rel="noopener" data-hoverable>
+    <a class="gd-card reveal" href="https://drive.google.com/file/d/1n8R5PVxZccqTZ7tN8e0luDUkDqPPnbcZ/view?usp=sharing" target="_blank" rel="noopener">
       <div class="thumb c1"><span class="mono">Butterlicious</span></div>
-      <div class="meta"><h4>Butterlicious</h4><span>Branding &amp; Packaging &middot; 2025</span></div>
+      <div class="meta"><h5>Butterlicious</h5><span>Branding &amp; Packaging · 2025</span></div>
     </a>
-    <a class="gd-card reveal" href="https://www.behance.net/gallery/106462887/Chill-Tub-Ice-cream" target="_blank" rel="noopener" data-hoverable>
+    <a class="gd-card reveal" href="https://www.behance.net/gallery/106462887/Chill-Tub-Ice-cream" target="_blank" rel="noopener">
       <div class="thumb c2"><span class="mono">Chill Tub</span></div>
-      <div class="meta"><h4>Chill Tub Ice Cream</h4><span>Brand Identity &amp; Packaging &middot; 2025</span></div>
+      <div class="meta"><h5>Chill Tub Ice Cream</h5><span>Brand Identity &amp; Packaging · 2025</span></div>
     </a>
-    <a class="gd-card reveal" href="https://www.behance.net/gallery/109816809/Grande-Deodrant" target="_blank" rel="noopener" data-hoverable>
+    <a class="gd-card reveal" href="https://www.behance.net/gallery/109816809/Grande-Deodrant" target="_blank" rel="noopener">
       <div class="thumb c3"><span class="mono">Grande</span></div>
-      <div class="meta"><h4>Grande Deodorant</h4><span>Brand Identity &amp; Packaging &middot; 2025</span></div>
+      <div class="meta"><h5>Grande Deodorant</h5><span>Brand Identity &amp; Packaging · 2025</span></div>
     </a>
-    <a class="gd-card reveal" href="https://www.behance.net/gallery/96332867/36-days-of-type" target="_blank" rel="noopener" data-hoverable>
+    <a class="gd-card reveal" href="https://www.behance.net/gallery/96332867/36-days-of-type" target="_blank" rel="noopener">
       <div class="thumb c4"><span class="mono">36 Days</span></div>
-      <div class="meta"><h4>36 Days of Type</h4><span>Typography Design &middot; 2025</span></div>
+      <div class="meta"><h5>36 Days of Type</h5><span>Typography Design · 2025</span></div>
     </a>
   </div>
 </section>
 
 <section class="statement">
-  <p class="reveal">If it doesn&rsquo;t move, it doesn&rsquo;t get noticed &mdash; so I build things that <span class="accentword">move on purpose.</span></p>
+  <p class="reveal">If it doesn't move, it doesn't get noticed — so I build things that <span class="accentword">move on purpose.</span></p>
 </section>
 
 <section class="testi">
   <div class="testi-head">
-    <div class="num reveal">People who loved the work</div>
+    <h3 class="reveal">People who loved the work</h3>
   </div>
-  <div class="testi-grid">
-    <a class="t-card reveal" href="https://www.linkedin.com/in/jayashree-dhamija-aa5a88153" target="_blank" rel="noopener" data-hoverable>
-      <div class="quotemark">&#8220;</div>
-      <p>I've worked with Rohit, whose exceptional attention to detail and UX skills are outstanding. He's adept at problem-solving and understanding stakeholders, making him a valuable team member.</p>
-      <div class="who"><b>Jayashree Dhamija</b><span>Senior Product Designer, Matter</span></div>
-    </a>
-    <a class="t-card reveal" href="https://www.linkedin.com/in/jessicabredschneider" target="_blank" rel="noopener" data-hoverable>
-      <div class="quotemark">&#8220;</div>
-      <p>Rohit's passion for effective design is undeniable. His creativity shines through in projects, and his dedication to improving his skills is admirable.</p>
-      <div class="who"><b>Jessica Bredschneider</b><span>Program Coordinator, St. Lawrence College</span></div>
-    </a>
-    <a class="t-card reveal" href="https://www.linkedin.com/in/gopikrishr" target="_blank" rel="noopener" data-hoverable>
-      <div class="quotemark">&#8220;</div>
-      <p>Highly skilled UX designer, providing excellent design solutions and exceeding user expectations. I had always appreciated him for the commitment and dedication in delivering the designs to stakeholders.</p>
-      <div class="who"><b>Gopi Krishna</b><span>Associate Consultant, Tata Consultancy Services</span></div>
-    </a>
-    <a class="t-card reveal" href="https://www.linkedin.com/in/lijostevejoseph" target="_blank" rel="noopener" data-hoverable>
-      <div class="quotemark">&#8220;</div>
-      <p>Rohit is an outstanding designer, quick to learn and adapt to new tech. He excels in problem-solving and collaborates seamlessly. With a passion for innovation, he's a valuable asset to any project.</p>
-      <div class="who"><b>Lijo Joseph</b><span>Associate VP Design, Air India</span></div>
-    </a>
+  <div class="tmarq-mask">
+    <div class="tmarq" id="tmarq"></div>
   </div>
 </section>
 
 <section id="contact" class="wrap contact">
-  <div class="num reveal">04 &mdash; Contact</div>
-  <h2 class="reveal">LET'S BUILD<br><span class="hl">SOMETHING.</span></h2>
+  <div class="contact-top">
+    <div class="reveal">
+      <h2>Let's build<br><em>something.</em></h2>
+      <button class="copybtn" id="copyEmail" type="button">Copy email &#8599;</button>
+    </div>
+    <p class="contact-sub reveal">If you have a project in mind or just want to say hello, feel free to reach out — I'm always open to new collaborations.</p>
+  </div>
   <div class="clinks reveal">
-    <a href="https://www.behance.net/rk215" target="_blank" rel="noopener" data-hoverable>Behance &#8599;</a>
-    <a href="https://www.linkedin.com/in/irk215/" target="_blank" rel="noopener" data-hoverable>LinkedIn &#8599;</a>
-    <a href="https://www.instagram.com/irk215" target="_blank" rel="noopener" data-hoverable>Instagram &#8599;</a>
-    <a href="https://github.com/Leons45" target="_blank" rel="noopener" data-hoverable>GitHub &#8599;</a>
-    <a href="mailto:rohit.kumar@leons.ca" data-hoverable>rohit.kumar@leons.ca</a>
+    <a href="https://www.behance.net/rk215" target="_blank" rel="noopener">Behance</a>
+    <a href="https://www.linkedin.com/in/irk215/" target="_blank" rel="noopener">LinkedIn</a>
+    <a href="https://www.instagram.com/irk215" target="_blank" rel="noopener">Instagram</a>
+    <a href="https://github.com/Leons45" target="_blank" rel="noopener">GitHub</a>
   </div>
 </section>
 
@@ -310,91 +300,46 @@
   <span>Based in North York, Ontario</span>
 </footer>
 
-<script type="module">
-  import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
-
-  (function initHero3D(){
-    var canvas = document.getElementById('hero3d');
-    var hero = document.getElementById('top');
-    if (!canvas || !hero) return;
-    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    var renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
-
-    var scene = new THREE.Scene();
-    var camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
-    camera.position.set(0, 0, 9);
-
-    // Wireframe icosahedron: a geometric "ink stroke" shape, matching the
-    // black/accent-lime line-art language used across the rest of the page.
-    var geo = new THREE.IcosahedronGeometry(3.1, 1);
-    var wire = new THREE.WireframeGeometry(geo);
-    var lineMat = new THREE.LineBasicMaterial({ color: 0x0a0a0a, transparent: true, opacity: 0.16 });
-    var mesh = new THREE.LineSegments(wire, lineMat);
-    scene.add(mesh);
-
-    // A second, accent-colored inner shell, sparse and slow, for depth.
-    var geo2 = new THREE.IcosahedronGeometry(2.1, 0);
-    var wire2 = new THREE.WireframeGeometry(geo2);
-    var lineMat2 = new THREE.LineBasicMaterial({ color: 0xC7FF3D, transparent: true, opacity: 0.55 });
-    var mesh2 = new THREE.LineSegments(wire2, lineMat2);
-    scene.add(mesh2);
-
-    function sizeToHero(){
-      var r = hero.getBoundingClientRect();
-      var w = Math.max(r.width, 1), h = Math.max(r.height, 1);
-      renderer.setSize(w, h, false);
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-    }
-    sizeToHero();
-    window.addEventListener('resize', sizeToHero);
-
-    var running = !reduce && document.visibilityState === 'visible';
-    document.addEventListener('visibilitychange', function(){
-      running = !reduce && document.visibilityState === 'visible';
-      if (running) requestAnimationFrame(tick);
-    });
-
-    function tick(){
-      if (!running) return;
-      mesh.rotation.y += 0.0016;
-      mesh.rotation.x += 0.0007;
-      mesh2.rotation.y -= 0.0022;
-      mesh2.rotation.x += 0.0011;
-      renderer.render(scene, camera);
-      requestAnimationFrame(tick);
-    }
-
-    if (reduce) {
-      // Static single frame: present, on-brand, no motion.
-      renderer.render(scene, camera);
-    } else {
-      requestAnimationFrame(tick);
-    }
-  })();
-</script>
-
 <script>
   var skills = ['Motion Graphics','After Effects','AI Content','InDesign Scripting','UX Design','Multilingual Flyers','Framer','Photoshop'];
   var marq = document.getElementById('marq');
-  var html = '';
+  var mhtml = '';
   for (var r = 0; r < 2; r++) {
-    skills.forEach(function(s){ html += '<span>' + s + ' <em>&#9670;</em></span>'; });
+    skills.forEach(function(s){ mhtml += '<span>' + s + ' <i>&#9670;</i></span>'; });
   }
-  marq.innerHTML = html;
+  marq.innerHTML = mhtml;
 
-  var dot = document.getElementById('cdot');
-  var ring = document.getElementById('cring');
-  window.addEventListener('pointermove', function(e){
-    dot.style.left = e.clientX + 'px'; dot.style.top = e.clientY + 'px';
-    ring.style.left = e.clientX + 'px'; ring.style.top = e.clientY + 'px';
-  }, { passive: true });
-  document.querySelectorAll('[data-hoverable]').forEach(function(el){
-    el.addEventListener('mouseenter', function(){ ring.classList.add('big'); });
-    el.addEventListener('mouseleave', function(){ ring.classList.remove('big'); });
-  });
+  var testimonials = [
+    { q: "I've worked with Rohit, whose exceptional attention to detail and UX skills are outstanding. He's adept at problem-solving and understanding stakeholders, making him a valuable team member.", n: 'Jayashree Dhamija', r: 'Senior Product Designer, Matter', u: 'https://www.linkedin.com/in/jayashree-dhamija-aa5a88153' },
+    { q: "Rohit's passion for effective design is undeniable. His creativity shines through in projects, and his dedication to improving his skills is admirable.", n: 'Jessica Bredschneider', r: 'Program Coordinator, St. Lawrence College', u: 'https://www.linkedin.com/in/jessicabredschneider' },
+    { q: 'Highly skilled UX designer, providing excellent design solutions and exceeding user expectations. I had always appreciated him for the commitment and dedication in delivering the designs to stakeholders.', n: 'Gopi Krishna', r: 'Associate Consultant, Tata Consultancy Services', u: 'https://www.linkedin.com/in/gopikrishr' },
+    { q: "Rohit is an outstanding designer, quick to learn and adapt to new tech. He excels in problem-solving and collaborates seamlessly. With a passion for innovation, he's a valuable asset to any project.", n: 'Lijo Joseph', r: 'Associate VP Design, Air India', u: 'https://www.linkedin.com/in/lijostevejoseph' }
+  ];
+  var tmarq = document.getElementById('tmarq');
+  var thtml = '';
+  for (var t = 0; t < 2; t++) {
+    testimonials.forEach(function(x){
+      thtml += '<a class="t-card" href="' + x.u + '" target="_blank" rel="noopener">' +
+        '<div class="quotemark">&#8220;</div><p>' + x.q + '</p>' +
+        '<div class="who"><b>' + x.n + '</b><span>' + x.r + '</span></div></a>';
+    });
+  }
+  tmarq.innerHTML = thtml;
+
+  var copyBtn = document.getElementById('copyEmail');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', function(){
+      var email = 'rohit.kumar@leons.ca';
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(email).then(function(){
+          copyBtn.textContent = 'Copied — ' + email;
+          setTimeout(function(){ copyBtn.innerHTML = 'Copy email &#8594;'; }, 2200);
+        });
+      } else {
+        window.location.href = 'mailto:' + email;
+      }
+    });
+  }
 
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var els = document.querySelectorAll('.reveal');
