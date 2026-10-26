@@ -44,11 +44,18 @@
 
   .hero{padding:110px 0 0; overflow:hidden; position:relative;}
   #hero3d{position:absolute; inset:0; z-index:0; pointer-events:none; opacity:.9;}
-  .hero .wrap{position:relative; z-index:1;}
+  .hero .wrap{position:relative; z-index:1; display:grid; grid-template-columns:1fr 300px; align-items:start; gap:20px;}
+  @media (max-width:900px){ .hero .wrap{grid-template-columns:1fr;} .hero-portrait{display:none;} }
   .hero h1{font-size:clamp(42px,9vw,148px); line-height:.92; font-weight:700; letter-spacing:-.02em; margin-top:18px;}
   .outline{-webkit-text-stroke:1.5px var(--ink); color:var(--paper);}
   .hl{background:var(--accent); padding:0 10px; box-decoration-break:clone; -webkit-box-decoration-break:clone;}
   .hero p.lede{font-size:19px; line-height:1.6; color:var(--dim); max-width:46ch; margin-top:30px;}
+  .hero-portrait{position:relative; justify-self:end; margin-top:30px;}
+  .hero-portrait img{width:220px; height:220px; object-fit:cover; border-radius:50%; border:1.5px solid var(--line-strong); filter:grayscale(1) contrast(1.05);}
+  .hero-portrait .ring{position:absolute; inset:-14px; border:1px dashed var(--line-strong); border-radius:50%; animation:spin 30s linear infinite;}
+  .hero-portrait .tag{position:absolute; bottom:-6px; right:-10px; background:var(--accent); color:var(--ink); font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:11px; letter-spacing:.06em; text-transform:uppercase; padding:6px 10px;}
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce){ .hero-portrait .ring{animation:none!important;} }
 
   .marqband{margin-top:70px; border-top:1px solid var(--line); border-bottom:1px solid var(--line); background:var(--ink); overflow:hidden;}
   .marq{display:flex; width:max-content; animation:marquee 26s linear infinite;}
@@ -71,6 +78,30 @@
   .tags span{font-size:11px; letter-spacing:.08em; text-transform:uppercase; border:1px solid var(--line-strong); padding:5px 10px; color:var(--dim);}
   .arrow{font-size:26px; font-family:'Space Grotesk',sans-serif; transition:transform .25s;}
   .proj:hover .arrow{transform:translate(4px,-4px);}
+
+  .gd-head{padding:70px 40px 20px; max-width:1280px; margin:0 auto; display:flex; justify-content:space-between; align-items:flex-end; gap:20px; flex-wrap:wrap;}
+  .gd-head p{color:var(--dim); font-size:14px; max-width:50ch; margin:10px 0 0;}
+  .gd-grid{max-width:1280px; margin:0 auto; padding:0 40px 90px; display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:22px;}
+  .gd-card{display:block; border:1px solid var(--line); overflow:hidden; background:var(--paper);}
+  .gd-card .thumb{aspect-ratio:1/1; overflow:hidden; display:flex; align-items:center; justify-content:center; position:relative; transition:transform .5s cubic-bezier(.2,.7,.2,1);}
+  .gd-card:hover .thumb{transform:scale(1.04);}
+  .gd-card .thumb .mono{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13px; letter-spacing:.08em; text-transform:uppercase; color:rgba(0,0,0,.55); mix-blend-mode:multiply;}
+  .gd-card .thumb.c1{background:#E3762C;} .gd-card .thumb.c2{background:#2A3FE0; color:#fff;}
+  .gd-card .thumb.c3{background:#C7FF3D;} .gd-card .thumb.c4{background:#D8302A; color:#fff;}
+  .gd-card .thumb.c2 .mono, .gd-card .thumb.c4 .mono{color:rgba(255,255,255,.75); mix-blend-mode:normal;}
+  .gd-card .meta{padding:14px 16px;}
+  .gd-card .meta h4{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:15px; margin:0 0 4px;}
+  .gd-card .meta span{font-size:11.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--dim);}
+
+  .testi{padding:100px 40px; border-top:1px solid var(--line);}
+  .testi-head{max-width:1280px; margin:0 auto;}
+  .testi-grid{max-width:1280px; margin:40px auto 0; display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:20px;}
+  .t-card{border:1px solid var(--line); padding:28px 24px; background:var(--paper);}
+  .t-card .quotemark{font-family:'Space Grotesk',sans-serif; font-size:30px; color:var(--accent); line-height:1; -webkit-text-stroke:1px var(--ink);}
+  .t-card p{font-size:14px; line-height:1.65; color:var(--dim); margin:16px 0 20px; min-height:110px;}
+  .t-card .who{display:flex; flex-direction:column; border-top:1px solid var(--line); padding-top:14px;}
+  .t-card .who b{font-family:'Space Grotesk',sans-serif; font-size:14px;}
+  .t-card .who span{font-size:12px; color:var(--dim); margin-top:2px;}
 
   .statement{background:var(--ink); color:var(--paper); padding:140px 40px; text-align:center;}
   .statement p{font-family:'Space Grotesk',sans-serif; font-size:clamp(26px,5vw,64px); font-weight:500; line-height:1.15; max-width:18ch; margin:0 auto;}
@@ -102,14 +133,21 @@
 
 <section id="top" class="hero">
   <canvas id="hero3d" aria-hidden="true"></canvas>
-  <div class="wrap reveal">
-    <p class="kicker">Multimedia Designer &middot; Motion &amp; AI Content &middot; Toronto, CA</p>
-    <h1>
-      DESIGN THAT<br>
-      <span class="outline">MOVES</span>&nbsp;&mdash; AND<br>
-      <span class="hl">CONVERTS.</span>
-    </h1>
-    <p class="lede">I'm a multimedia designer working across graphic design, motion graphics and AI-driven content &mdash; currently full-time at Leon's Furniture, building tools and templates that turn static retail content into something that moves.</p>
+  <div class="wrap">
+    <div class="reveal">
+      <p class="kicker">Multimedia Designer &middot; Motion &amp; AI Content &middot; Toronto, CA</p>
+      <h1>
+        DESIGN THAT<br>
+        <span class="outline">MOVES</span>&nbsp;&mdash; AND<br>
+        <span class="hl">CONVERTS.</span>
+      </h1>
+      <p class="lede">I'm a multimedia designer working across graphic design, motion graphics and AI-driven content &mdash; currently full-time at Leon's Furniture, building tools and templates that turn static retail content into something that moves.</p>
+    </div>
+    <div class="hero-portrait reveal" aria-hidden="true">
+      <div class="ring"></div>
+      <img src="https://framerusercontent.com/images/zv1BYD3XQVfT2BnFuynQ0smvum4.png?width=600&height=804" alt="" loading="lazy">
+      <span class="tag">Est. 2025</span>
+    </div>
   </div>
 
   <div class="marqband">
@@ -195,19 +233,75 @@
     </div>
   </a>
   <div style="border-top:1px solid var(--line);"></div>
+
+  <div class="gd-head reveal">
+    <div>
+      <div class="num">Graphic Design &amp; Branding</div>
+      <p>Selected packaging, identity and typography work &mdash; full case studies live on Behance.</p>
+    </div>
+    <a href="https://www.behance.net/rk215" target="_blank" rel="noopener" data-hoverable style="font-size:13px; letter-spacing:.08em; text-transform:uppercase; border-bottom:1px solid var(--ink); padding-bottom:3px;">View Behance &#8599;</a>
+  </div>
+  <div class="gd-grid">
+    <a class="gd-card reveal" href="https://drive.google.com/file/d/1n8R5PVxZccqTZ7tN8e0luDUkDqPPnbcZ/view?usp=sharing" target="_blank" rel="noopener" data-hoverable>
+      <div class="thumb c1"><span class="mono">Butterlicious</span></div>
+      <div class="meta"><h4>Butterlicious</h4><span>Branding &amp; Packaging &middot; 2025</span></div>
+    </a>
+    <a class="gd-card reveal" href="https://www.behance.net/gallery/106462887/Chill-Tub-Ice-cream" target="_blank" rel="noopener" data-hoverable>
+      <div class="thumb c2"><span class="mono">Chill Tub</span></div>
+      <div class="meta"><h4>Chill Tub Ice Cream</h4><span>Brand Identity &amp; Packaging &middot; 2025</span></div>
+    </a>
+    <a class="gd-card reveal" href="https://www.behance.net/gallery/109816809/Grande-Deodrant" target="_blank" rel="noopener" data-hoverable>
+      <div class="thumb c3"><span class="mono">Grande</span></div>
+      <div class="meta"><h4>Grande Deodorant</h4><span>Brand Identity &amp; Packaging &middot; 2025</span></div>
+    </a>
+    <a class="gd-card reveal" href="https://www.behance.net/gallery/96332867/36-days-of-type" target="_blank" rel="noopener" data-hoverable>
+      <div class="thumb c4"><span class="mono">36 Days</span></div>
+      <div class="meta"><h4>36 Days of Type</h4><span>Typography Design &middot; 2025</span></div>
+    </a>
+  </div>
 </section>
 
 <section class="statement">
   <p class="reveal">If it doesn&rsquo;t move, it doesn&rsquo;t get noticed &mdash; so I build things that <span class="accentword">move on purpose.</span></p>
 </section>
 
+<section class="testi">
+  <div class="testi-head">
+    <div class="num reveal">People who loved the work</div>
+  </div>
+  <div class="testi-grid">
+    <a class="t-card reveal" href="https://www.linkedin.com/in/jayashree-dhamija-aa5a88153" target="_blank" rel="noopener" data-hoverable>
+      <div class="quotemark">&#8220;</div>
+      <p>I've worked with Rohit, whose exceptional attention to detail and UX skills are outstanding. He's adept at problem-solving and understanding stakeholders, making him a valuable team member.</p>
+      <div class="who"><b>Jayashree Dhamija</b><span>Senior Product Designer, Matter</span></div>
+    </a>
+    <a class="t-card reveal" href="https://www.linkedin.com/in/jessicabredschneider" target="_blank" rel="noopener" data-hoverable>
+      <div class="quotemark">&#8220;</div>
+      <p>Rohit's passion for effective design is undeniable. His creativity shines through in projects, and his dedication to improving his skills is admirable.</p>
+      <div class="who"><b>Jessica Bredschneider</b><span>Program Coordinator, St. Lawrence College</span></div>
+    </a>
+    <a class="t-card reveal" href="https://www.linkedin.com/in/gopikrishr" target="_blank" rel="noopener" data-hoverable>
+      <div class="quotemark">&#8220;</div>
+      <p>Highly skilled UX designer, providing excellent design solutions and exceeding user expectations. I had always appreciated him for the commitment and dedication in delivering the designs to stakeholders.</p>
+      <div class="who"><b>Gopi Krishna</b><span>Associate Consultant, Tata Consultancy Services</span></div>
+    </a>
+    <a class="t-card reveal" href="https://www.linkedin.com/in/lijostevejoseph" target="_blank" rel="noopener" data-hoverable>
+      <div class="quotemark">&#8220;</div>
+      <p>Rohit is an outstanding designer, quick to learn and adapt to new tech. He excels in problem-solving and collaborates seamlessly. With a passion for innovation, he's a valuable asset to any project.</p>
+      <div class="who"><b>Lijo Joseph</b><span>Associate VP Design, Air India</span></div>
+    </a>
+  </div>
+</section>
+
 <section id="contact" class="wrap contact">
-  <div class="num reveal">03 &mdash; Contact</div>
+  <div class="num reveal">04 &mdash; Contact</div>
   <h2 class="reveal">LET'S BUILD<br><span class="hl">SOMETHING.</span></h2>
   <div class="clinks reveal">
-    <a href="https://irohitk.framer.website" target="_blank" rel="noopener" data-hoverable>Portfolio &#8599;</a>
+    <a href="https://www.behance.net/rk215" target="_blank" rel="noopener" data-hoverable>Behance &#8599;</a>
+    <a href="https://www.linkedin.com/in/irk215/" target="_blank" rel="noopener" data-hoverable>LinkedIn &#8599;</a>
+    <a href="https://www.instagram.com/irk215" target="_blank" rel="noopener" data-hoverable>Instagram &#8599;</a>
     <a href="https://github.com/Leons45" target="_blank" rel="noopener" data-hoverable>GitHub &#8599;</a>
-    <span class="muted">[ YOUR EMAIL HERE ]</span>
+    <a href="mailto:rohit.kumar@leons.ca" data-hoverable>rohit.kumar@leons.ca</a>
   </div>
 </section>
 
