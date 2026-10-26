@@ -9,14 +9,16 @@
    the main timeline so nothing ever looks static.
    ========================================================================= */
 
-gsap.registerPlugin(MotionPathPlugin, CustomEase);
+gsap.registerPlugin(MotionPathPlugin, CustomEase, MorphSVGPlugin, DrawSVGPlugin);
 CustomEase.create('filmic', 'M0,0 C0.16,1 0.3,1 1,1');
 
 const ACCENT_PALETTE = ['#276EF1', '#ED6E33', '#ffffff', '#9fbdf5'];
 
 /* ---------------------------------------------------------------------
-   Ambient blob backgrounds — organic, continuous, independent of the
-   master timeline (keeps every frame feeling alive, even mid-pause)
+   Ambient blob backgrounds — true shape morphing (MorphSVGPlugin) between
+   two hand-authored organic variants per scene, looped yoyo so the
+   background keeps breathing independently of the main timeline. This
+   replaces per-frame path recomputation with a proper GPU-friendly morph.
    --------------------------------------------------------------------- */
 function blobPath(cx, cy, r, points, wobble, phase) {
   const pts = [];
@@ -39,27 +41,54 @@ function blobPath(cx, cy, r, points, wobble, phase) {
 
 function startAmbientBlobs() {
   const configs = [
-    { id: 'wave-path-0', cx: 18, cy: 18, r: 30, wobble: 6, speed: 0.08 },
-    { id: 'wave-path-1', cx: 82, cy: 78, r: 34, wobble: 7, speed: 0.07 },
-    { id: 'wave-path-2', cx: 50, cy: 85, r: 40, wobble: 8, speed: 0.06 },
-    { id: 'wave-path-3', cx: 85, cy: 15, r: 28, wobble: 6, speed: 0.09 },
-    { id: 'wave-path-4', cx: 50, cy: 90, r: 42, wobble: 9, speed: 0.06 },
-    { id: 'wave-path-5', cx: 20, cy: 80, r: 38, wobble: 8, speed: 0.07 }
+    { id: 'wave-path-0', cx: 18, cy: 18, r: 30, wobble: 7 },
+    { id: 'wave-path-1', cx: 82, cy: 78, r: 34, wobble: 8 },
+    { id: 'wave-path-2', cx: 50, cy: 85, r: 40, wobble: 9 },
+    { id: 'wave-path-3', cx: 85, cy: 15, r: 28, wobble: 7 },
+    { id: 'wave-path-4', cx: 50, cy: 90, r: 42, wobble: 10 },
+    { id: 'wave-path-5', cx: 20, cy: 80, r: 38, wobble: 9 }
   ];
-  configs.forEach(cfg => {
+  configs.forEach((cfg, i) => {
     const el = document.getElementById(cfg.id);
     if (!el) return;
-    const driver = { t: Math.random() * 10 };
-    gsap.to(driver, {
-      t: `+=${Math.PI * 2}`,
-      duration: 18,
-      repeat: -1,
-      ease: 'none',
-      onUpdate: () => {
-        el.setAttribute('d', blobPath(cfg.cx, cfg.cy, cfg.r, 7, cfg.wobble, driver.t));
-      }
-    });
+    const shapeA = blobPath(cfg.cx, cfg.cy, cfg.r, 8, cfg.wobble, 0);
+    const shapeB = blobPath(cfg.cx, cfg.cy, cfg.r, 8, cfg.wobble, Math.PI * 1.15);
+    const shapeC = blobPath(cfg.cx, cfg.cy, cfg.r, 8, cfg.wobble, Math.PI * 2.1);
+    el.setAttribute('d', shapeA);
+    const tl = gsap.timeline({ repeat: -1, delay: i * 0.6 });
+    tl.to(el, { duration: 9, ease: 'sine.inOut', morphSVG: { shape: shapeB, type: 'rotational' } })
+      .to(el, { duration: 9, ease: 'sine.inOut', morphSVG: { shape: shapeC, type: 'rotational' } })
+      .to(el, { duration: 9, ease: 'sine.inOut', morphSVG: { shape: shapeA, type: 'rotational' } });
   });
+}
+
+/* ---------------------------------------------------------------------
+   Rive character — progressive enhancement. If /assets/character.riv
+   exists, it replaces the flat SVG fallback with a real rigged, bone-
+   animated character and plays its "idle" state machine in sync with
+   the hook scene. Silently no-ops (keeping the SVG fallback) if the
+   file isn't there yet or the runtime fails — see build notes below.
+   --------------------------------------------------------------------- */
+function tryLoadRiveCharacter() {
+  const canvas = document.getElementById('rive-char');
+  const fallback = document.getElementById('svg-char-fallback');
+  if (!canvas || typeof rive === 'undefined') return;
+
+  fetch('assets/character.riv', { method: 'HEAD' })
+    .then(res => {
+      if (!res.ok) return;
+      new rive.Rive({
+        src: 'assets/character.riv',
+        canvas,
+        autoplay: true,
+        stateMachines: 'State Machine 1',
+        onLoad: () => {
+          canvas.style.display = 'block';
+          fallback.style.display = 'none';
+        }
+      });
+    })
+    .catch(() => { /* no .riv yet — flat SVG character stays visible */ });
 }
 
 /* ---------------------------------------------------------------------
@@ -106,12 +135,21 @@ function buildTimeline() {
   // baked SVG transforms) so there's no ambiguity about transform origin
   gsap.set(['#badge-box', '#badge-icon', '#arrive-box', '#route-pin', '#car-track'],
     { transformBox: 'fill-box', transformOrigin: '50% 50%' });
-  gsap.set(['#badge-box', '#badge-icon'], { scale: 0 });
-  gsap.set('#arrive-box', { scale: 0 });
+  gsap.set('#badge-icon', { scale: 0 });
   gsap.set('#route-pin', { scale: 0 });
   gsap.set('#car-track', { scale: 0 });
   gsap.set('#car-match', { scale: 0, transformOrigin: '50% 50%' });
   gsap.set('#iris', { scale: 0 });
+  gsap.set('#route-path', { drawSVG: '0%' });
+  gsap.set('#arrive-check', { drawSVG: '0%' });
+
+  // badge box starts as a small dot and morphs into the rounded-square
+  // badge shape (true point-to-point MorphSVG, not a scale tween) —
+  // same trick reused for the arrival badge
+  const DOT_SHAPE = 'M43,80 A2,2 0 1 0 47,80 A2,2 0 1 0 43,80 Z';
+  const BADGE_SHAPE = 'M25,42 L65,42 A18,18 0 0 1 83,60 L83,100 A18,18 0 0 1 65,118 L25,118 A18,18 0 0 1 7,100 L7,60 A18,18 0 0 1 25,42 Z';
+  gsap.set('#badge-box', { morphSVG: DOT_SHAPE });
+  gsap.set('#arrive-box', { morphSVG: DOT_SHAPE });
 
   const master = gsap.timeline({
     paused: true,
@@ -150,8 +188,8 @@ function buildTimeline() {
   /* ================= S2 — MATCHED (6.6 - 10.2) ================= */
   iris(master, 6.6, 's1', 's2');
   master.add(enter('#match-label', { y: 10 }), 6.7);
-  master.to('#badge-box', { scale: 1, duration: 0.45, ease: 'back.out(3.5)' }, 7.0);
-  master.to('#badge-icon', { scale: 1, duration: 0.45, ease: 'back.out(3.5)' }, 7.05);
+  master.to('#badge-box', { duration: 0.5, ease: 'back.out(2.2)', morphSVG: { shape: BADGE_SHAPE, type: 'rotational' } }, 7.0);
+  master.to('#badge-icon', { scale: 1, duration: 0.45, ease: 'back.out(3.5)' }, 7.2);
   master.call(() => { document.getElementById('match-label').textContent = 'Driver matched — Marcus'; }, null, 7.4);
   master.to('#car-match', { scale: 1, duration: 0.4, ease: 'back.out(4)' }, 7.9);
   master.to('#car-match', { y: -4, duration: 0.3, yoyo: true, repeat: 1, ease: 'sine.inOut' }, 8.4);
@@ -161,7 +199,7 @@ function buildTimeline() {
   master.add(enter('.map', { scale: 0.92, duration: 0.6 }), 10.25);
   master.add(enter('#eta-chip, #track-caption', { y: 14, stagger: 0.08 }), 10.6);
 
-  master.to('#route-path', { strokeDashoffset: 0, duration: 1.7, ease: 'filmic' }, 10.7);
+  master.to('#route-path', { drawSVG: '100%', duration: 1.7, ease: 'filmic' }, 10.7);
   master.to('#route-pin', { scale: 1, duration: 0.35, ease: 'back.out(5)' }, 10.9);
   master.to('#car-track', { scale: 1, duration: 0.3, ease: 'back.out(4)' }, 11.3);
   master.fromTo('#map-grid', { x: 0, y: 0 }, { x: -40, y: 20, duration: 7.5, ease: 'sine.inOut' }, 11.6);
@@ -174,8 +212,8 @@ function buildTimeline() {
 
   /* ================= S4 — ARRIVAL (19.4 - 24.0) ================= */
   iris(master, 19.4, 's3', 's4');
-  master.to('#arrive-box', { scale: 1, duration: 0.45, ease: 'back.out(3.5)' }, 19.45);
-  master.to('#arrive-check', { strokeDashoffset: 0, duration: 0.4, ease: 'power2.out' }, 19.85);
+  master.to('#arrive-box', { duration: 0.5, ease: 'back.out(2.2)', morphSVG: { shape: BADGE_SHAPE, type: 'rotational' } }, 19.45);
+  master.to('#arrive-check', { drawSVG: '100%', duration: 0.4, ease: 'power2.out' }, 19.85);
   master.add(enter('#s4 .eyebrow-dark', { y: 12 }), 20.0);
   master.add(enter('.receipt', { y: 20, duration: 0.5 }), 20.3);
 
@@ -212,6 +250,7 @@ function buildTimeline() {
 }
 
 startAmbientBlobs();
+tryLoadRiveCharacter();
 const tl = buildTimeline();
 tl.play();
 

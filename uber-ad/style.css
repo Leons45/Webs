@@ -65,7 +65,7 @@ html,body{
 }
 
 /* ---------- S0 : character + bubble ---------- */
-.char{width:min(150px, 30vw); filter:drop-shadow(0 10px 18px rgba(0,0,0,.12));}
+.char{width:min(150px, 30vw); height:auto; aspect-ratio:4/5; filter:drop-shadow(0 10px 18px rgba(0,0,0,.12));}
 .bubble{
   display:flex; align-items:center; gap:.55rem;
   background:#fff; border-radius:999px;
