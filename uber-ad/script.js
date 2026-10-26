@@ -1,152 +1,184 @@
-/* =========================================================
-   30-second quick-cut concept ad.
-   15 beats, ~1.4-4s each, hard cuts with a flash-frame between
-   scenes instead of slow crossfades. Punchy/elastic easing
-   throughout so nothing settles slowly.
-   ========================================================= */
+/* =========================================================================
+   "Your day, your way." — 30s Uber concept film
+   One continuous GSAP master timeline. Scenes don't hard-cut: a skewed
+   gradient wipe sweeps across the frame at every transition (covers →
+   content swaps underneath → reveals), and every element enters with a
+   blur+scale+translate combo instead of a flat fade, so motion reads as
+   one connected sequence rather than independent slides.
+   ========================================================================= */
 
-gsap.registerPlugin(MotionPathPlugin);
+gsap.registerPlugin(MotionPathPlugin, CustomEase);
 
-const CONFETTI_COLORS = ['#3AA76D', '#ffffff', '#276EF1', '#FFC043'];
+CustomEase.create('filmic', 'M0,0 C0.16,1 0.3,1 1,1');
+
+const ACCENT_PALETTE = ['#3AA76D', '#ffffff', '#276EF1', '#9fe6c0'];
+
+/* ---------------------------------------------------------------------
+   Shared helpers
+   --------------------------------------------------------------------- */
+
+// cinematic entrance: blur-out -> sharp, slight rise, slight scale settle
+function enter(targets, opts = {}) {
+  return gsap.fromTo(targets,
+    { opacity: 0, y: opts.y ?? 22, scale: opts.scale ?? 0.96, filter: 'blur(14px)' },
+    { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)', duration: opts.duration ?? 0.7,
+      ease: opts.ease ?? 'filmic', stagger: opts.stagger ?? 0 }
+  );
+}
+
+// the connective tissue: a skewed gradient bar sweeps in from the left,
+// reaches full coverage exactly at t (that's when the scene swap is
+// invisible underneath it), then sweeps out to the right
+function wipe(master, t, outId, inId) {
+  const coverDur = 0.34, revealDur = 0.38;
+  master.to('#wiper', { xPercent: 0, duration: coverDur, ease: 'power4.in' }, t - coverDur);
+  master.to('#stage', { filter: 'brightness(1.35)', duration: 0.09, yoyo: true, repeat: 1 }, t - 0.09);
+  master.set(`#${outId}`, { opacity: 0, visibility: 'hidden' }, t);
+  master.set(`#${inId}`, { opacity: 1, visibility: 'visible' }, t);
+  master.to('#wiper', { xPercent: 150, duration: revealDur, ease: 'power4.out' }, t);
+}
 
 function buildConfetti() {
   const wrap = document.getElementById('confetti');
-  for (let i = 0; i < 24; i++) {
+  const pieces = [];
+  for (let i = 0; i < 26; i++) {
     const s = document.createElement('span');
-    s.style.background = CONFETTI_COLORS[i % CONFETTI_COLORS.length];
+    s.style.background = ACCENT_PALETTE[i % ACCENT_PALETTE.length];
     wrap.appendChild(s);
+    pieces.push(s);
   }
-  return wrap.querySelectorAll('span');
+  return pieces;
 }
 
-/* quick hard-cut helper: flash white for a beat, swap scene visibility,
-   and pop the new scene's content in with an elastic/back ease */
-function cutTo(master, pos, outId, inId) {
-  if (outId) {
-    master.to('#flash', { opacity: 1, duration: 0.05 }, pos);
-    master.set(`#${outId}`, { opacity: 0, visibility: 'hidden' }, pos + 0.03);
-  }
-  master.set(`#${inId}`, { opacity: 1, visibility: 'visible' }, pos + 0.05);
-  master.to('#flash', { opacity: 0, duration: 0.08 }, pos + 0.08);
+/* ---------------------------------------------------------------------
+   Background ambience — runs independently of the master timeline so
+   the frame never looks static, even if the main timeline pauses
+   --------------------------------------------------------------------- */
+function startAmbience() {
+  gsap.to('#bg-glow', {
+    backgroundPosition: '40px -30px, -30px 40px, 0 0',
+    duration: 14, repeat: -1, yoyo: true, ease: 'sine.inOut'
+  });
 }
 
+/* ---------------------------------------------------------------------
+   Master timeline
+   --------------------------------------------------------------------- */
 function buildTimeline() {
   const confettiPieces = buildConfetti();
 
+  gsap.set('#wiper', { xPercent: -150, skewX: -12 });
+
   const master = gsap.timeline({
     paused: true,
+    defaults: { ease: 'filmic' },
     onComplete: () => document.getElementById('replay-btn').classList.add('visible'),
     onUpdate: () => {
       document.getElementById('progress-fill').style.width = (master.progress() * 100) + '%';
     }
   });
 
-  /* ---------- S1 : Need a ride? (0.0 - 1.4) ---------- */
-  master.set('#s1', { opacity: 1, visibility: 'visible' }, 0);
-  master.fromTo('#clock-hr', { rotation: 0 }, { rotation: 360, duration: 1.1, ease: 'power1.inOut', repeat: 1 }, 0);
-  master.fromTo('#clock-min', { rotation: 0 }, { rotation: 1080, duration: 1.1, ease: 'power1.inOut', repeat: 1 }, 0);
-  master.fromTo('#t1', { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.35, ease: 'back.out(3)' }, 0.1);
+  /* ================= S0 — HOOK (0.0 - 3.2) ================= */
+  master.set('#s0', { opacity: 1, visibility: 'visible' }, 0);
+  master.fromTo('#clock-hr', { rotation: -20 }, { rotation: 40, duration: 2.6, ease: 'sine.inOut' }, 0.1);
+  master.fromTo('#clock-min', { rotation: -60 }, { rotation: 220, duration: 2.6, ease: 'sine.inOut' }, 0.1);
+  master.fromTo('#clock-arc', { strokeDashoffset: 276 }, { strokeDashoffset: 60, duration: 2.6, ease: 'filmic' }, 0.1);
+  master.add(enter('#s0 .icon-clock', { y: 10 }), 0.05);
+  master.add(enter('#e0', { y: 14 }), 0.25);
+  master.add(enter('#h0', { y: 26, duration: 0.8 }), 0.45);
 
-  /* ---------- S2 : Uber brand smash (1.4 - 2.8) ---------- */
-  cutTo(master, 1.4, 's1', 's2');
-  master.fromTo('#wordmark',
-    { scale: 2.4, opacity: 0, rotation: -6 },
-    { scale: 1, opacity: 1, rotation: 0, duration: 0.5, ease: 'back.out(4)' },
-    1.55
-  );
-  master.to('#wordmark', { scale: 1.06, duration: 0.15, yoyo: true, repeat: 1, ease: 'power1.inOut' }, 2.1);
+  /* ================= S1 — OPEN THE APP (3.2 - 7.0) ================= */
+  wipe(master, 3.2, 's0', 's1');
+  master.add(enter('.phone-card', { y: 34, scale: 0.9, duration: 0.65 }), 3.25);
 
-  /* ---------- S3 : Tap (2.8 - 4.2) ---------- */
-  cutTo(master, 2.8, 's2', 's3');
-  master.fromTo('.tap-wrap', { scale: 0.5, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.3, ease: 'back.out(3)' }, 2.9);
-  master.fromTo('#ripple1', { scale: 0.3, opacity: 1 }, { scale: 3.2, opacity: 0, duration: 0.9, ease: 'power2.out', repeat: 1, repeatDelay: 0.1 }, 3.0);
-  master.fromTo('#ripple2', { scale: 0.3, opacity: 1 }, { scale: 3.2, opacity: 0, duration: 0.9, ease: 'power2.out', repeat: 1, repeatDelay: 0.1, delay: 0.25 }, 3.0);
-  master.fromTo('#s3 .punch', { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.3, ease: 'back.out(3)' }, 3.1);
+  // typing effect: reveal "Home" character by character via width clip
+  const destText = 'Home';
+  master.call(() => { document.getElementById('type-text').textContent = ''; }, null, 3.5);
+  master.to({}, {
+    duration: 0.7,
+    onUpdate: function () {
+      const n = Math.ceil(this.progress() * destText.length);
+      document.getElementById('type-text').textContent = destText.slice(0, n);
+    }
+  }, 3.65);
+  master.to('.caret', { opacity: 0, duration: 0.15, repeat: 5, yoyo: true }, 3.65);
+  master.add(enter('#request-btn', { y: 12, scale: 0.9, duration: 0.4 }), 4.5);
+  master.to('#request-btn', { scale: 0.94, duration: 0.09, yoyo: true, repeat: 1 }, 5.1); // tap press
 
-  /* ---------- S4 : Car arrives (4.2 - 5.6) ---------- */
-  cutTo(master, 4.2, 's3', 's4');
-  master.fromTo('#speedlines', { opacity: 0 }, { opacity: 1, duration: 0.1 }, 4.3);
-  master.fromTo('#car-body', { x: -260 }, { x: 0, duration: 0.55, ease: 'power3.out' }, 4.3);
-  master.to('#car-body', { x: 6, duration: 0.08, yoyo: true, repeat: 3, ease: 'power1.inOut' }, 4.85); // bounce stop
-  master.to('#speedlines', { opacity: 0, duration: 0.2 }, 4.85);
-  master.fromTo('#s4 .punch', { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.3, ease: 'back.out(3)' }, 5.0);
+  /* ================= S2 — MATCHED (7.0 - 11.4) ================= */
+  wipe(master, 7.0, 's1', 's2');
+  master.add(enter('.radar', { scale: 0.85, duration: 0.5 }), 7.05);
+  master.add(enter('#match-label', { y: 10 }), 7.2);
+  master.fromTo('#radar-sweep', { rotation: 0, opacity: 0.9 },
+    { rotation: 720, duration: 1.7, ease: 'power2.inOut', transformOrigin: '110px 110px' }, 7.3);
+  master.to('#found-car', { scale: 1, duration: 0.4, ease: 'back.out(4)' }, 8.9);
+  master.to('.radar-ring', { stroke: 'rgba(58,167,109,0.6)', duration: 0.3, stagger: 0.06 }, 8.9);
+  master.call(() => { document.getElementById('match-label').textContent = 'Driver matched!'; }, null, 8.95);
+  master.add(enter('.driver-card', { y: 20, duration: 0.5 }), 9.2);
 
-  /* ---------- S5 : pin + route (5.6 - 7.0) ---------- */
-  cutTo(master, 5.6, 's4', 's5');
-  master.to('#route-path', { strokeDashoffset: 0, duration: 0.7, ease: 'power2.inOut' }, 5.7);
-  master.to('#pin', { scale: 1, duration: 0.3, ease: 'back.out(5)' }, 6.3);
-  master.to('#pin', { y: -10, duration: 0.2, yoyo: true, repeat: 1, ease: 'power1.inOut' }, 6.6);
-  master.fromTo('#s5 .punch', { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.3, ease: 'back.out(3)' }, 6.4);
+  /* ================= S3 — LIVE TRACKING (11.4 - 15.8) ================= */
+  wipe(master, 11.4, 's2', 's3');
+  master.to('#route-path', { strokeDashoffset: 0, duration: 1.1, ease: 'filmic' }, 11.5);
+  master.to('#pin', { scale: 1, duration: 0.35, ease: 'back.out(5)' }, 11.6);
+  master.to('#eta-car', { scale: 1, duration: 0.3, ease: 'back.out(4)' }, 12.5);
+  master.to('#eta-car', {
+    motionPath: { path: '#route-path', align: '#route-path', alignOrigin: [0.5, 0.5], start: 1, end: 0 },
+    duration: 2.1, ease: 'power1.inOut'
+  }, 12.7);
+  master.add(enter('#s3 .eyebrow, .eta-number', { y: 14, stagger: 0.08 }), 11.7);
+  master.to('#eta-count', {
+    textContent: 1, duration: 2.1, snap: { textContent: 1 }, ease: 'power1.inOut'
+  }, 12.7);
 
-  /* ---------- S6/7/8 : word slams (7.0 - 10.0) ---------- */
-  cutTo(master, 7.0, 's5', 's6');
-  master.fromTo('#s6 .slam', { scale: 2.2, opacity: 0, rotation: -4 }, { scale: 1, opacity: 1, rotation: 0, duration: 0.3, ease: 'back.out(5)' }, 7.1);
+  /* ================= S4 — THE RIDE (15.8 - 21.0) ================= */
+  wipe(master, 15.8, 's3', 's4');
+  master.add(enter('.city-wrap', { scale: 0.92, duration: 0.6 }), 15.85);
+  master.fromTo('#far-buildings', { x: 0 }, { x: -240, duration: 5.1, ease: 'none' }, 16.0);
+  master.fromTo('#near-buildings', { x: 0 }, { x: -400, duration: 5.1, ease: 'none' }, 16.0);
+  master.to('.icon-car-ride', { y: -3, duration: 0.22, yoyo: true, repeat: 22, ease: 'sine.inOut' }, 16.0);
+  master.add(enter('.line-caption', { y: 18 }), 17.6);
 
-  cutTo(master, 8.0, 's6', 's7');
-  master.fromTo('#s7 .slam', { scale: 2.2, opacity: 0, rotation: 4 }, { scale: 1, opacity: 1, rotation: 0, duration: 0.3, ease: 'back.out(5)' }, 8.1);
+  /* ================= S5 — ARRIVAL (21.0 - 25.4) ================= */
+  wipe(master, 21.0, 's4', 's5');
+  master.add(enter('.icon-check', { scale: 0.7, duration: 0.5 }), 21.05);
+  master.to('#check-ring', { strokeDashoffset: 0, duration: 0.55, ease: 'filmic' }, 21.15);
+  master.to('#check-path', { strokeDashoffset: 0, duration: 0.4, ease: 'power2.out' }, 21.55);
+  master.add(enter('#s5 .eyebrow', { y: 12 }), 21.7);
+  master.add(enter('.receipt', { y: 20, duration: 0.5 }), 22.0);
 
-  cutTo(master, 9.0, 's7', 's8');
-  master.fromTo('#s8 .slam', { scale: 2.2, opacity: 0, rotation: -4 }, { scale: 1, opacity: 1, rotation: 0, duration: 0.3, ease: 'back.out(5)' }, 9.1);
-
-  /* ---------- S9/10/11 : feature flashes (10.0 - 14.8) ---------- */
-  cutTo(master, 10.0, 's8', 's9');
-  master.fromTo('#s9 .icon-feature', { scale: 0, rotation: -90 }, { scale: 1, rotation: 0, duration: 0.35, ease: 'back.out(4)' }, 10.1);
-  master.fromTo('#s9 .feature-label', { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3, ease: 'power2.out' }, 10.25);
-
-  cutTo(master, 11.6, 's9', 's10');
-  master.fromTo('#s10 .icon-feature', { scale: 0 }, { scale: 1, duration: 0.3, ease: 'back.out(4)' }, 11.7);
-  master.fromTo(['#radar1', '#radar2'], { scale: 0.2, opacity: 1 }, { scale: 2.6, opacity: 0, duration: 0.9, ease: 'power2.out', stagger: 0.3, repeat: -1 }, 11.7);
-  master.fromTo('#s10 .feature-label', { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3, ease: 'power2.out' }, 11.85);
-
-  cutTo(master, 13.2, 's10', 's11');
-  master.fromTo('.stars span', { scale: 0, opacity: 0, rotation: -40 }, { scale: 1, opacity: 1, rotation: 0, duration: 0.3, stagger: 0.08, ease: 'back.out(5)' }, 13.3);
-  master.fromTo('#s11 .feature-label', { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3, ease: 'power2.out' }, 13.6);
-
-  /* ---------- S12 : city drive (14.8 - 19.0) ---------- */
-  cutTo(master, 14.8, 's11', 's12');
-  master.fromTo('#skyline', { x: 60, opacity: 0 }, { x: 0, opacity: 1, duration: 0.4, ease: 'power2.out' }, 14.9);
-  master.fromTo('#city-car', { x: -100 }, { x: 480, duration: 3.6, ease: 'power1.inOut' }, 15.1);
-  master.fromTo('#s12 .city-caption', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, 15.3);
-
-  /* ---------- S13 : arrival check (19.0 - 21.0) ---------- */
-  cutTo(master, 19.0, 's12', 's13');
-  master.fromTo('.icon-check', { scale: 0.4, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.3, ease: 'back.out(4)' }, 19.1);
-  master.to('#check-path', { strokeDashoffset: 0, duration: 0.4, ease: 'power2.out' }, 19.3);
-  master.fromTo('#s13 .punch', { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.3, ease: 'back.out(3)' }, 19.6);
-
-  /* ---------- S14 : headline (21.0 - 25.0) ---------- */
-  cutTo(master, 21.0, 's13', 's14');
-  master.fromTo('.cta-headline', { scale: 1.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.6, ease: 'back.out(3)' }, 21.1);
-  master.to('.cta-headline', { letterSpacing: '0.01em', duration: 2.8, ease: 'power1.out' }, 21.8);
-
-  /* ---------- S15 : CTA (25.0 - 30.0) ---------- */
-  cutTo(master, 25.0, 's14', 's15');
-  master.to('.cta-wordmark', { opacity: 1, duration: 0.3 }, 25.1);
-  master.fromTo('.cta-btn', { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.4, ease: 'back.out(4)' }, 25.3);
-  master.to('.cta-btn', { scale: 1.05, duration: 0.5, yoyo: true, repeat: -1, ease: 'power1.inOut' }, 25.8);
+  /* ================= S6 — BRAND CLOSE (25.4 - 30.0) ================= */
+  wipe(master, 25.4, 's5', 's6');
+  master.add(enter('.closer-line', { y: 30, scale: 0.94, duration: 0.8 }), 25.45);
+  master.to('.cta-wordmark', { opacity: 1, duration: 0.3 }, 26.3);
+  master.to('.cta-btn', { opacity: 1, scale: 1, duration: 0.45, ease: 'back.out(4)' }, 26.45);
+  master.to('.cta-btn', {
+    boxShadow: '0 0 0 18px rgba(58,167,109,0)',
+    duration: 1.1, repeat: -1, ease: 'power1.out'
+  }, 26.9);
 
   confettiPieces.forEach((p, i) => {
     const angle = (i / confettiPieces.length) * Math.PI * 2;
-    const dist = 180 + Math.random() * 180;
+    const dist = 170 + Math.random() * 190;
     master.fromTo(p,
       { x: 0, y: 0, opacity: 1, rotation: 0 },
       {
         x: Math.cos(angle) * dist,
-        y: Math.sin(angle) * dist - 60,
+        y: Math.sin(angle) * dist - 50,
         rotation: Math.random() * 360,
         opacity: 0,
-        duration: 1.4 + Math.random() * 0.6,
+        duration: 1.5 + Math.random() * 0.6,
         ease: 'power2.out'
       },
-      25.2 + Math.random() * 0.2
+      26.35 + Math.random() * 0.25
     );
   });
 
-  master.to('#stage', { duration: 1.2 }, 28.8); // hold on end frame
+  master.to('#stage', { duration: 1.3 }, 28.7); // hold on end frame
 
   return master;
 }
 
+startAmbience();
 const tl = buildTimeline();
 tl.play();
 
