@@ -1,8 +1,7 @@
 :root{
-  --bg:#000000;       /* Uber's primary brand color */
-  --accent:#3AA76D;   /* Uber's documented accent green */
+  --bg:#000000;
+  --accent:#3AA76D;
   --fg:#ffffff;
-  --muted:#8a8a8a;
 }
 
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -29,98 +28,115 @@ html,body{
   flex-direction:column;
   align-items:center;
   justify-content:center;
+  gap:1.4rem;
   opacity:0;
   visibility:hidden;
 }
 
-/* ---------- Scene 1 ---------- */
-.bg-sweep{
-  position:absolute;
-  inset:0;
-  background:radial-gradient(circle at 50% 50%, rgba(0,192,75,0.25), transparent 60%);
-  transform:scale(0);
-}
+.icon{width:min(160px, 30vw);height:auto;}
 
-.wordmark{
-  font-size:clamp(4rem, 14vw, 11rem);
+/* ---------- generic punch text ---------- */
+.punch{
+  font-size:clamp(1.8rem, 5.5vw, 3.2rem);
+  font-weight:800;
+  letter-spacing:-0.02em;
+  text-align:center;
+}
+.slam{
+  font-size:clamp(4rem, 15vw, 10rem);
   font-weight:900;
   letter-spacing:-0.04em;
-  color:var(--fg);
-}
-
-/* ---------- Scene 2 ---------- */
-.line{
-  font-size:clamp(2rem, 6vw, 4.5rem);
-  font-weight:700;
-  letter-spacing:-0.02em;
-  line-height:1.15;
-}
-.line-b{color:var(--accent);}
-
-/* ---------- Scene 3 ---------- */
-.feature-grid{
-  display:flex;
-  gap:clamp(2rem, 6vw, 5rem);
-  margin-bottom:4rem;
-  flex-wrap:wrap;
-  justify-content:center;
-}
-.feature{
-  display:flex;
-  flex-direction:column;
-  gap:.5rem;
-  opacity:0;
-  transform:translateY(40px);
-}
-.feature-num{
-  font-size:.9rem;
   color:var(--accent);
+}
+.feature-label{
+  font-size:clamp(1.5rem, 4vw, 2.4rem);
   font-weight:700;
-  letter-spacing:.1em;
+  letter-spacing:-0.01em;
 }
-.feature-title{
-  font-size:clamp(1.3rem, 2.6vw, 1.8rem);
-  font-weight:500;
-}
-.route-line{
-  width:min(800px, 80vw);
-  height:auto;
-}
-#route-path{
-  stroke-dasharray:1000;
-  stroke-dashoffset:1000;
+.wordmark{
+  font-size:clamp(4.5rem, 16vw, 12rem);
+  font-weight:900;
+  letter-spacing:-0.04em;
 }
 
-/* ---------- Scene 4 ---------- */
-.cta-headline{
-  font-size:clamp(2.5rem, 7vw, 5rem);
-  font-weight:900;
-  margin-bottom:2.5rem;
-  letter-spacing:-0.03em;
-}
-.cta-row{
+/* ---------- scene 1: clock ---------- */
+#clock-min, #clock-hr{transform-origin:60px 60px;}
+
+/* ---------- scene 3: tap ripple ---------- */
+.tap-wrap{display:flex;align-items:center;justify-content:center;}
+#ripple1,#ripple2{transform-origin:60px 60px;}
+
+/* ---------- scene 4: car ---------- */
+.icon-car{width:min(280px, 60vw);}
+
+/* ---------- scene 9-11: feature icons ---------- */
+.icon-feature{width:110px;}
+#radar1,#radar2{transform-origin:50px 50px;}
+
+.stars{
   display:flex;
-  align-items:center;
-  gap:2rem;
+  gap:.4rem;
+  font-size:2.2rem;
+  color:var(--accent);
 }
-.cta-wordmark{
-  font-size:1.6rem;
+.stars span{display:inline-block;opacity:0;transform:scale(0);}
+
+/* ---------- scene 12: city ---------- */
+.icon-city{width:min(520px, 95vw);}
+.city-caption{font-size:clamp(1.6rem, 4.5vw, 2.6rem);}
+
+/* ---------- scene 14: headline ---------- */
+.cta-headline{
+  font-size:clamp(3rem, 9vw, 6.5rem);
   font-weight:900;
+  letter-spacing:-0.03em;
+  text-align:center;
+}
+
+/* ---------- scene 15: CTA ---------- */
+.cta-wordmark{
+  font-size:clamp(2rem, 6vw, 3rem);
+  font-weight:900;
+  opacity:0;
 }
 .cta-btn{
   background:var(--accent);
   color:#000;
   border:none;
-  padding:0.9rem 1.8rem;
+  padding:1rem 2rem;
   border-radius:999px;
-  font-size:1rem;
+  font-size:1.1rem;
   font-weight:700;
   cursor:pointer;
-  transform:scale(0.9);
+  transform:scale(0.7);
+  opacity:0;
+}
+.confetti{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+}
+.confetti span{
+  position:absolute;
+  top:50%;
+  left:50%;
+  width:10px;
+  height:10px;
+  border-radius:2px;
   opacity:0;
 }
 
-/* ---------- Chrome ---------- */
+/* ---------- transitions ---------- */
+.flash{
+  position:fixed;
+  inset:0;
+  background:#fff;
+  opacity:0;
+  pointer-events:none;
+  z-index:20;
+}
+
+/* ---------- chrome ---------- */
 .progress-bar{
   position:fixed;
   bottom:0;
@@ -135,7 +151,6 @@ html,body{
   height:100%;
   background:var(--accent);
 }
-
 #replay-btn{
   position:fixed;
   top:1.5rem;
@@ -149,16 +164,10 @@ html,body{
   cursor:pointer;
   opacity:0;
   pointer-events:none;
-  z-index:10;
+  z-index:30;
   transition:opacity .3s;
 }
 #replay-btn.visible{
   opacity:1;
   pointer-events:auto;
-}
-
-/* chars split by SplitType */
-.char{
-  display:inline-block;
-  will-change:transform, opacity;
 }
