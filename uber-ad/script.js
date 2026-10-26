@@ -140,6 +140,13 @@ function buildTimeline() {
   gsap.set('#car-track', { scale: 0 });
   gsap.set('#car-match', { scale: 0, transformOrigin: '50% 50%' });
   gsap.set('#iris', { scale: 0 });
+
+  // two-bone arm rig: each pivot is set in the character's own raw SVG
+  // coordinate space (transformBox:'view-box' keeps the pivot anchored
+  // to the artwork's original units regardless of the parent's own
+  // rotation), so the forearm genuinely hinges off the rotated upper arm
+  gsap.set('#char-arm-upper', { transformBox: 'view-box', transformOrigin: '116px 118px', rotation: 8 });
+  gsap.set('#char-arm-fore', { transformBox: 'view-box', transformOrigin: '120px 156px', rotation: 4 });
   gsap.set('#route-path', { drawSVG: '0%' });
   gsap.set('#arrive-check', { drawSVG: '0%' });
 
@@ -167,6 +174,11 @@ function buildTimeline() {
   master.fromTo('#hook-hr', { rotation: -10 }, { rotation: 35, duration: 1.8, ease: 'sine.inOut' }, 0.6);
   master.fromTo('#hook-min', { rotation: -40 }, { rotation: 160, duration: 1.8, ease: 'sine.inOut' }, 0.6);
   master.add(enter('#h0', { y: 26, duration: 0.7 }), 0.8);
+  // shoulder raises first, elbow bends a beat later (real two-bone timing —
+  // joints never move in lockstep), settling into a "checking the time" pose
+  master.to('#char-arm-upper', { rotation: -62, duration: 0.55, ease: 'back.out(2.4)' }, 0.5);
+  master.to('#char-arm-fore', { rotation: -55, duration: 0.5, ease: 'back.out(2.4)' }, 0.68);
+  master.to('#char-arm-upper', { rotation: -50, duration: 1.3, ease: 'sine.inOut', yoyo: true, repeat: 1 }, 1.3);
 
   /* ================= S1 — REQUEST (3.0 - 6.6) ================= */
   iris(master, 3.0, 's0', 's1');

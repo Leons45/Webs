@@ -30,6 +30,16 @@
       <svg class="char" id="svg-char-fallback" viewBox="0 0 160 200">
         <g id="char-hair"><path d="M34 96 C26 60 46 26 86 22 C112 20 132 32 138 54 C122 42 98 38 82 46 C62 56 52 76 56 100 Z" fill="#111317"/></g>
         <g id="char-torso"><path d="M20 200 L20 150 C20 128 40 112 70 112 C100 112 118 130 120 152 L122 200 Z" fill="var(--orange)"/></g>
+        <!-- two-bone arm: shoulder pivot (char-arm-upper) rotates, elbow
+             pivot (char-arm-fore) rotates relative to it — a real jointed
+             chain, not a single static shape -->
+        <g id="char-arm-upper">
+          <path d="M108,120 Q102,140 110,156 L128,156 Q134,138 126,120 Z" fill="var(--skin)"/>
+          <g id="char-arm-fore">
+            <path d="M112,156 Q106,176 114,194 L130,192 Q136,172 128,156 Z" fill="var(--skin)"/>
+            <circle cx="122" cy="192" r="10" fill="var(--skin)"/>
+          </g>
+        </g>
         <path d="M46 108 C40 96 38 80 44 64 C50 46 66 36 86 38 C104 40 116 54 116 72 L128 76 C133 77.5 133 84 128 85.5 L118 88 C119 98 115 107 106 112 L104 132 L58 132 L56 112 C50 111 46 109.5 46 108 Z" fill="var(--skin)"/>
       </svg>
       <div class="bubble" id="bubble-0">
