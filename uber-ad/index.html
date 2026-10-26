@@ -11,154 +11,156 @@
 </head>
 <body>
 
-<!-- persistent cinematic frame: never cuts, holds the whole film together -->
-<div class="bg-glow" id="bg-glow"></div>
 <div class="grain"></div>
 <div class="letterbox letterbox-top"></div>
 <div class="letterbox letterbox-bottom"></div>
 
 <main id="stage">
 
-  <!-- 00 — HOOK: stuck, needs to go (0.0 - 3.2s) -->
-  <section class="scene" id="s0">
-    <svg class="icon icon-clock" viewBox="0 0 120 120">
-      <circle cx="60" cy="60" r="44" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="2"/>
-      <circle id="clock-arc" cx="60" cy="60" r="44" fill="none" stroke="var(--accent)" stroke-width="3"
-        stroke-dasharray="276" stroke-dashoffset="276" stroke-linecap="round" transform="rotate(-90 60 60)"/>
-      <line id="clock-min" x1="60" y1="60" x2="60" y2="26" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
-      <line id="clock-hr" x1="60" y1="60" x2="82" y2="60" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+  <!-- 00 — HOOK: character, running late (0 - 3.0s) -->
+  <section class="scene wave-scene" id="s0">
+    <svg class="wave-bg" id="wave-s0" viewBox="0 0 100 100" preserveAspectRatio="none">
+      <path id="wave-path-0" fill="#dce3ea"/>
     </svg>
-    <p class="eyebrow" id="e0">7:48 AM — running late</p>
-    <h2 class="line-xl" id="h0">You need to be<br/>somewhere.</h2>
-  </section>
-
-  <!-- 01 — OPEN THE APP: ask where to (3.2 - 7.0s) -->
-  <section class="scene" id="s1">
-    <div class="phone-card">
-      <div class="phone-notch"></div>
-      <span class="uber-mini">Uber</span>
-      <div class="input-row">
-        <svg viewBox="0 0 24 24" class="pin-mini"><path d="M12 2a7 7 0 00-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 00-7-7z"/></svg>
-        <span class="type-text" id="type-text"></span>
-        <span class="caret"></span>
+    <div class="scene-content">
+      <svg class="char" viewBox="0 0 160 200">
+        <g id="char-hair"><path d="M34 96 C26 60 46 26 86 22 C112 20 132 32 138 54 C122 42 98 38 82 46 C62 56 52 76 56 100 Z" fill="#111317"/></g>
+        <g id="char-torso"><path d="M20 200 L20 150 C20 128 40 112 70 112 C100 112 118 130 120 152 L122 200 Z" fill="var(--orange)"/></g>
+        <path d="M46 108 C40 96 38 80 44 64 C50 46 66 36 86 38 C104 40 116 54 116 72 L128 76 C133 77.5 133 84 128 85.5 L118 88 C119 98 115 107 106 112 L104 132 L58 132 L56 112 C50 111 46 109.5 46 108 Z" fill="var(--skin)"/>
+      </svg>
+      <div class="bubble" id="bubble-0">
+        <svg class="bubble-icon" viewBox="0 0 40 40">
+          <circle cx="20" cy="20" r="15" fill="none" stroke="#1a1a1a" stroke-width="2.2"/>
+          <line id="hook-min" x1="20" y1="20" x2="20" y2="9" stroke="#1a1a1a" stroke-width="2.2" stroke-linecap="round"/>
+          <line id="hook-hr" x1="20" y1="20" x2="27" y2="20" stroke="#1a1a1a" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+        <span>7:48 — running late</span>
       </div>
-      <div class="request-btn" id="request-btn">Request</div>
+      <h2 class="headline" id="h0">Where you need<br/>to be, fast.</h2>
     </div>
   </section>
 
-  <!-- 02 — MATCHED: nearest driver found (7.0 - 11.4s) -->
-  <section class="scene" id="s2">
-    <div class="radar-wrap">
-      <svg class="radar" viewBox="0 0 220 220">
-        <circle cx="110" cy="110" r="90" class="radar-ring" />
-        <circle cx="110" cy="110" r="60" class="radar-ring" />
-        <circle cx="110" cy="110" r="30" class="radar-ring" />
-        <g id="radar-sweep">
-          <path d="M110 110 L110 20 A90 90 0 0 1 176 56 Z" fill="url(#sweepGrad)"/>
-        </g>
-        <defs>
-          <linearGradient id="sweepGrad" x1="0" y1="1" x2="0" y2="0">
-            <stop offset="0%" stop-color="var(--accent)" stop-opacity="0"/>
-            <stop offset="100%" stop-color="var(--accent)" stop-opacity="0.55"/>
-          </linearGradient>
-        </defs>
-        <g id="found-car" transform="translate(110,110) scale(0)">
-          <path d="M-18 6 L-13 -6 Q-9 -11 -1 -11 L13 -11 Q21 -11 25 -6 L30 6 Z" fill="var(--accent)"/>
-          <circle cx="-10" cy="9" r="5" fill="#0a0a0a" stroke="#fff" stroke-width="1.5"/>
-          <circle cx="20" cy="9" r="5" fill="#0a0a0a" stroke="#fff" stroke-width="1.5"/>
-        </g>
-      </svg>
-    </div>
-    <p class="eyebrow" id="match-label">Finding your driver…</p>
-    <div class="driver-card" id="driver-card">
-      <div class="driver-avatar"></div>
-      <div class="driver-meta">
-        <span class="driver-name">Marcus · Toyota Camry</span>
-        <span class="driver-rating">★★★★★ 4.98</span>
+  <!-- 01 — REQUEST: open app, type destination (3.0 - 6.6s) -->
+  <section class="scene wave-scene" id="s1">
+    <svg class="wave-bg" id="wave-s1" viewBox="0 0 100 100" preserveAspectRatio="none">
+      <path id="wave-path-1" fill="#dbe6f7"/>
+    </svg>
+    <div class="scene-content">
+      <div class="card" id="card-1">
+        <span class="card-brand">Uber</span>
+        <div class="card-input">
+          <svg viewBox="0 0 24 24" class="pin-mini"><path d="M12 2a7 7 0 00-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 00-7-7z"/></svg>
+          <span class="type-text" id="type-text"></span><span class="caret"></span>
+        </div>
+        <div class="card-btn" id="request-btn">Request Uber</div>
       </div>
-      <span class="driver-plate">CXJ 204</span>
     </div>
   </section>
 
-  <!-- 03 — LIVE TRACKING: driver en route (11.4 - 15.8s) -->
-  <section class="scene" id="s3">
-    <svg class="icon icon-route" viewBox="0 0 320 180">
-      <path id="route-path" d="M24 150 C 90 150, 110 50, 170 50 S 270 120, 296 60"
-        fill="none" stroke="var(--accent)" stroke-width="4" stroke-linecap="round" stroke-dasharray="520" stroke-dashoffset="520"/>
-      <g id="pin" transform="translate(24,150) scale(0)">
-        <path d="M0 -4 C -11 -4 -19 4 -19 15 C -19 30 0 46 0 46 C 0 46 19 30 19 15 C 19 4 11 -4 0 -4 Z" fill="#fff"/>
-        <circle cx="0" cy="14" r="6" fill="var(--accent)"/>
-      </g>
-      <g id="eta-car" transform="translate(296,60) scale(0)">
-        <path d="M-16 5 L-11 -5 Q-8 -9 -1 -9 L11 -9 Q18 -9 22 -5 L27 5 Z" fill="var(--accent)"/>
-        <circle cx="-9" cy="8" r="4.5" fill="#0a0a0a" stroke="#fff" stroke-width="1.3"/>
-        <circle cx="18" cy="8" r="4.5" fill="#0a0a0a" stroke="#fff" stroke-width="1.3"/>
-      </g>
+  <!-- 02 — MATCHED: badge drop (6.6 - 10.2s) -->
+  <section class="scene wave-scene" id="s2">
+    <svg class="wave-bg" id="wave-s2" viewBox="0 0 100 100" preserveAspectRatio="none">
+      <path id="wave-path-2" fill="#111317"/>
     </svg>
-    <p class="eyebrow">Arriving in</p>
-    <h3 class="eta-number"><span id="eta-count">3</span> min</h3>
+    <div class="scene-content">
+      <div class="badge-wrap">
+        <svg class="badge" viewBox="0 0 90 120">
+          <line x1="45" y1="0" x2="45" y2="34" stroke="#fff" stroke-width="2"/>
+          <circle cx="45" cy="34" r="3" fill="#fff"/>
+          <rect id="badge-box" x="7" y="42" width="76" height="76" rx="18" fill="var(--blue)"/>
+          <g id="badge-icon">
+            <circle cx="45" cy="72" r="12" fill="#fff"/>
+            <path d="M25 104 C25 86 33 78 45 78 C57 78 65 86 65 104 Z" fill="#fff"/>
+          </g>
+        </svg>
+      </div>
+      <p class="eyebrow-dark" id="match-label">Finding your driver…</p>
+      <svg class="car-top car-top-small" id="car-match" viewBox="0 0 120 220">
+        <path d="M60 2C38 2 30 18 26 40 L18 86 C14 100 14 116 18 160 L24 196C28 212 40 218 60 218C80 218 92 212 96 196 L102 160C106 116 106 100 102 86 L94 40C90 18 82 2 60 2Z" fill="var(--orange)"/>
+        <rect x="30" y="52" width="60" height="50" rx="10" fill="#111317"/>
+      </svg>
+    </div>
   </section>
 
-  <!-- 04 — THE RIDE: city drive (15.8 - 21.0s) -->
-  <section class="scene" id="s4">
-    <div class="city-wrap">
-      <svg class="city-layer city-far" viewBox="0 0 400 120" preserveAspectRatio="none">
-        <g fill="#0c0c0c" id="far-buildings">
-          <rect x="0" y="40" width="46" height="80"/><rect x="54" y="20" width="36" height="100"/>
-          <rect x="96" y="55" width="30" height="65"/><rect x="132" y="10" width="40" height="110"/>
-          <rect x="178" y="45" width="32" height="75"/><rect x="216" y="60" width="44" height="60"/>
-          <rect x="266" y="25" width="36" height="95"/><rect x="308" y="48" width="30" height="72"/>
-          <rect x="344" y="30" width="40" height="90"/>
-          <rect x="400" y="40" width="46" height="80"/><rect x="454" y="20" width="36" height="100"/>
+  <!-- 03 — TRACK + RIDE: top-down map drive (10.2 - 19.4s) -->
+  <section class="scene wave-scene" id="s3">
+    <svg class="wave-bg" id="wave-s3" viewBox="0 0 100 100" preserveAspectRatio="none">
+      <path id="wave-path-3" fill="#eef1f0"/>
+    </svg>
+    <div class="scene-content map-content">
+      <svg class="map" id="map" viewBox="0 0 400 400" preserveAspectRatio="xMidYMid slice">
+        <g id="map-grid">
+          <rect x="-400" y="0" width="1200" height="400" fill="#eef1f0"/>
+          <g stroke="#d7dbda" stroke-width="10">
+            <line x1="-400" y1="80" x2="800" y2="80"/>
+            <line x1="-400" y1="200" x2="800" y2="200"/>
+            <line x1="-400" y1="320" x2="800" y2="320"/>
+            <line x1="40" y1="-400" x2="40" y2="800"/>
+            <line x1="180" y1="-400" x2="180" y2="800"/>
+            <line x1="320" y1="-400" x2="320" y2="800"/>
+            <line x1="460" y1="-400" x2="460" y2="800"/>
+            <line x1="600" y1="-400" x2="600" y2="800"/>
+          </g>
+        </g>
+        <path id="route-path" d="M20 320 C 120 320, 140 200, 180 200 S 300 80, 380 80"
+          fill="none" stroke="var(--blue)" stroke-width="6" stroke-linecap="round" stroke-dasharray="620" stroke-dashoffset="620"/>
+        <g id="route-pin">
+          <path d="M20 264 C7 264 -2 273 -2 285 C -2 302 20 320 20 320 C 20 320 42 302 42 285 C 42 273 33 264 20 264 Z" fill="#111317"/>
+          <circle cx="20" cy="278" r="7" fill="var(--orange)"/>
+        </g>
+        <g id="car-track">
+          <path d="M0 -9C-4 -9 -6 -6 -7 -2L-8 5C-9 8 -9 11 -8 16L-7 21C-6 25 -4 27 0 27C4 27 6 25 7 21L8 16C9 11 9 8 8 5L7 -2C6 -6 4 -9 0 -9Z" fill="var(--orange)"/>
+          <rect x="-5" y="-3" width="10" height="9" rx="2" fill="#111317"/>
         </g>
       </svg>
-      <svg class="city-layer city-near" viewBox="0 0 400 140" preserveAspectRatio="none">
-        <g fill="#161616" id="near-buildings">
-          <rect x="0" y="60" width="60" height="80"/><rect x="68" y="30" width="46" height="110"/>
-          <rect x="122" y="75" width="40" height="65"/><rect x="170" y="15" width="54" height="125"/>
-          <rect x="232" y="55" width="42" height="85"/><rect x="282" y="78" width="58" height="62"/>
-          <rect x="400" y="60" width="60" height="80"/><rect x="468" y="30" width="46" height="110"/>
-        </g>
-      </svg>
-      <div class="road"></div>
-      <svg class="icon-car-ride" viewBox="0 0 110 50">
-        <ellipse cx="55" cy="46" rx="40" ry="4" fill="rgba(0,0,0,0.5)"/>
-        <path d="M8 34 L18 12 Q25 2 38 2 L72 2 Q85 2 92 12 L102 34 Z" fill="var(--accent)"/>
-        <rect x="34" y="6" width="42" height="16" rx="5" fill="#0a0a0a"/>
-        <circle cx="30" cy="38" r="10" fill="#0a0a0a" stroke="#fff" stroke-width="2"/>
-        <circle cx="80" cy="38" r="10" fill="#0a0a0a" stroke="#fff" stroke-width="2"/>
-      </svg>
+      <div class="eta-chip" id="eta-chip">
+        <span class="eta-dot"></span>
+        <span><strong id="eta-count">6</strong> min away</span>
+      </div>
+      <p class="line-caption" id="track-caption">Tracked turn by turn.</p>
     </div>
-    <p class="line-caption">Every turn, tracked.<br/>Every driver, rated.</p>
   </section>
 
-  <!-- 05 — ARRIVAL: safe + upfront price (21.0 - 25.4s) -->
-  <section class="scene" id="s5">
-    <svg class="icon-check" viewBox="0 0 120 120">
-      <circle cx="60" cy="60" r="50" fill="none" stroke="var(--accent)" stroke-width="3"/>
-      <circle id="check-ring" cx="60" cy="60" r="50" fill="none" stroke="var(--accent)" stroke-width="3"
-        stroke-dasharray="314" stroke-dashoffset="314" transform="rotate(-90 60 60)"/>
-      <path id="check-path" d="M36 62 L52 78 L86 42" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="80" stroke-dashoffset="80"/>
+  <!-- 04 — ARRIVAL: badge drop + receipt (19.4 - 24.0s) -->
+  <section class="scene wave-scene" id="s4">
+    <svg class="wave-bg" id="wave-s4" viewBox="0 0 100 100" preserveAspectRatio="none">
+      <path id="wave-path-4" fill="#111317"/>
     </svg>
-    <p class="eyebrow">You've arrived safely</p>
-    <div class="receipt">
-      <div class="receipt-row"><span>Upfront fare</span><strong>$14.20</strong></div>
-      <div class="receipt-row"><span>Rate your driver</span><strong class="stars-inline">★★★★★</strong></div>
+    <div class="scene-content">
+      <div class="badge-wrap">
+        <svg class="badge" viewBox="0 0 90 120">
+          <line x1="45" y1="0" x2="45" y2="34" stroke="#fff" stroke-width="2"/>
+          <circle cx="45" cy="34" r="3" fill="#fff"/>
+          <rect id="arrive-box" x="7" y="42" width="76" height="76" rx="18" fill="var(--orange)"/>
+          <path id="arrive-check" d="M27 80 L40 94 L63 66" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"
+            stroke-dasharray="60" stroke-dashoffset="60"/>
+        </svg>
+      </div>
+      <p class="eyebrow-dark">You've arrived safely</p>
+      <div class="receipt">
+        <div class="receipt-row"><span>Upfront fare</span><strong>$14.20</strong></div>
+        <div class="receipt-row"><span>Rate Marcus</span><strong class="stars-inline">★★★★★</strong></div>
+      </div>
     </div>
   </section>
 
-  <!-- 06 — BRAND CLOSE (25.4 - 30.0s) -->
-  <section class="scene" id="s6">
-    <h1 class="closer-line">Your day,<br/><span class="accent-text">your way.</span></h1>
-    <div class="cta-row">
-      <span class="cta-wordmark">Uber</span>
-      <button class="cta-btn">Get the app</button>
+  <!-- 05 — BRAND CLOSE (24.0 - 30.0s) -->
+  <section class="scene wave-scene" id="s5">
+    <svg class="wave-bg" id="wave-s5" viewBox="0 0 100 100" preserveAspectRatio="none">
+      <path id="wave-path-5" fill="#111317"/>
+    </svg>
+    <div class="scene-content">
+      <h1 class="closer-line">Your day,<br/><span class="accent-text">your way.</span></h1>
+      <div class="cta-row">
+        <span class="cta-wordmark">Uber</span>
+        <button class="cta-btn">Get the app</button>
+      </div>
+      <div class="confetti" id="confetti"></div>
     </div>
-    <div class="confetti" id="confetti"></div>
   </section>
 
-  <!-- seamless wipe transition layer -->
-  <div class="wiper" id="wiper"></div>
+  <!-- iris wipe transition -->
+  <div class="iris" id="iris"></div>
 
   <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
   <button id="replay-btn" aria-label="Replay">↻ Replay</button>

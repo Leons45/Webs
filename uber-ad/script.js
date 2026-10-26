@@ -1,41 +1,87 @@
 /* =========================================================================
    "Your day, your way." — 30s Uber concept film
-   One continuous GSAP master timeline. Scenes don't hard-cut: a skewed
-   gradient wipe sweeps across the frame at every transition (covers →
-   content swaps underneath → reveals), and every element enters with a
-   blur+scale+translate combo instead of a flat fade, so motion reads as
-   one connected sequence rather than independent slides.
+   Flat-vector illustration style (character silhouette, hanging icon
+   badges, top-down map/car, organic blob backgrounds) instead of app-UI
+   cards — matched to a flat motion-design reference rather than a
+   screen-recording aesthetic. One continuous GSAP timeline; scenes are
+   connected with a full-frame iris wipe instead of hard cuts, and an
+   ambient blob background breathes behind every scene independently of
+   the main timeline so nothing ever looks static.
    ========================================================================= */
 
 gsap.registerPlugin(MotionPathPlugin, CustomEase);
-
 CustomEase.create('filmic', 'M0,0 C0.16,1 0.3,1 1,1');
 
-const ACCENT_PALETTE = ['#3AA76D', '#ffffff', '#276EF1', '#9fe6c0'];
+const ACCENT_PALETTE = ['#276EF1', '#ED6E33', '#ffffff', '#9fbdf5'];
+
+/* ---------------------------------------------------------------------
+   Ambient blob backgrounds — organic, continuous, independent of the
+   master timeline (keeps every frame feeling alive, even mid-pause)
+   --------------------------------------------------------------------- */
+function blobPath(cx, cy, r, points, wobble, phase) {
+  const pts = [];
+  for (let i = 0; i < points; i++) {
+    const angle = (i / points) * Math.PI * 2;
+    const rad = r + Math.sin(angle * 3 + phase) * wobble + Math.cos(angle * 2 - phase * 0.7) * wobble * 0.6;
+    pts.push([cx + Math.cos(angle) * rad, cy + Math.sin(angle) * rad]);
+  }
+  let d = `M ${pts[0][0]} ${pts[0][1]} `;
+  for (let i = 0; i < points; i++) {
+    const p0 = pts[i];
+    const p1 = pts[(i + 1) % points];
+    const mx = (p0[0] + p1[0]) / 2;
+    const my = (p0[1] + p1[1]) / 2;
+    d += `Q ${p0[0]} ${p0[1]} ${mx} ${my} `;
+  }
+  d += 'Z';
+  return d;
+}
+
+function startAmbientBlobs() {
+  const configs = [
+    { id: 'wave-path-0', cx: 18, cy: 18, r: 30, wobble: 6, speed: 0.08 },
+    { id: 'wave-path-1', cx: 82, cy: 78, r: 34, wobble: 7, speed: 0.07 },
+    { id: 'wave-path-2', cx: 50, cy: 85, r: 40, wobble: 8, speed: 0.06 },
+    { id: 'wave-path-3', cx: 85, cy: 15, r: 28, wobble: 6, speed: 0.09 },
+    { id: 'wave-path-4', cx: 50, cy: 90, r: 42, wobble: 9, speed: 0.06 },
+    { id: 'wave-path-5', cx: 20, cy: 80, r: 38, wobble: 8, speed: 0.07 }
+  ];
+  configs.forEach(cfg => {
+    const el = document.getElementById(cfg.id);
+    if (!el) return;
+    const driver = { t: Math.random() * 10 };
+    gsap.to(driver, {
+      t: `+=${Math.PI * 2}`,
+      duration: 18,
+      repeat: -1,
+      ease: 'none',
+      onUpdate: () => {
+        el.setAttribute('d', blobPath(cfg.cx, cfg.cy, cfg.r, 7, cfg.wobble, driver.t));
+      }
+    });
+  });
+}
 
 /* ---------------------------------------------------------------------
    Shared helpers
    --------------------------------------------------------------------- */
-
-// cinematic entrance: blur-out -> sharp, slight rise, slight scale settle
 function enter(targets, opts = {}) {
   return gsap.fromTo(targets,
-    { opacity: 0, y: opts.y ?? 22, scale: opts.scale ?? 0.96, filter: 'blur(14px)' },
-    { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)', duration: opts.duration ?? 0.7,
+    { opacity: 0, y: opts.y ?? 20, scale: opts.scale ?? 0.96, filter: 'blur(12px)' },
+    { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)', duration: opts.duration ?? 0.65,
       ease: opts.ease ?? 'filmic', stagger: opts.stagger ?? 0 }
   );
 }
 
-// the connective tissue: a skewed gradient bar sweeps in from the left,
-// reaches full coverage exactly at t (that's when the scene swap is
-// invisible underneath it), then sweeps out to the right
-function wipe(master, t, outId, inId) {
-  const coverDur = 0.34, revealDur = 0.38;
-  master.to('#wiper', { xPercent: 0, duration: coverDur, ease: 'power4.in' }, t - coverDur);
-  master.to('#stage', { filter: 'brightness(1.35)', duration: 0.09, yoyo: true, repeat: 1 }, t - 0.09);
+// full-frame iris wipe: a circle grows from a point to cover the whole
+// screen exactly at t (scene swap happens invisibly underneath), then
+// shrinks back away revealing the next scene
+function iris(master, t, outId, inId) {
+  const coverDur = 0.42, revealDur = 0.46;
+  master.to('#iris', { scale: 1, duration: coverDur, ease: 'power3.in' }, t - coverDur);
   master.set(`#${outId}`, { opacity: 0, visibility: 'hidden' }, t);
   master.set(`#${inId}`, { opacity: 1, visibility: 'visible' }, t);
-  master.to('#wiper', { xPercent: 150, duration: revealDur, ease: 'power4.out' }, t);
+  master.to('#iris', { scale: 0, duration: revealDur, ease: 'power3.out' }, t);
 }
 
 function buildConfetti() {
@@ -51,23 +97,21 @@ function buildConfetti() {
 }
 
 /* ---------------------------------------------------------------------
-   Background ambience — runs independently of the master timeline so
-   the frame never looks static, even if the main timeline pauses
-   --------------------------------------------------------------------- */
-function startAmbience() {
-  gsap.to('#bg-glow', {
-    backgroundPosition: '40px -30px, -30px 40px, 0 0',
-    duration: 14, repeat: -1, yoyo: true, ease: 'sine.inOut'
-  });
-}
-
-/* ---------------------------------------------------------------------
    Master timeline
    --------------------------------------------------------------------- */
 function buildTimeline() {
   const confettiPieces = buildConfetti();
 
-  gsap.set('#wiper', { xPercent: -150, skewX: -12 });
+  // every scale-pop element is initialized entirely through GSAP (no
+  // baked SVG transforms) so there's no ambiguity about transform origin
+  gsap.set(['#badge-box', '#badge-icon', '#arrive-box', '#route-pin', '#car-track'],
+    { transformBox: 'fill-box', transformOrigin: '50% 50%' });
+  gsap.set(['#badge-box', '#badge-icon'], { scale: 0 });
+  gsap.set('#arrive-box', { scale: 0 });
+  gsap.set('#route-pin', { scale: 0 });
+  gsap.set('#car-track', { scale: 0 });
+  gsap.set('#car-match', { scale: 0, transformOrigin: '50% 50%' });
+  gsap.set('#iris', { scale: 0 });
 
   const master = gsap.timeline({
     paused: true,
@@ -78,20 +122,18 @@ function buildTimeline() {
     }
   });
 
-  /* ================= S0 — HOOK (0.0 - 3.2) ================= */
+  /* ================= S0 — HOOK (0 - 3.0) ================= */
   master.set('#s0', { opacity: 1, visibility: 'visible' }, 0);
-  master.fromTo('#clock-hr', { rotation: -20 }, { rotation: 40, duration: 2.6, ease: 'sine.inOut' }, 0.1);
-  master.fromTo('#clock-min', { rotation: -60 }, { rotation: 220, duration: 2.6, ease: 'sine.inOut' }, 0.1);
-  master.fromTo('#clock-arc', { strokeDashoffset: 276 }, { strokeDashoffset: 60, duration: 2.6, ease: 'filmic' }, 0.1);
-  master.add(enter('#s0 .icon-clock', { y: 10 }), 0.05);
-  master.add(enter('#e0', { y: 14 }), 0.25);
-  master.add(enter('#h0', { y: 26, duration: 0.8 }), 0.45);
+  master.add(enter('#s0 .char', { y: 24, scale: 0.9, duration: 0.7 }), 0.1);
+  master.add(enter('#bubble-0', { y: 14, duration: 0.5 }), 0.55);
+  master.fromTo('#hook-hr', { rotation: -10 }, { rotation: 35, duration: 1.8, ease: 'sine.inOut' }, 0.6);
+  master.fromTo('#hook-min', { rotation: -40 }, { rotation: 160, duration: 1.8, ease: 'sine.inOut' }, 0.6);
+  master.add(enter('#h0', { y: 26, duration: 0.7 }), 0.8);
 
-  /* ================= S1 — OPEN THE APP (3.2 - 7.0) ================= */
-  wipe(master, 3.2, 's0', 's1');
-  master.add(enter('.phone-card', { y: 34, scale: 0.9, duration: 0.65 }), 3.25);
+  /* ================= S1 — REQUEST (3.0 - 6.6) ================= */
+  iris(master, 3.0, 's0', 's1');
+  master.add(enter('#card-1', { y: 30, scale: 0.9, duration: 0.6 }), 3.05);
 
-  // typing effect: reveal "Home" character by character via width clip
   const destText = 'Home';
   master.call(() => { document.getElementById('type-text').textContent = ''; }, null, 3.5);
   master.to({}, {
@@ -102,59 +144,50 @@ function buildTimeline() {
     }
   }, 3.65);
   master.to('.caret', { opacity: 0, duration: 0.15, repeat: 5, yoyo: true }, 3.65);
-  master.add(enter('#request-btn', { y: 12, scale: 0.9, duration: 0.4 }), 4.5);
-  master.to('#request-btn', { scale: 0.94, duration: 0.09, yoyo: true, repeat: 1 }, 5.1); // tap press
+  master.add(enter('#request-btn', { y: 10, scale: 0.9, duration: 0.4 }), 4.5);
+  master.to('#request-btn', { scale: 0.94, duration: 0.09, yoyo: true, repeat: 1 }, 5.3);
 
-  /* ================= S2 — MATCHED (7.0 - 11.4) ================= */
-  wipe(master, 7.0, 's1', 's2');
-  master.add(enter('.radar', { scale: 0.85, duration: 0.5 }), 7.05);
-  master.add(enter('#match-label', { y: 10 }), 7.2);
-  master.fromTo('#radar-sweep', { rotation: 0, opacity: 0.9 },
-    { rotation: 720, duration: 1.7, ease: 'power2.inOut', transformOrigin: '110px 110px' }, 7.3);
-  master.to('#found-car', { scale: 1, duration: 0.4, ease: 'back.out(4)' }, 8.9);
-  master.to('.radar-ring', { stroke: 'rgba(58,167,109,0.6)', duration: 0.3, stagger: 0.06 }, 8.9);
-  master.call(() => { document.getElementById('match-label').textContent = 'Driver matched!'; }, null, 8.95);
-  master.add(enter('.driver-card', { y: 20, duration: 0.5 }), 9.2);
+  /* ================= S2 — MATCHED (6.6 - 10.2) ================= */
+  iris(master, 6.6, 's1', 's2');
+  master.add(enter('#match-label', { y: 10 }), 6.7);
+  master.to('#badge-box', { scale: 1, duration: 0.45, ease: 'back.out(3.5)' }, 7.0);
+  master.to('#badge-icon', { scale: 1, duration: 0.45, ease: 'back.out(3.5)' }, 7.05);
+  master.call(() => { document.getElementById('match-label').textContent = 'Driver matched — Marcus'; }, null, 7.4);
+  master.to('#car-match', { scale: 1, duration: 0.4, ease: 'back.out(4)' }, 7.9);
+  master.to('#car-match', { y: -4, duration: 0.3, yoyo: true, repeat: 1, ease: 'sine.inOut' }, 8.4);
 
-  /* ================= S3 — LIVE TRACKING (11.4 - 15.8) ================= */
-  wipe(master, 11.4, 's2', 's3');
-  master.to('#route-path', { strokeDashoffset: 0, duration: 1.1, ease: 'filmic' }, 11.5);
-  master.to('#pin', { scale: 1, duration: 0.35, ease: 'back.out(5)' }, 11.6);
-  master.to('#eta-car', { scale: 1, duration: 0.3, ease: 'back.out(4)' }, 12.5);
-  master.to('#eta-car', {
+  /* ================= S3 — TRACK + RIDE (10.2 - 19.4) ================= */
+  iris(master, 10.2, 's2', 's3');
+  master.add(enter('.map', { scale: 0.92, duration: 0.6 }), 10.25);
+  master.add(enter('#eta-chip, #track-caption', { y: 14, stagger: 0.08 }), 10.6);
+
+  master.to('#route-path', { strokeDashoffset: 0, duration: 1.7, ease: 'filmic' }, 10.7);
+  master.to('#route-pin', { scale: 1, duration: 0.35, ease: 'back.out(5)' }, 10.9);
+  master.to('#car-track', { scale: 1, duration: 0.3, ease: 'back.out(4)' }, 11.3);
+  master.fromTo('#map-grid', { x: 0, y: 0 }, { x: -40, y: 20, duration: 7.5, ease: 'sine.inOut' }, 11.6);
+  master.to('#car-track', {
     motionPath: { path: '#route-path', align: '#route-path', alignOrigin: [0.5, 0.5], start: 1, end: 0 },
-    duration: 2.1, ease: 'power1.inOut'
-  }, 12.7);
-  master.add(enter('#s3 .eyebrow, .eta-number', { y: 14, stagger: 0.08 }), 11.7);
-  master.to('#eta-count', {
-    textContent: 1, duration: 2.1, snap: { textContent: 1 }, ease: 'power1.inOut'
-  }, 12.7);
+    duration: 6.8, ease: 'power1.inOut'
+  }, 11.6);
+  master.to('#eta-count', { textContent: 0, duration: 6.8, snap: { textContent: 1 }, ease: 'power1.in' }, 11.6);
+  master.call(() => { document.getElementById('track-caption').textContent = 'Almost there.'; }, null, 16.5);
 
-  /* ================= S4 — THE RIDE (15.8 - 21.0) ================= */
-  wipe(master, 15.8, 's3', 's4');
-  master.add(enter('.city-wrap', { scale: 0.92, duration: 0.6 }), 15.85);
-  master.fromTo('#far-buildings', { x: 0 }, { x: -240, duration: 5.1, ease: 'none' }, 16.0);
-  master.fromTo('#near-buildings', { x: 0 }, { x: -400, duration: 5.1, ease: 'none' }, 16.0);
-  master.to('.icon-car-ride', { y: -3, duration: 0.22, yoyo: true, repeat: 22, ease: 'sine.inOut' }, 16.0);
-  master.add(enter('.line-caption', { y: 18 }), 17.6);
+  /* ================= S4 — ARRIVAL (19.4 - 24.0) ================= */
+  iris(master, 19.4, 's3', 's4');
+  master.to('#arrive-box', { scale: 1, duration: 0.45, ease: 'back.out(3.5)' }, 19.45);
+  master.to('#arrive-check', { strokeDashoffset: 0, duration: 0.4, ease: 'power2.out' }, 19.85);
+  master.add(enter('#s4 .eyebrow-dark', { y: 12 }), 20.0);
+  master.add(enter('.receipt', { y: 20, duration: 0.5 }), 20.3);
 
-  /* ================= S5 — ARRIVAL (21.0 - 25.4) ================= */
-  wipe(master, 21.0, 's4', 's5');
-  master.add(enter('.icon-check', { scale: 0.7, duration: 0.5 }), 21.05);
-  master.to('#check-ring', { strokeDashoffset: 0, duration: 0.55, ease: 'filmic' }, 21.15);
-  master.to('#check-path', { strokeDashoffset: 0, duration: 0.4, ease: 'power2.out' }, 21.55);
-  master.add(enter('#s5 .eyebrow', { y: 12 }), 21.7);
-  master.add(enter('.receipt', { y: 20, duration: 0.5 }), 22.0);
-
-  /* ================= S6 — BRAND CLOSE (25.4 - 30.0) ================= */
-  wipe(master, 25.4, 's5', 's6');
-  master.add(enter('.closer-line', { y: 30, scale: 0.94, duration: 0.8 }), 25.45);
-  master.to('.cta-wordmark', { opacity: 1, duration: 0.3 }, 26.3);
-  master.to('.cta-btn', { opacity: 1, scale: 1, duration: 0.45, ease: 'back.out(4)' }, 26.45);
+  /* ================= S5 — BRAND CLOSE (24.0 - 30.0) ================= */
+  iris(master, 24.0, 's4', 's5');
+  master.add(enter('.closer-line', { y: 30, scale: 0.94, duration: 0.8 }), 24.05);
+  master.to('.cta-wordmark', { opacity: 1, duration: 0.3 }, 24.9);
+  master.to('.cta-btn', { opacity: 1, scale: 1, duration: 0.45, ease: 'back.out(4)' }, 25.05);
   master.to('.cta-btn', {
-    boxShadow: '0 0 0 18px rgba(58,167,109,0)',
+    boxShadow: '0 0 0 18px rgba(39,110,241,0)',
     duration: 1.1, repeat: -1, ease: 'power1.out'
-  }, 26.9);
+  }, 25.5);
 
   confettiPieces.forEach((p, i) => {
     const angle = (i / confettiPieces.length) * Math.PI * 2;
@@ -169,16 +202,16 @@ function buildTimeline() {
         duration: 1.5 + Math.random() * 0.6,
         ease: 'power2.out'
       },
-      26.35 + Math.random() * 0.25
+      24.95 + Math.random() * 0.25
     );
   });
 
-  master.to('#stage', { duration: 1.3 }, 28.7); // hold on end frame
+  master.to('#stage', { duration: 1.2 }, 28.8);
 
   return master;
 }
 
-startAmbience();
+startAmbientBlobs();
 const tl = buildTimeline();
 tl.play();
 
