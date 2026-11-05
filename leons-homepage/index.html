@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Leon's — Bring Comfort Closer</title>
+<meta name="description" content="Concept redesign of the Leon's Furniture homepage — clearer navigation, no duplicate promos, real visual hierarchy.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;600;700;800;900&family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#15130F;
+    --paper:#FBF9F3;
+    --stone:#ECE6D8;
+    --stone-deep:#DED5BF;
+    --yellow:#FFD400;
+    --yellow-deep:#E6BE00;
+    --red:#C2202B;
+    --grey:#5C5848;
+    --grey-light:#8C8674;
+    --line:rgba(21,19,15,0.14);
+    --line-soft:rgba(21,19,15,0.08);
+    --radius-s:4px;
+    --radius-m:10px;
+    --maxw:1280px;
+    --ease:cubic-bezier(.22,.8,.3,1);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto;}
+    *{animation-duration:0.001ms!important;animation-iteration-count:1!important;transition-duration:0.001ms!important;}
+  }
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Hanken Grotesk',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  img,svg{display:block;max-width:100%;}
+  a{color:inherit;text-decoration:none;}
+  button{font-family:inherit;cursor:pointer;}
+  ul{margin:0;padding:0;list-style:none;}
+  h1,h2,h3,p{margin:0;}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 clamp(18px,4vw,48px);}
+  :focus-visible{outline:3px solid var(--red);outline-offset:3px;}
+
+  .display{
+    font-family:'Big Shoulders Display',sans-serif;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    line-height:0.92;
+    text-transform:none;
+  }
+
+  /* ===== Skip link ===== */
+  .skip-link{position:absolute;left:-999px;top:0;background:var(--ink);color:var(--paper);padding:12px 20px;z-index:200;}
+  .skip-link:focus{left:12px;top:12px;}
+
+  /* ===== Utility bar ===== */
+  .util-bar{background:var(--ink);color:var(--stone);font-size:13px;}
+  .util-bar .wrap{display:flex;align-items:center;justify-content:space-between;height:38px;gap:16px;}
+  .util-left,.util-right{display:flex;align-items:center;gap:20px;}
+  .util-bar a{opacity:.86;transition:opacity .15s var(--ease);}
+  .util-bar a:hover{opacity:1;}
+  .util-right{display:flex;}
+  .util-divider{width:1px;height:14px;background:rgba(251,249,243,0.22);}
+
+  /* ===== Header ===== */
+  header.site{background:var(--paper);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:100;}
+  .header-row{display:flex;align-items:center;gap:clamp(16px,3vw,40px);height:84px;}
+  .logo{
+    font-family:'Big Shoulders Display',sans-serif;
+    font-weight:900;
+    font-size:34px;
+    letter-spacing:-0.02em;
+    color:var(--ink);
+    background:var(--yellow);
+    padding:2px 10px 4px;
+    border-radius:3px;
+    flex:none;
+  }
+  nav.primary{display:flex;align-items:center;gap:clamp(10px,2vw,30px);flex:1;}
+  .nav-item{position:relative;}
+  .nav-item>button{
+    background:none;border:none;color:var(--ink);font-size:15px;font-weight:600;
+    padding:30px 2px;display:flex;align-items:center;gap:6px;border-bottom:2px solid transparent;
+  }
+  .nav-item>button:hover,.nav-item:focus-within>button{border-bottom-color:var(--yellow);}
+  .caret{width:9px;height:9px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);margin-top:-4px;}
+  .mega{
+    position:absolute;top:100%;left:0;background:var(--paper);border:1px solid var(--line);
+    box-shadow:0 18px 40px -16px rgba(21,19,15,0.25);padding:26px 28px;min-width:600px;
+    display:grid;grid-template-columns:repeat(3,1fr);gap:28px;
+    opacity:0;visibility:hidden;transform:translateY(-6px);
+    transition:opacity .18s var(--ease),transform .18s var(--ease),visibility .18s;
+  }
+  .nav-item:focus-within .mega,.nav-item.open .mega{opacity:1;visibility:visible;transform:translateY(0);}
+  .mega h4{font-size:12px;letter-spacing:.04em;color:var(--grey-light);font-weight:600;margin-bottom:10px;}
+  .mega a{display:block;padding:5px 0;font-size:14.5px;color:var(--ink);}
+  .mega a:hover{color:var(--red);}
+  .mega .promo{grid-column:3;background:var(--ink);color:var(--paper);border-radius:var(--radius-s);padding:16px;align-self:start;}
+  .mega .promo span{display:block;font-size:12px;color:var(--yellow);font-weight:700;margin-bottom:6px;}
+  .mega .promo strong{font-family:'Big Shoulders Display';font-size:22px;font-weight:700;line-height:1.05;display:block;}
+
+  .header-actions{display:flex;align-items:center;gap:18px;flex:none;}
+  .icon-btn{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:600;color:var(--ink);}
+  .icon-btn svg{width:22px;height:22px;}
+  .cart-badge{position:relative;}
+  .cart-count{position:absolute;top:-6px;right:-8px;background:var(--red);color:#fff;font-size:10px;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;}
+  .menu-toggle{display:none;background:none;border:none;}
+
+  /* ===== Hero ===== */
+  .hero{background:var(--ink);color:var(--paper);overflow:hidden;position:relative;}
+  .hero .wrap{display:grid;grid-template-columns:1.1fr 0.9fr;align-items:center;gap:40px;padding-top:56px;padding-bottom:56px;min-height:560px;}
+  .hero-copy{position:relative;z-index:2;opacity:0;transform:translateY(16px);animation:heroIn .8s var(--ease) .1s forwards;}
+  @keyframes heroIn{to{opacity:1;transform:none;}}
+  .hero-eyebrow{display:inline-flex;align-items:center;gap:8px;background:var(--yellow);color:var(--ink);font-weight:700;font-size:13px;padding:6px 12px;border-radius:999px;margin-bottom:22px;}
+  .hero h1{font-size:clamp(44px,6.4vw,84px);color:var(--paper);}
+  .hero h1 em{font-style:normal;color:var(--yellow);}
+  .hero p.lede{margin-top:20px;font-size:18px;line-height:1.55;color:rgba(251,249,243,0.78);max-width:46ch;}
+  .hero-ctas{display:flex;gap:14px;margin-top:32px;flex-wrap:wrap;}
+  .btn{display:inline-flex;align-items:center;justify-content:center;padding:15px 26px;border-radius:var(--radius-s);font-weight:700;font-size:15px;border:2px solid transparent;transition:transform .15s var(--ease),background .15s var(--ease),border-color .15s var(--ease);}
+  .btn:hover{transform:translateY(-2px);}
+  .btn-primary{background:var(--yellow);color:var(--ink);}
+  .btn-primary:hover{background:var(--yellow-deep);}
+  .btn-ghost{border-color:rgba(251,249,243,0.4);color:var(--paper);}
+  .btn-ghost:hover{border-color:var(--paper);}
+  .btn-dark{background:var(--ink);color:var(--paper);}
+  .btn-dark:hover{background:#000;}
+
+  .hero-badges{display:flex;gap:26px;margin-top:40px;flex-wrap:wrap;}
+  .hero-badge{display:flex;align-items:center;gap:10px;font-size:13.5px;color:rgba(251,249,243,0.82);}
+  .hero-badge svg{width:20px;height:20px;flex:none;color:var(--yellow);}
+
+  .hero-art{position:relative;height:100%;min-height:420px;z-index:1;opacity:0;animation:heroIn .9s var(--ease) .25s forwards;}
+  .hero-art svg{width:100%;height:100%;}
+
+  /* ===== Section shell ===== */
+  section{padding:76px 0;}
+  section.alt{background:var(--stone);}
+  .section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:38px;flex-wrap:wrap;}
+  .section-head h2{font-size:clamp(30px,4vw,46px);}
+  .section-head p{color:var(--grey);font-size:15.5px;max-width:42ch;margin-top:8px;}
+  .section-link{font-weight:700;font-size:14.5px;border-bottom:2px solid var(--yellow);padding-bottom:2px;white-space:nowrap;}
+
+  /* ===== Category shelf ===== */
+  .shelf{display:flex;gap:14px;overflow-x:auto;padding-bottom:8px;scrollbar-width:thin;}
+  .shelf::-webkit-scrollbar{height:6px;}
+  .shelf::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px;}
+  .chip{
+    flex:none;display:flex;flex-direction:column;align-items:center;gap:10px;
+    width:132px;padding:20px 12px 16px;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-m);
+    transition:border-color .15s var(--ease),transform .15s var(--ease);
+  }
+  .chip:hover{border-color:var(--ink);transform:translateY(-3px);}
+  .chip svg{width:34px;height:34px;color:var(--ink);}
+  .chip span{font-size:13px;font-weight:700;text-align:center;line-height:1.25;}
+
+  /* ===== Shop by room ===== */
+  .room-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+  .room-card{
+    position:relative;border-radius:var(--radius-m);overflow:hidden;aspect-ratio:3/4;
+    display:flex;align-items:flex-end;padding:20px;color:#fff;
+  }
+  .room-card::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(21,19,15,0) 40%,rgba(21,19,15,.82) 100%);z-index:1;}
+  .room-card .room-bg{position:absolute;inset:0;z-index:0;}
+  .room-card .room-content{position:relative;z-index:2;width:100%;}
+  .room-card h3{font-size:24px;font-family:'Big Shoulders Display';font-weight:700;}
+  .room-card .room-link{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:13.5px;font-weight:700;opacity:0;transform:translateY(6px);transition:opacity .18s var(--ease),transform .18s var(--ease);}
+  .room-card:hover .room-link{opacity:1;transform:none;}
+  .room-card:hover .room-bg{transform:scale(1.045);}
+  .room-bg{transition:transform .5s var(--ease);}
+
+  /* ===== Deals ===== */
+  .deals-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+  .deal-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-m);overflow:hidden;transition:box-shadow .2s var(--ease),transform .2s var(--ease);}
+  .deal-card:hover{box-shadow:0 20px 40px -24px rgba(21,19,15,.35);transform:translateY(-4px);}
+  .deal-media{aspect-ratio:4/3;position:relative;}
+  .deal-save{position:absolute;top:12px;left:12px;background:var(--red);color:#fff;font-weight:700;font-size:12.5px;padding:5px 10px;border-radius:999px;z-index:2;}
+  .deal-body{padding:16px 18px 20px;}
+  .deal-cat{font-size:12px;color:var(--grey-light);font-weight:600;}
+  .deal-name{font-size:17px;font-weight:700;margin-top:4px;line-height:1.3;}
+  .deal-cta{margin-top:12px;font-size:13.5px;font-weight:700;display:flex;align-items:center;gap:6px;color:var(--ink);}
+  .deal-cta svg{width:14px;height:14px;transition:transform .15s var(--ease);}
+  .deal-card:hover .deal-cta svg{transform:translateX(3px);}
+
+  /* ===== Trust strip ===== */
+  .trust-strip{background:var(--ink);color:var(--paper);}
+  .trust-grid{display:grid;grid-template-columns:repeat(4,1fr);}
+  .trust-item{padding:34px 28px;border-left:1px solid rgba(251,249,243,0.14);display:flex;gap:14px;align-items:flex-start;}
+  .trust-item:first-child{border-left:none;}
+  .trust-item svg{width:26px;height:26px;color:var(--yellow);flex:none;margin-top:2px;}
+  .trust-item h3{font-size:16px;font-weight:700;margin-bottom:4px;}
+  .trust-item p{font-size:13.5px;color:rgba(251,249,243,.72);line-height:1.45;}
+
+  /* ===== Explore grid ===== */
+  .explore-grid{display:grid;grid-template-columns:repeat(6,1fr);grid-auto-rows:150px;gap:16px;}
+  .explore-card{
+    position:relative;border-radius:var(--radius-m);overflow:hidden;padding:22px;display:flex;flex-direction:column;justify-content:flex-end;
+    color:var(--ink);border:1px solid var(--line);transition:transform .18s var(--ease);
+  }
+  .explore-card:hover{transform:translateY(-3px);}
+  .explore-card.wide{grid-column:span 3;grid-row:span 2;}
+  .explore-card.tall{grid-column:span 2;grid-row:span 2;}
+  .explore-card.std{grid-column:span 2;}
+  .explore-card.brand{background:var(--yellow);}
+  .explore-card.dark{background:var(--ink);color:var(--paper);}
+  .explore-card.stone{background:var(--stone-deep);}
+  .explore-card h3{font-family:'Big Shoulders Display';font-weight:700;font-size:clamp(20px,2.2vw,28px);line-height:1.02;}
+  .explore-card p{font-size:13.5px;margin-top:6px;max-width:28ch;opacity:.82;}
+  .explore-card .arrow{margin-top:12px;width:30px;height:30px;border-radius:50%;background:rgba(21,19,15,.08);display:flex;align-items:center;justify-content:center;}
+  .explore-card.dark .arrow{background:rgba(251,249,243,.14);}
+  .explore-card .arrow svg{width:14px;height:14px;}
+
+  /* ===== Newsletter ===== */
+  .newsletter{background:var(--stone);}
+  .newsletter .wrap{display:flex;align-items:center;justify-content:space-between;gap:40px;flex-wrap:wrap;}
+  .newsletter h2{font-size:clamp(26px,3.4vw,38px);max-width:14ch;}
+  .newsletter p{color:var(--grey);margin-top:10px;font-size:14.5px;max-width:38ch;}
+  .signup-form{display:flex;gap:0;flex:none;width:min(420px,100%);}
+  .signup-form input{flex:1;padding:15px 16px;border:2px solid var(--ink);border-right:none;border-radius:var(--radius-s) 0 0 var(--radius-s);font-size:14.5px;font-family:inherit;background:var(--paper);}
+  .signup-form input:focus{outline:none;}
+  .signup-form button{border-radius:0 var(--radius-s) var(--radius-s) 0;}
+
+  /* ===== Footer ===== */
+  footer{background:var(--ink);color:rgba(251,249,243,.82);padding-top:64px;}
+  .footer-top{display:grid;grid-template-columns:1.3fr repeat(4,1fr);gap:32px;padding-bottom:48px;border-bottom:1px solid rgba(251,249,243,.14);}
+  .footer-brand .logo{background:var(--yellow);}
+  .footer-brand p{margin-top:18px;font-size:13.5px;line-height:1.6;max-width:32ch;color:rgba(251,249,243,.62);}
+  .social-row{display:flex;gap:12px;margin-top:22px;}
+  .social-row a{width:34px;height:34px;border:1px solid rgba(251,249,243,.22);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:background .15s var(--ease),border-color .15s var(--ease);}
+  .social-row a:hover{background:var(--yellow);border-color:var(--yellow);}
+  .social-row svg{width:16px;height:16px;color:var(--paper);}
+  .social-row a:hover svg{color:var(--ink);}
+  .footer-col h4{font-size:13px;letter-spacing:.03em;color:var(--yellow);font-weight:700;margin-bottom:16px;}
+  .footer-col a{display:block;font-size:14px;padding:5px 0;color:rgba(251,249,243,.78);}
+  .footer-col a:hover{color:var(--paper);text-decoration:underline;}
+  .footer-bottom{display:flex;align-items:center;justify-content:space-between;padding:22px 0;font-size:12.5px;color:rgba(251,249,243,.5);flex-wrap:wrap;gap:12px;}
+  .footer-bottom a{text-decoration:underline;}
+
+  /* ===== Responsive ===== */
+  @media (max-width:980px){
+    .util-bar{display:none;}
+    nav.primary{display:none;}
+    .menu-toggle{display:block;}
+    .hero .wrap{grid-template-columns:1fr;padding-top:40px;padding-bottom:40px;min-height:unset;}
+    .hero-art{min-height:260px;order:-1;}
+    .room-grid{grid-template-columns:repeat(2,1fr);}
+    .deals-grid{grid-template-columns:repeat(2,1fr);}
+    .trust-grid{grid-template-columns:repeat(2,1fr);}
+    .trust-item{border-left:none;border-top:1px solid rgba(251,249,243,0.14);}
+    .trust-item:nth-child(1),.trust-item:nth-child(2){border-top:none;}
+    .explore-grid{grid-template-columns:repeat(2,1fr);grid-auto-rows:170px;}
+    .explore-card.wide{grid-column:span 2;grid-row:span 2;}
+    .explore-card.tall{grid-column:span 1;grid-row:span 2;}
+    .explore-card.std{grid-column:span 1;}
+    .footer-top{grid-template-columns:repeat(2,1fr);}
+  }
+  @media (max-width:600px){
+    .header-row{height:68px;}
+    .logo{font-size:26px;}
+    section{padding:52px 0;}
+    .room-grid{grid-template-columns:1fr;}
+    .deals-grid{grid-template-columns:1fr;}
+    .trust-grid{grid-template-columns:1fr;}
+    .trust-item{border-top:1px solid rgba(251,249,243,0.14)!important;}
+    .trust-item:first-child{border-top:none!important;}
+    .explore-grid{grid-template-columns:1fr;grid-auto-rows:150px;}
+    .explore-card.wide,.explore-card.tall,.explore-card.std{grid-column:span 1;grid-row:span 1;min-height:150px;}
+    .newsletter .wrap{flex-direction:column;align-items:flex-start;}
+    .signup-form{width:100%;}
+    .footer-top{grid-template-columns:1fr;}
+    .section-head{flex-direction:column;align-items:flex-start;}
+  }
+</style>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to main content</a>
+
+<!-- ===== Utility bar ===== -->
+<div class="util-bar">
+  <div class="wrap">
+    <div class="util-left">
+      <a href="#store">Find a store near you</a>
+      <span class="util-divider"></span>
+      <a href="#flyer">This week's flyer</a>
+    </div>
+    <div class="util-right">
+      <a href="#track">Track my delivery</a>
+      <span class="util-divider"></span>
+      <a href="#fr">Français</a>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Header ===== -->
+<header class="site">
+  <div class="wrap header-row">
+    <a href="#main" class="logo">Leon's</a>
+
+    <nav class="primary" aria-label="Primary">
+      <div class="nav-item">
+        <button aria-haspopup="true">Furniture <span class="caret"></span></button>
+        <div class="mega">
+          <div><h4>Living &amp; Dining</h4>
+            <a href="#">Sofas &amp; Sectionals</a>
+            <a href="#">Coffee &amp; End Tables</a>
+            <a href="#">Dining Sets</a>
+            <a href="#">Recliners</a>
+          </div>
+          <div><h4>Bedroom</h4>
+            <a href="#">Queen &amp; King Beds</a>
+            <a href="#">Dressers &amp; Chests</a>
+            <a href="#">Headboards</a>
+            <a href="#">Bedroom Collections</a>
+          </div>
+          <div class="promo">
+            <span>Online exclusive</span>
+            <strong>Up to 50% off select sofas</strong>
+          </div>
+        </div>
+      </div>
+      <div class="nav-item">
+        <button aria-haspopup="true">Mattresses <span class="caret"></span></button>
+        <div class="mega">
+          <div><h4>Shop by size</h4>
+            <a href="#">Queen Mattresses</a>
+            <a href="#">King Mattresses</a>
+            <a href="#">Mattress Sets</a>
+          </div>
+          <div><h4>Brands</h4>
+            <a href="#">Beautyrest</a>
+            <a href="#">Sealy</a>
+            <a href="#">Tempur-Pedic</a>
+          </div>
+          <div class="promo">
+            <span>Early Black Friday</span>
+            <strong>Up to 50% off mattresses</strong>
+          </div>
+        </div>
+      </div>
+      <div class="nav-item">
+        <button aria-haspopup="true">Appliances <span class="caret"></span></button>
+        <div class="mega">
+          <div><h4>Kitchen</h4>
+            <a href="#">Refrigerators</a>
+            <a href="#">Ranges</a>
+            <a href="#">Dishwashers</a>
+          </div>
+          <div><h4>Laundry</h4>
+            <a href="#">Washers</a>
+            <a href="#">Dryers</a>
+            <a href="#">Washer &amp; Dryer Pairs</a>
+          </div>
+          <div class="promo">
+            <span>Bundle &amp; save</span>
+            <strong>Buy more, save more</strong>
+          </div>
+        </div>
+      </div>
+      <div class="nav-item"><a href="#electronics" style="padding:30px 2px;display:block;font-weight:600;font-size:15px;">Electronics</a></div>
+      <div class="nav-item"><a href="#outdoor" style="padding:30px 2px;display:block;font-weight:600;font-size:15px;">Outdoor</a></div>
+      <div class="nav-item"><a href="#save" style="padding:30px 2px;display:block;font-weight:600;font-size:15px;color:var(--red);">Save</a></div>
+    </nav>
+
+    <div class="header-actions">
+      <button class="icon-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4" stroke-linecap="round"/></svg>
+        Search
+      </button>
+      <button class="icon-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 21s-7.5-4.6-10-9.3C.4 8 2 4.5 5.6 4c2-.3 3.8.6 5 2.2a1 1 0 001.6 0C13.4 4.6 15.2 3.7 17.2 4 20.8 4.5 22.4 8 21 11.7 18.5 16.4 12 21 12 21z"/></svg>
+        Wishlist
+      </button>
+      <button class="icon-btn">Account
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="3.4"/><path d="M4.5 20c1.4-3.6 4.4-5.6 7.5-5.6s6.1 2 7.5 5.6" stroke-linecap="round"/></svg>
+      </button>
+      <button class="icon-btn cart-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 7h16l-1.5 11.2a2 2 0 01-2 1.8H7.5a2 2 0 01-2-1.8L4 7z"/><path d="M8 7V5.5A4 4 0 0112 1.5a4 4 0 014 3.5V7" stroke-linecap="round"/></svg>
+        <span class="cart-count">0</span>
+        Cart
+      </button>
+      <button class="menu-toggle icon-btn" aria-label="Open menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M3 12h18M3 18h18" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ===== Hero ===== -->
+  <section class="hero" aria-label="Current promotion">
+    <div class="wrap">
+      <div class="hero-copy">
+        <span class="hero-eyebrow">Black Friday starts early</span>
+        <h1 class="display">Comfort for<br>less, <em>guaranteed</em><br>'til 2027.</h1>
+        <p class="lede">Save up to 50% on sofas and mattresses, plus our Holiday Price Guarantee locks in today's price on everything you buy — no waiting for a better deal that never comes.</p>
+        <div class="hero-ctas">
+          <a href="#deals" class="btn btn-primary">Shop the sale</a>
+          <a href="#flyer" class="btn btn-ghost">View this week's flyer</a>
+        </div>
+        <div class="hero-badges">
+          <div class="hero-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="M2.5 10h19" stroke-linecap="round"/></svg>
+            0% interest, 36 months on Flexiti*
+          </div>
+          <div class="hero-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7h10v9H3zM13 10h4l4 3.5V16h-8z"/><circle cx="7" cy="18.5" r="1.6"/><circle cx="17" cy="18.5" r="1.6"/></svg>
+            Free local delivery
+          </div>
+          <div class="hero-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l8 4v6c0 5-3.4 8.4-8 10-4.6-1.6-8-5-8-10V6l8-4z"/></svg>
+            Price guaranteed to 2027
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-art" aria-hidden="true">
+        <svg viewBox="0 0 520 440" fill="none">
+          <rect x="0" y="260" width="520" height="180" fill="#1F1C16"/>
+          <ellipse cx="260" cy="268" rx="230" ry="22" fill="#0000" />
+          <path d="M70 270c0-56 30-82 70-82h240c40 0 70 26 70 82v8H70v-8z" fill="#FFD400"/>
+          <rect x="60" y="270" width="400" height="70" rx="14" fill="#F2C600"/>
+          <rect x="60" y="300" width="400" height="40" rx="14" fill="#E6BE00"/>
+          <rect x="44" y="330" width="36" height="60" rx="6" fill="#15130F"/>
+          <rect x="440" y="330" width="36" height="60" rx="6" fill="#15130F"/>
+          <rect x="150" y="150" width="60" height="110" rx="10" fill="#FBF9F3" opacity=".92"/>
+          <rect x="310" y="150" width="60" height="110" rx="10" fill="#FBF9F3" opacity=".92"/>
+          <circle cx="430" cy="90" r="46" fill="#C2202B" opacity=".9"/>
+          <text x="430" y="83" text-anchor="middle" font-family="'Big Shoulders Display',sans-serif" font-weight="800" font-size="20" fill="#FBF9F3">UP TO</text>
+          <text x="430" y="110" text-anchor="middle" font-family="'Big Shoulders Display',sans-serif" font-weight="800" font-size="26" fill="#FBF9F3">50%</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Shop by category ===== -->
+  <section aria-labelledby="cat-head">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <h2 id="cat-head" class="display">Shop by category</h2>
+          <p>Every room, every budget — jump straight to what you're furnishing.</p>
+        </div>
+      </div>
+      <div class="shelf" role="list">
+        <a class="chip" role="listitem" href="#">
+          <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 26h32v8a2 2 0 01-2 2H10a2 2 0 01-2-2v-8z"/><path d="M6 26v-6a4 4 0 014-4h28a4 4 0 014 4v6"/><path d="M10 20v-3a3 3 0 013-3h22a3 3 0 013 3v3"/><rect x="6" y="34" width="4" height="6" rx="1"/><rect x="38" y="34" width="4" height="6" rx="1"/></svg>
+          <span>Living Room</span>
+        </a>
+        <a class="chip" role="listitem" href="#">
+          <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="22" width="34" height="14" rx="2"/><path d="M9 22v-6a3 3 0 013-3h24a3 3 0 013 3v6"/><rect x="5" y="34" width="4" height="8" rx="1"/><rect x="39" y="34" width="4" height="8" rx="1"/><path d="M13 16v6M24 16v6M35 16v6"/></svg>
+          <span>Bedroom</span>
+        </a>
+        <a class="chip" role="listitem" href="#">
+          <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="24" cy="18" rx="16" ry="5"/><path d="M8 18v6M40 18v6M24 23v17"/><path d="M14 40h20"/></svg>
+          <span>Dining Room</span>
+        </a>
+        <a class="chip" role="listitem" href="#">
+          <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><rect x="10" y="8" width="28" height="20" rx="2"/><path d="M16 28v6l-3 4h22l-3-4v-6"/></svg>
+          <span>Mattresses</span>
+        </a>
+        <a class="chip" role="listitem" href="#">
+          <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><rect x="10" y="5" width="28" height="38" rx="3"/><circle cx="24" cy="16" r="5"/><path d="M16 30h16M16 36h16"/></svg>
+          <span>Appliances</span>
+        </a>
+        <a class="chip" role="listitem" href="#">
+          <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="9" width="38" height="24" rx="2"/><path d="M17 41h14M24 33v8"/></svg>
+          <span>Electronics</span>
+        </a>
+        <a class="chip" role="listitem" href="#">
+          <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="12" width="32" height="18" rx="2"/><path d="M8 24h32"/><rect x="14" y="30" width="4" height="8" rx="1"/><rect x="30" y="30" width="4" height="8" rx="1"/></svg>
+          <span>Home Office</span>
+        </a>
+        <a class="chip" role="listitem" href="#">
+          <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><path d="M24 6v8M24 30v8M12 10l6 6M30 32l6 6M6 24h8M34 24h8M12 38l6-6M30 16l6-6"/><circle cx="24" cy="24" r="6"/></svg>
+          <span>Accents &amp; Décor</span>
+        </a>
+        <a class="chip" role="listitem" href="#">
+          <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><path d="M24 6c8 6 14 12 14 20a14 14 0 01-28 0c0-8 6-14 14-20z"/></svg>
+          <span>Outdoor</span>
+        </a>
+        <a class="chip" role="listitem" href="#" style="border-color:var(--red);">
+          <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--red);"><path d="M6 24L24 6h16a2 2 0 012 2v16L24 42 6 24z"/><circle cx="18" cy="16" r="2" fill="currentColor" stroke="none"/></svg>
+          <span style="color:var(--red);">All Deals</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Shop by room ===== -->
+  <section class="alt" aria-labelledby="room-head">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <h2 id="room-head" class="display">Find your room</h2>
+          <p>Not sure where to start? Browse by the space you're furnishing.</p>
+        </div>
+        <a href="#" class="section-link">See all rooms</a>
+      </div>
+      <div class="room-grid">
+        <a class="room-card" href="#">
+          <div class="room-bg" style="background:linear-gradient(160deg,#3A3326,#17150F 70%);"></div>
+          <div class="room-content">
+            <h3>Living Room</h3>
+            <span class="room-link">Shop the look →</span>
+          </div>
+        </a>
+        <a class="room-card" href="#">
+          <div class="room-bg" style="background:linear-gradient(160deg,#4A3B2E,#1A170F 70%);"></div>
+          <div class="room-content">
+            <h3>Bedroom</h3>
+            <span class="room-link">Shop the look →</span>
+          </div>
+        </a>
+        <a class="room-card" href="#">
+          <div class="room-bg" style="background:linear-gradient(160deg,#39372B,#15130F 70%);"></div>
+          <div class="room-content">
+            <h3>Dining Room</h3>
+            <span class="room-link">Shop the look →</span>
+          </div>
+        </a>
+        <a class="room-card" href="#">
+          <div class="room-bg" style="background:linear-gradient(160deg,#2E3330,#121410 70%);"></div>
+          <div class="room-content">
+            <h3>Home Office</h3>
+            <span class="room-link">Shop the look →</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Super specials ===== -->
+  <section id="deals" aria-labelledby="deals-head">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <h2 id="deals-head" class="display">Super specials</h2>
+          <p>This week's best buys — while quantities last.</p>
+        </div>
+        <a href="#" class="section-link">Shop all deals</a>
+      </div>
+      <div class="deals-grid">
+        <div class="deal-card">
+          <div class="deal-media">
+            <span class="deal-save">Up to 50% off</span>
+            <div style="position:absolute;inset:0;background:linear-gradient(145deg,#D9CFB5,#B8AD8E);"></div>
+          </div>
+          <div class="deal-body">
+            <div class="deal-cat">Mattresses · Beautyrest</div>
+            <div class="deal-name">Amber Euro Top Plush Queen Mattress</div>
+            <div class="deal-cta">Shop now <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          </div>
+        </div>
+        <div class="deal-card">
+          <div class="deal-media">
+            <span class="deal-save">Up to 30% off</span>
+            <div style="position:absolute;inset:0;background:linear-gradient(145deg,#8C7355,#5C4A37);"></div>
+          </div>
+          <div class="deal-body">
+            <div class="deal-cat">Bedroom</div>
+            <div class="deal-name">Windchester 3-Piece Queen Storage Bed</div>
+            <div class="deal-cta">Shop now <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          </div>
+        </div>
+        <div class="deal-card">
+          <div class="deal-media">
+            <span class="deal-save">Up to 50% off</span>
+            <div style="position:absolute;inset:0;background:linear-gradient(145deg,#4C6B82,#2A3C49);"></div>
+          </div>
+          <div class="deal-body">
+            <div class="deal-cat">Living Room · Leather</div>
+            <div class="deal-name">Kendrick Leather Sofa</div>
+            <div class="deal-cta">Shop now <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          </div>
+        </div>
+        <div class="deal-card">
+          <div class="deal-media">
+            <span class="deal-save">Up to 50% off</span>
+            <div style="position:absolute;inset:0;background:linear-gradient(145deg,#B3AFA3,#7D7A6E);"></div>
+          </div>
+          <div class="deal-body">
+            <div class="deal-cat">Living Room · Sofa Bed</div>
+            <div class="deal-name">Loren Queen Sofa Bed</div>
+            <div class="deal-cta">Shop now <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Trust strip ===== -->
+  <section class="trust-strip" aria-label="Why shop at Leon's" style="padding:0;">
+    <div class="wrap trust-grid">
+      <div class="trust-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="M2.5 10h19" stroke-linecap="round"/></svg>
+        <div>
+          <h3>0% interest financing</h3>
+          <p>36 equal payments on your Flexiti Card. Minimum $250 purchase, taxes excluded. O.A.C.</p>
+        </div>
+      </div>
+      <div class="trust-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7h10v9H3zM13 10h4l4 3.5V16h-8z"/><circle cx="7" cy="18.5" r="1.6"/><circle cx="17" cy="18.5" r="1.6"/></svg>
+        <div>
+          <h3>Free local delivery</h3>
+          <p>On qualifying orders, with live tracking so you know exactly when it's arriving.</p>
+        </div>
+      </div>
+      <div class="trust-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l8 4v6c0 5-3.4 8.4-8 10-4.6-1.6-8-5-8-10V6l8-4z"/></svg>
+        <div>
+          <h3>Holiday price guarantee</h3>
+          <p>Buy now — if the price drops, we'll guarantee it until 2027.</p>
+        </div>
+      </div>
+      <div class="trust-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7l8-4 8 4M4 7v10l8 4M4 7l8 4m8-4v10l-8 4m8-10l-8 4m0 6V11"/></svg>
+        <div>
+          <h3>Best brands for less</h3>
+          <p>Top appliance and electronics brands, priced to beat the big box stores.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Explore Leon's ===== -->
+  <section class="alt" aria-labelledby="explore-head">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <h2 id="explore-head" class="display">Explore Leon's</h2>
+          <p>More ways to shop, save, and get inspired — beyond the sale.</p>
+        </div>
+      </div>
+      <div class="explore-grid">
+        <a class="explore-card wide brand" href="#">
+          <h3>Proudly Canadian since 1909</h3>
+          <p>Shop furniture designed and built right here at home.</p>
+          <span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </a>
+        <a class="explore-card tall dark" href="#">
+          <h3>Get inspired</h3>
+          <p>Lookbooks, shop-the-room guides, and design ideas from our blog.</p>
+          <span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </a>
+        <a class="explore-card std stone" href="#">
+          <h3>Gift registry</h3>
+          <p>For weddings, babies, and new homes.</p>
+        </a>
+        <a class="explore-card std stone" href="#">
+          <h3>Gift cards</h3>
+          <p>Let them pick exactly what they love.</p>
+        </a>
+        <a class="explore-card std stone" href="#">
+          <h3>Leon's Easy Pay</h3>
+          <p>Search, select, and pay for your in-store order online.</p>
+        </a>
+        <a class="explore-card std stone" href="#">
+          <h3>Leon's Leaf Project</h3>
+          <p>Our commitment to planting trees across Canada.</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Newsletter ===== -->
+  <section class="newsletter">
+    <div class="wrap">
+      <div>
+        <h2 class="display">Get the deals first.</h2>
+        <p>Sign up for promotional emails — new arrivals, flash sales, and flyer previews. Unsubscribe anytime.</p>
+      </div>
+      <form class="signup-form" onsubmit="return false;">
+        <label for="email-signup" class="visually-hidden" style="position:absolute;left:-9999px;">Email address</label>
+        <input id="email-signup" type="email" placeholder="you@email.com" required>
+        <button type="submit" class="btn btn-dark">Sign up</button>
+      </form>
+    </div>
+  </section>
+
+</main>
+
+<!-- ===== Footer ===== -->
+<footer>
+  <div class="wrap footer-top">
+    <div class="footer-brand">
+      <span class="logo">Leon's</span>
+      <p>Canada's leading furniture store since 1909. Furniture, mattresses, major appliances and electronics — online and in over 100 stores nationwide.</p>
+      <div class="social-row">
+        <a href="#" aria-label="Twitter"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.9 7.2c.01.17.01.35.01.52 0 5.3-4 11.4-11.4 11.4-2.27 0-4.38-.66-6.15-1.8.31.04.63.05.96.05 1.88 0 3.6-.64 4.98-1.72a4.02 4.02 0 01-3.75-2.79c.25.04.5.06.76.06.36 0 .72-.05 1.06-.14A4.01 4.01 0 011 9.03v-.05c.55.3 1.18.49 1.84.51A4 4 0 011.6 4.2c0-.74.2-1.43.55-2.02a11.4 11.4 0 008.27 4.2 4.5 4.5 0 01-.1-.92 4 4 0 016.92-2.74 7.9 7.9 0 002.54-.97 4 4 0 01-1.76 2.22 8 8 0 002.3-.63 8.6 8.6 0 01-2 2.08z"/></svg></a>
+        <a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 9h3V5.5h-3c-2.2 0-4 1.8-4 4V12H7.5v3.5H10V22h3.5v-6.5H16l.7-3.5h-3.2V9.3c0-.5.2-.3.5-.3z"/></svg></a>
+        <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.3" cy="6.7" r="1" fill="currentColor" stroke="none"/></svg></a>
+        <a href="#" aria-label="Pinterest"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 00-3.6 19.3c0-.8-.01-2 .2-2.8l1.3-5.6s-.3-.6-.3-1.6c0-1.5.9-2.6 2-2.6.9 0 1.4.7 1.4 1.5 0 .9-.6 2.3-.9 3.6-.3 1.1.5 2 1.6 2 1.9 0 3.2-2.4 3.2-5.3 0-2.2-1.5-3.8-4.2-3.8-3.1 0-5 2.3-5 4.8 0 .9.3 1.5.7 2 .2.2.2.3.1.5l-.2.8c-.1.3-.3.4-.6.3-1.6-.7-2.4-2.5-2.4-4.6 0-3.4 2.9-7.5 8.5-7.5 4.5 0 7.5 3.3 7.5 6.8 0 4.7-2.6 8.1-6.3 8.1-1.3 0-2.5-.7-2.9-1.4l-.8 3.1c-.3 1-.9 2.2-1.4 3A10 10 0 1012 2z"/></svg></a>
+        <a href="#" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12s0-3.2-.4-4.7a2.9 2.9 0 00-2-2C17.9 5 12 5 12 5s-5.9 0-7.6.3a2.9 2.9 0 00-2 2C2 8.8 2 12 2 12s0 3.2.4 4.7a2.9 2.9 0 002 2C6.1 19 12 19 12 19s5.9 0 7.6-.3a2.9 2.9 0 002-2C22 15.2 22 12 22 12zM10 15.3V8.7l6 3.3z"/></svg></a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Customer Care</h4>
+      <a href="#">Contact Us</a>
+      <a href="#">Find a Store</a>
+      <a href="#">Store Listing</a>
+      <a href="#">Book an Appointment</a>
+      <a href="#">FAQs</a>
+      <a href="#">Save</a>
+      <a href="#">Made in Canada</a>
+      <a href="#">New Arrivals</a>
+      <a href="#">Site Map</a>
+    </div>
+    <div class="footer-col">
+      <h4>Services</h4>
+      <a href="#">Delivery</a>
+      <a href="#">Track My Delivery</a>
+      <a href="#">Price Guarantee</a>
+      <a href="#">Financing</a>
+      <a href="#">Installation</a>
+      <a href="#">Warranties &amp; Protection Plans</a>
+      <a href="#">Leon's Easy Pay</a>
+      <a href="#">Gift Cards</a>
+      <a href="#">Water Filter Subscription</a>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <a href="#">About Leon's</a>
+      <a href="#">Careers</a>
+      <a href="#">Privacy Policy</a>
+      <a href="#">Investor Relations</a>
+      <a href="#">Commercial Division</a>
+      <a href="#">Franchising</a>
+      <a href="#">Terms &amp; Conditions</a>
+      <a href="#">Media Inquiries</a>
+    </div>
+    <div class="footer-col">
+      <h4>Account</h4>
+      <a href="#">Sign In</a>
+      <a href="#">Order History</a>
+      <a href="#">Gift Registry</a>
+      <a href="#">Wishlist</a>
+      <a href="#">Register</a>
+    </div>
+  </div>
+  <div class="wrap footer-bottom">
+    <span>Prices on this website are for online purchases only and may vary by region. Leon's © 2009–2026. All Rights Reserved.</span>
+    <a href="#">Privacy Policy</a>
+  </div>
+</footer>
+
+</body>
+</html>
