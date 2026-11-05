@@ -8,6 +8,7 @@ Static sites hosted on GitHub Pages: https://leons45.github.io/Webs/
 - **`/portfolio/`** — Personal portfolio. Exaggerated-minimalism + motion-driven style, with a Three.js wireframe scene in the hero.
 - **`/atlas/`** — An Atlas of Imaginary Insects: a pannable/zoomable specimen drawer, not a scrolling page. Every creature is procedurally generated SVG (deterministic seeded RNG, no stock art), individually draggable, with a detail drawer per specimen.
 - **`/refraction/`** — "Refraction": a real WebGL piece built with **React 19 + Three.js + React Three Fiber + drei + postprocessing + Framer Motion**, compiled with Vite. A hand-jittered glass crystal with physically based transmission/refraction/chromatic aberration, bloom + vignette postprocessing, scroll-driven camera dolly, and cursor parallax. Source lives in `/refraction-src/` (not auto-built by Pages — rebuild locally with `npm install && npm run build`, then copy `dist/` over `/refraction/`).
+- **`/lens/`** — "Lens": a director-format prompt studio for Nano Banana 2.1 (`gemini-nano-banana-2.1`). Builds a scene from labeled fields into one conversational prompt, runs a "clarity notes" pass that flags wording image filters commonly misread (with one-click same-meaning swaps), generates three-shot coverage (wide/medium/detail) from a single scene, and parses a pasted rough description into the fields. No build step; viewfinder-style UI with a single iris-open entrance animation.
 
 ## Stack / tooling notes
 
