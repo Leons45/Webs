@@ -92,6 +92,7 @@
   }
   .chip.active{border-color:var(--amber); color:var(--amber); background:rgba(201,138,60,.08);}
   .chip:hover{border-color:var(--ink-dim);}
+  .chip-label{font-family:'Archivo',sans-serif; font-weight:500;}
 
   /* ---------- center: viewfinder preview ---------- */
   .viewfinder{
@@ -221,6 +222,16 @@
 
     <h2 style="margin-top:28px;">Treatment</h2>
     <p class="pane-sub">How it's shot and rendered.</p>
+
+    <div class="field">
+      <label>Look</label>
+      <div class="chip-row" id="look-row">
+        <button class="chip chip-label" data-look="studio">Studio</button>
+        <button class="chip chip-label" data-look="cinematic">Cinematic</button>
+        <button class="chip chip-label" data-look="snap">Snap story</button>
+      </div>
+      <p class="hint">Fills in camera, lighting, style and mood below with a starting point for that look — and nudges the aspect ratio to match. Edit anything afterward.</p>
+    </div>
 
     <div class="field">
       <label for="f-camera">Camera &amp; lens</label>
@@ -485,6 +496,51 @@
 
   fieldIds.forEach(function(id){
     fields[id].addEventListener("input", render);
+  });
+
+  // ---------- look presets ----------
+  var lookPresets = {
+    studio: {
+      camera: "Front-on, eye-level product angle, centered framing, clean negative space around the subject",
+      lighting: "Even three-point studio lighting, soft diffused key light, gentle fill, no harsh shadows",
+      style: "Clean studio product photography, catalog-ready",
+      mood: "Precise, polished, neutral",
+      aspect: "4:5"
+    },
+    cinematic: {
+      camera: "Low three-quarter angle, widescreen framing, shallow depth of field",
+      lighting: "Moody directional light with deep shadow falloff, a single practical source motivating the scene",
+      style: "Cinematic film still, subtle color grade, light grain",
+      mood: "Atmospheric, widescreen, a little tense",
+      aspect: "21:9"
+    },
+    snap: {
+      camera: "Handheld, slightly tilted, close and casual, vertical framing",
+      lighting: "Natural available light, a little uneven, like it was grabbed in the moment",
+      style: "Candid phone-camera snapshot, unposed",
+      mood: "Spontaneous, warm, lived-in",
+      aspect: "9:16"
+    }
+  };
+
+  document.getElementById("look-row").addEventListener("click", function(e){
+    var chip = e.target.closest(".chip");
+    if (!chip) return;
+    var preset = lookPresets[chip.getAttribute("data-look")];
+    if (!preset) return;
+    this.querySelectorAll(".chip").forEach(function(c){ c.classList.remove("active"); });
+    chip.classList.add("active");
+    fields.camera.value = preset.camera;
+    fields.lighting.value = preset.lighting;
+    fields.style.value = preset.style;
+    fields.mood.value = preset.mood;
+    var aspectChip = document.querySelector('#aspect-row [data-aspect="' + preset.aspect + '"]');
+    if (aspectChip){
+      document.querySelectorAll('#aspect-row .chip').forEach(function(c){ c.classList.remove("active"); });
+      aspectChip.classList.add("active");
+      state.aspect = preset.aspect;
+    }
+    render();
   });
 
   // ---------- aspect / resolution chips ----------
