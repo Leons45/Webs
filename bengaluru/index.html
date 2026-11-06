@@ -844,6 +844,8 @@ body.has-launcher #launcher{display:block}
   <ul><li><b>Drag the frame.</b> Drag, flick or scroll. The frame always settles on the next year in the direction you moved. Tap a handle to step one year.</li><li><b>One object per year.</b> Each stop shows a single hero piece. Slide the frame over it and the rest of the memory flies in and builds itself.</li><li><b>Earn stamps.</b> Every restored memory earns a stamp in the passport. 7 stamps unlock 2037, where you build the city you want.</li><li><b>VR view.</b> Step inside the diorama and look around.</li><li><b>Begin Again.</b> Clears your stamps and starts from the first frame.</li></ul>
   <h4 class="kick">Built with</h4>
   <ul><li>Three.js for the 3D world, with a two-pass render for the grey and colour lens.</li><li>GSAP for the frame snap tweens and Lenis for smooth wheel and trackpad scrolling along the timeline.</li><li>StringTune for the magnetic buttons.</li></ul>
+  <h4 class="kick">Model credits</h4>
+  <ul><li>Vehicles: <a href="https://sketchfab.com/3d-models/bus-simulator-india-traffic-cars-a0c72a6277bf4301bb3e5db4ccb194b6" target="_blank" rel="noopener">“Bus Simulator India – Traffic Cars”</a> by <a href="https://sketchfab.com/vj32621" target="_blank" rel="noopener">Villanueva-Jonatan-32621</a>, licensed <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>. Texture atlas UVs remapped, indicator overlays removed.</li><li>People: Quaternius, <a href="https://quaternius.com" target="_blank" rel="noopener">Universal Animation Library</a> (CC0), dressed and posed for each scene.</li></ul>
   <h4 class="kick">Reviewer shortcut</h4>
   <p>Want to see the ending without visiting all 7 memories?</p>
   <button class="cta" id="btnUnlockAll">✦  Give me all 7 stamps</button>
@@ -862,6 +864,8 @@ import { mergeGeometries, mergeVertices } from 'three/addons/utils/BufferGeometr
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
 
 /* ================= ASSETS =================
    Replaceable slots. Paste a URL or data URL to use the original Figma assets:
@@ -1245,6 +1249,8 @@ function sign(text,w,h,o={}){ const m=new THREE.MeshStandardMaterial({map:signTe
 
 /* ---- people: simple but proportioned figures, ~0.32 tall at scene scale ----
    dress: pants | dhoti | sari | lungi;  head: hair | turban | cap | topi | bun;  pose: stand | walk | sit | bend | point | carry */
+const FIG_SWAPS=[], SWAPS=[];
+function swapVehicle(obj,name,{len,y=0,flat=false}={}){ SWAPS.push({obj,name,len,y,flat}); }
 const SKINS=[0x8d5a3b,0x7a4b30,0xa66a45,0x6b3f26,0x9a6440];
 function figure({h=.32,top=0xe9e4da,bottom=0x2f3a4a,skin=SKINS[0],head='hair',hair=0x1b1714,dress='pants',pose='stand',accent=0xc0392b,tool=null,seed=1}={}){
   const K=kit(), R=rng(seed), cloth={rough:.88}, sk={rough:.6}, S=1;
@@ -1282,7 +1288,7 @@ function figure({h=.32,top=0xe9e4da,bottom=0x2f3a4a,skin=SKINS[0],head='hair',ha
   if(tool==='pick'){ K.l({rough:.8},UCYL(.01),0x6b4a2b,V3(.0,.18,.28),V3(.02,.55,.42)); K.p({rough:.4,metal:.6},BX(.2,.025,.025),0x55575a,.02,.19,.28,0,0,.3); }
   if(tool==='bag'){ K.p({rough:.85},RB(.13,.17,.07,.02),accent,0,top3.y-.12,-.09); }
   if(tool==='can'){ K.p({rough:.4,metal:.6},CY(.035,.04,.08,10),0x8a8f94,.13,.52,.06); }
-  const g=K.build(); g.scale.setScalar(h); return g; }
+  const g=K.build(); g.scale.setScalar(h); FIG_SWAPS.push({g,o:{h,top,bottom,skin,head,hair,dress,pose,accent,tool,seed}}); return g; }
 
 /* ---- hero trees: real branching structure with dense leaf clusters ---- */
 const leafGeo0=new THREE.IcosahedronGeometry(1,0);
@@ -1948,10 +1954,10 @@ function autoRick(){ const K=kit(), p={rough:.35,metal:.2}, GR=0x2f7a3a, YL=0xf2
     const plate=sign('447-C',.07,.035,{bg:'#f4f1ea',fg:'#1f2a44',font:'700 60px Helvetica, Arial, sans-serif',w:256,h:128,border:'#1f2a44'}); plate.position.set(.15,.19,.647); g.add(plate);
     piece(d,g,{hero:true,lift:.5}); }
   /* the bike at the gate, two founders, a passing auto */
-  const hb=bike(); hb.position.set(.72,.025,1.0); hb.rotation.y=Math.PI*.92; piece(d,hb,{key:true});
+  const hb=bike(); hb.position.set(.72,.025,1.0); hb.rotation.y=Math.PI*.92; swapVehicle(hb,'IN_Motorbike_01',{len:.44,flat:true}); piece(d,hb,{key:true});
   piece(d,grp(at(figure({pose:'point',dress:'pants',head:'hair',top:0x3b5f8a,bottom:0x2f3e56,skin:SKINS[2],tool:'bag',accent:0x2a2a2a,seed:61}),.98,.025,.78,-2.6),at(figure({pose:'carry',dress:'pants',head:'hair',top:0xd9d4c8,bottom:0x3a4a62,skin:SKINS[0],seed:62}),.32,.03,.72,-2.3)),{amp:.4});
-  piece(d,at(new THREE.Mesh(P(BX(.14,.08,.1),0xb8895a),vmat({rough:.9})),.31,.27,.82,-.3),{amp:.4});
-  piece(d,at(autoRick(),-1.35,.025,1.26,Math.PI),{key:true});
+  piece(d,grp(at(new THREE.Mesh(P(BX(.14,.08,.1),0xb8895a),vmat({rough:.9})),.42,.07,.7,-.3),at(new THREE.Mesh(P(BX(.12,.07,.09),0xc49a6c),vmat({rough:.9})),.43,.145,.71,.2)),{amp:.4});
+  { const ar=autoRick(); swapVehicle(ar,'IN_Rickshaw_02',{len:.5}); piece(d,at(ar,-1.35,.025,1.26,Math.PI),{key:true}); }
   /* the neighbour's house, a coconut palm, a gulmohur on the corner */
   { const g=new THREE.Group(), K=kit(), PK=0xe8bdb0, ws={rough:.9,pat:{k:'stain',d:.4}};
     K.p(ws,BX(1.0,.82,1.05),PK,1.45,.41,-1.15); K.p({rough:.85},BX(1.06,.05,1.11),0xf4efe6,1.45,.845,-1.15); K.p({rough:.85},BX(1.04,.05,1.09),0xf4efe6,1.45,.42,-1.15);
@@ -1999,10 +2005,10 @@ const plot={T:.03, cell:.52, cols:6, rows:7};
   const tr=at(train,.9,TT+2.17,-.15); piece(d,tr,{hero:true,lift:.6});
   const bus=new THREE.Group(); bus.add(at(box(1.15,.42,.38,mat(0xf1eee8,{rough:.5}),.06),0,0,0)); bus.add(at(box(1.07,.14,.39,win),.02,.08,0)); bus.add(at(box(1.16,.06,.39,mat(0x2f6fc0)),0,-.12,0)); bus.add(at(box(.7,.04,.392,mat(0xf2a23a)),-.15,-.05,0));
   [-.36,.36].forEach(x=>[-.18,.18].forEach(z=>bus.add(at(cyl(.08,.08,.05,mat(0x1d1d20),12),x,-.2,z,0,Math.PI/2))));
-  const busO=at(bus,-.6,TT+.3,.78); piece(d,busO,{});
+  const busO=at(bus,-.6,TT+.3,.78); swapVehicle(bus,'IN_Bus_01',{len:1.3,y:-.28}); piece(d,busO,{});
   const auto=new THREE.Group(); auto.add(at(box(.34,.2,.26,mat(0x2f7a3a,{rough:.5}),.05),0,.0,0)); auto.add(at(box(.36,.17,.28,mat(0xf2c12e,{rough:.5}),.07),-.02,.19,0)); auto.add(at(box(.02,.12,.22,win),.17,.15,0));
   [[.14,0],[-.12,.13],[-.12,-.13]].forEach(([x,z])=>auto.add(at(cyl(.06,.06,.04,mat(0x1d1d20),10),x,-.1,z,0,Math.PI/2)));
-  const autoO=at(auto,.9,TT+.17,1.15); piece(d,autoO,{});
+  const autoO=at(auto,.9,TT+.17,1.15); swapVehicle(auto,'IN_Rickshaw_01',{len:.5,y:-.16}); piece(d,autoO,{});
   piece(d,grp(at(htree(791,{h:1.85,w:.82,kind:'rain'}),-2.05,TT,.45),at(htree(792,{h:1.6,w:.85,kind:'jac'}),-1.0,TT,-1.35)),{}); piece(d,grp(at(htree(793,{h:1.5,w:.85,kind:'gul'}),1.0,TT,-1.45),at(htree(794,{h:1.35,w:.7,kind:'neem'}),2.2,TT,-.55)),{});
   const bs=new THREE.Group(); for(let k=0;k<8;k++) bs.add(bush((R()-.5)*5,(R()<.5?-1:1)*(1.9+R()*.6),0,.9+R()*.5,R)); piece(d,bs,{amp:.3});
   piece(d,grp(at(figure({pose:'walk',dress:'pants',head:'hair',top:0x2f6db4,bottom:0x2a2f3a,skin:SKINS[2],tool:'bag',accent:0x1c1c1c,seed:71}),-1.55,TT,1.62,Math.PI/2),
@@ -2367,28 +2373,41 @@ const metroTrain=new THREE.Group(), turbines=[];
 const vehMat=new THREE.MeshStandardMaterial({vertexColors:true,roughness:.42,metalness:.25});
 const wheel=(x,z,r=.33,w=.14)=>P(new THREE.CylinderGeometry(r,r,w,10),0x161616,x,r,z,Math.PI/2);
 function carGeo(L,W,H,cabin,glassC=0x1d2633){ return MG([P(new THREE.BoxGeometry(L,H*.55,W),0xffffff,0,H*.42,0), P(new THREE.BoxGeometry(L*cabin,H*.42,W*.92),glassC,-L*.05,H*.86,0), wheel(L*.33,W*.45),wheel(-L*.33,W*.45),wheel(L*.33,-W*.45),wheel(-L*.33,-W*.45)]).scale(.1,.1,.1); }
+/* the road's Ambassadors, vintage cars and bullock carts reuse the detailed models built for the scenes, merged for instancing */
+function mergedOf(group){ group.updateMatrixWorld(true); const gs=[]; group.traverse(o=>{ if(o.isMesh&&!o.isInstancedMesh){ let g=o.geometry.clone(); g.applyMatrix4(o.matrixWorld); for(const k of Object.keys(g.attributes)) if(!['position','normal','color'].includes(k)) g.deleteAttribute(k); if(g.index) g=g.toNonIndexed(); gs.push(g); } }); return MG(gs); }
+function roadAmby(s){ const g=mergedOf(ambassador(0xffffff)); if(s!==1) g.scale(s,s,s); return g; }
+function roadCyclist(){ const g=new THREE.Group(), K=kit(), fr={rough:.4,metal:.5}, FR=0x22262a;
+  wheelK(K,.52,.34,0,.32,{spokes:14,w:.04,hub:.03}); wheelK(K,-.52,.34,0,.32,{spokes:14,w:.04,hub:.03});
+  const P3=(x,y)=>V3(x,y,0), bb=P3(-.02,.36), st=P3(-.14,.92), ht=P3(.4,.95), hb=P3(.43,.78);
+  K.l(fr,UCYL(.025),FR,bb,st); K.l(fr,UCYL(.025),FR,bb,hb); K.l(fr,UCYL(.022),FR,st,ht); K.l(fr,UCYL(.02),FR,bb,P3(-.52,.34)); K.l(fr,UCYL(.018),FR,st,P3(-.52,.34)); K.l(fr,UCYL(.022),FR,ht,P3(.52,.34));
+  K.l(fr,UCYL(.018),FR,ht,P3(.36,1.12)); K.l(fr,UCYL(.016),FR,V3(.34,1.12,-.26),V3(.34,1.12,.26)); K.p({rough:.7},RB(.22,.05,.12,.02),0x1a1a1a,-.17,.97,0); K.p(fr,TOR(.09,.015,Math.PI*2,4,12),0x55585c,-.02,.36,.04);
+  g.add(K.build()); const n=FIG_SWAPS.length, r=figure({h:1.62,pose:'walk',dress:'pants',head:'hair',top:0xe8e2d4,bottom:0x3a4350,skin:SKINS[1],seed:977}); FIG_SWAPS.length=n;
+  r.position.set(-.12,.18,0); r.rotation.y=Math.PI/2; r.rotation.z=-.18; g.add(r); const m=mergedOf(g); m.scale(.1,.1,.1); return m; }
+function roadConvoy(){ const g=new THREE.Group(), K=kit(), wd={rough:.85}, WD=0x7a5634, WD2=0x6a4a2c;
+  for(let k=0;k<4;k++) K.p(wd,BX(.9,.022,.11),k%2?WD:WD2,0,.3,-.165+k*.11);
+  for(const s of [-1,1]){ K.p(wd,BX(.96,.045,.045),WD2,0,.28,s*.24); K.p(wd,BX(.9,.02,.02),WD,0,.45,s*.24); for(let x=-.42;x<=.43;x+=.21) K.p(wd,BX(.022,.15,.022),WD2,x,.37,s*.24);
+    K.p(wd,TOR(.185,.022,Math.PI*2,5,20),WD,-.04,.2,s*.31); for(let k=0;k<8;k++){ const a=k/8*6.283; K.l(wd,UCYL(.009),WD,V3(-.04,.2,s*.31),V3(-.04+Math.cos(a)*.18,.2+Math.sin(a)*.18,s*.31)); } }
+  K.l(wd,UCYL(.024,.02,6),WD2,V3(.42,.29,0),V3(1.08,.4,0)); K.p(wd,BX(.045,.045,.52),WD2,1.06,.41,0);
+  K.p({rough:.9,side:true},new THREE.CylinderGeometry(.27,.27,.8,12,1,true,0,Math.PI).rotateZ(Math.PI/2),0xcbb68c,-.05,.47,0,0,0,0,1,.6,.95);
+  g.add(K.build()); const b1=bullock(61), b2=bullock(62,0x2e6db4); b1.position.set(1.18,0,-.13); b2.position.set(1.18,0,.13); g.add(b1,b2);
+  const m=mergedOf(g); m.scale(.28,.28,.28); return m; }
 const VG={
-  cart:MG([P(new THREE.BoxGeometry(2.2,.5,1.4),0x7a5232,-.4,1.0,0),P(new THREE.CylinderGeometry(.95,.95,1.6,10,1,true,0,Math.PI),0xc9b48a,-.4,1.2,0,Math.PI/2,0,0,1,1,.8),
-    P(new THREE.TorusGeometry(.6,.08,5,12),0x4a3220,-.4,.6,.75),P(new THREE.TorusGeometry(.6,.08,5,12),0x4a3220,-.4,.6,-.75),P(new THREE.BoxGeometry(1.6,.08,.08),0x5a3e25,1.2,1.0,0),
-    P(new THREE.BoxGeometry(1.4,.75,.55),0xe9e3d6,1.9,1.05,.38),P(new THREE.BoxGeometry(1.4,.75,.55),0xe9e3d6,1.9,1.05,-.38),P(new THREE.BoxGeometry(.4,.4,.35),0xe9e3d6,2.75,1.35,.38),P(new THREE.BoxGeometry(.4,.4,.35),0xe9e3d6,2.75,1.35,-.38),
-    P(new THREE.ConeGeometry(.06,.45,5),0xc0392b,2.7,1.75,.5),P(new THREE.ConeGeometry(.06,.45,5),0xc0392b,2.7,1.75,-.5),
-    ...[[1.4,.38],[2.4,.38],[1.4,-.38],[2.4,-.38]].map(([x,z])=>P(new THREE.BoxGeometry(.14,.7,.14),0xd9d2c4,x,.35,z))]).scale(.1,.1,.1),
-  cycle:MG([P(new THREE.TorusGeometry(.33,.04,4,12),0x222222,.5,.33,0),P(new THREE.TorusGeometry(.33,.04,4,12),0x222222,-.5,.33,0),P(new THREE.BoxGeometry(1.0,.06,.06),0x2b2b2b,0,.62,0),
-    P(new THREE.CapsuleGeometry(.2,.6,3,6),0xffffff,-.1,1.25,0,0,0,-.2),P(new THREE.SphereGeometry(.15,8,6),0x7a4e34,.0,1.82,0)]).scale(.1,.1,.1),
-  vintage:carGeo(4.0,1.7,1.6,.45,0x202020),
-  amby:MG([P(new THREE.BoxGeometry(4.3,.8,1.7),0xffffff,0,.68,0),P(new THREE.BoxGeometry(2.2,.65,1.56),0x1d2633,-.2,1.38,0),P(new THREE.BoxGeometry(2.0,.12,1.5),0xffffff,-.2,1.75,0),wheel(1.35,.8),wheel(-1.35,.8),wheel(1.35,-.8),wheel(-1.35,-.8)]).scale(.1,.1,.1),
+  cart:roadConvoy(),
+  cycle:roadCyclist(),
+  vintage:roadAmby(.95),
+  amby:roadAmby(1),
   auto:MG([P(new THREE.BoxGeometry(2.6,.8,1.3),0x2e7d3a,0,.75,0),P(new THREE.BoxGeometry(2.3,.95,1.36),0xf2c12e,-.15,1.62,0),P(new THREE.BoxGeometry(.06,.6,1.1),0x1d2633,1.0,1.55,0),wheel(1.1,0,.3),wheel(-.9,.55,.3),wheel(-.9,-.55,.3)]).scale(.1,.1,.1),
   bus:MG([P(new THREE.BoxGeometry(11,2.4,2.5),0xffffff,0,1.65,0),P(new THREE.BoxGeometry(10.8,.85,2.52),0x1d2633,.1,2.15,0),P(new THREE.BoxGeometry(11.02,.3,2.52),0x2f6fc0,0,.9,0),wheel(3.6,1.2,.5,.3),wheel(-3.6,1.2,.5,.3),wheel(3.6,-1.2,.5,.3),wheel(-3.6,-1.2,.5,.3)]).scale(.1,.1,.1),
   car:carGeo(4.1,1.75,1.45,.55),
   scooter:MG([P(new THREE.BoxGeometry(1.6,.5,.4),0xffffff,0,.6,0),wheel(.6,0,.25,.1),wheel(-.6,0,.25,.1),P(new THREE.CapsuleGeometry(.2,.55,3,6),0x2a2a2a,-.15,1.3,0),P(new THREE.SphereGeometry(.17,8,6),0x111111,-.1,1.9,0)]).scale(.1,.1,.1),
   pod:MG([P(new THREE.CapsuleGeometry(.85,2.0,4,10),0xffffff,0,1.1,0,0,0,Math.PI/2,1,1,.95),P(new THREE.BoxGeometry(2.0,.5,1.62),0x14324a,.2,1.45,0),P(new THREE.BoxGeometry(3.6,.08,1.64),0x55d8ff,0,.7,0),wheel(1.1,.7,.3,.12),wheel(-1.1,.7,.3,.12),wheel(1.1,-.7,.3,.12),wheel(-1.1,-.7,.3,.12)]).scale(.1,.1,.1) };
-const VTYPES=[['cart',-3,2.6,.28,14,[0xffffff]],['cycle',1.5,5.6,.55,16,[0xc0392b,0x2e86c1,0x7d3c98,0xf1c40f,0xffffff]],['vintage',3.2,5.0,1.0,8,[0x1c1c1c,0x5b1f1f,0x23324a,0x3a3a3a]],
+const VTYPES=[['cart',-3,2.6,.28,14,[0xffffff]],['cycle',1.5,5.6,.55,16,[0xffffff,0xf4e4e0,0xe2ecf6,0xf6efd8,0xe6f2e2]],['vintage',3.2,5.0,1.0,8,[0x1c1c1c,0x5b1f1f,0x23324a,0x3a3a3a]],
   ['bus',4.0,7.6,.85,9,[0xd9d9d9,0xb7312b,0xe8e6e0]],['amby',4.6,6.3,1.1,12,[0xf2f0ea,0xffffff,0x1c1c1c]],['auto',4.8,7.8,.95,18,[0xffffff]],['car',5.8,9.5,1.25,28,[0xc0392b,0xf2f0ea,0x2c3e50,0x7f8c8d,0x1f618d,0xd4ac0d,0x1c1c1c]],
   ['scooter',5.0,8.2,1.1,16,[0xc0392b,0x2e86c1,0x7f8c8d,0xf2f0ea]],['pod',6.8,11,1.15,14,[0xffffff,0xeaf6ff]]];
 const VEH=[];
 { const R=rng(4242); VTYPES.forEach(([k,e0,e1,sp,n,cols])=>{ const im=new THREE.InstancedMesh(VG[k],vehMat,n); im.castShadow=true; im.frustumCulled=false; world.add(im); const list=[];
     for(let i=0;i<n;i++){ const dir=R()<.5?1:-1; list.push({x:e0*SP+R()*(e1-e0)*SP,dir,z:dir>0?4.85:5.55,v:sp*(.8+R()*.4),x0:e0*SP,x1:e1*SP}); im.setColorAt(i,tmpCol.set(pal(R,cols))); }
-    VEH.push({im,list}); }); }
+    VEH.push({im,list,k}); }); }
 
 /* ---- people walking on the edges of the road ---- */
 const PEOPLE=[], bodyIM=new THREE.InstancedMesh(MG([P(new THREE.CapsuleGeometry(.2,.95,3,7),0xffffff,0,.68,0)]).scale(.1,.1,.1),vehMat,320), headIM=new THREE.InstancedMesh(MG([P(new THREE.SphereGeometry(.14,8,6),0xffffff,0,1.58,0)]).scale(.1,.1,.1),vehMat,320);
@@ -2418,10 +2437,10 @@ const motes=new THREE.Points(moteG,pointsMat(0xffd9a0,.035,.55)); motes.frustumC
 /* ---- per-frame life ---- */
 const _o=new THREE.Object3D();
 function updateWorld(t,dt,cx){
-  WT.value=t; waterTex.offset.set(t*.006,t*.004); sky.position.copy(camera.position);
-  for(const {im,list} of VEH){ list.forEach((v,i)=>{ v.x+=v.dir*v.v*dt; const span=v.x1-v.x0; if(v.x>v.x1) v.x-=span; if(v.x<v.x0) v.x+=span;
-      const fade=Math.min(1,(v.x-v.x0)/1.5,(v.x1-v.x)/1.5); _o.position.set(v.x,hgt(v.x,v.z),v.z); _o.rotation.set(0,v.dir>0?0:Math.PI,0); _o.scale.setScalar(Math.max(.001,fade)); _o.updateMatrix(); im.setMatrixAt(i,_o.matrix); });
-    im.instanceMatrix.needsUpdate=true; }
+  WT.value=t; waterTex.offset.set(t*.006,t*.004); sky.position.copy(camera.position); updateModels(dt,cx);
+  for(const V of VEH){ const {im,list}=V; list.forEach((v,i)=>{ v.x+=v.dir*v.v*dt; const span=v.x1-v.x0; if(v.x>v.x1) v.x-=span; if(v.x<v.x0) v.x+=span;
+      const fade=Math.min(1,(v.x-v.x0)/1.5,(v.x1-v.x)/1.5); _o.position.set(v.x,hgt(v.x,v.z),v.z); _o.rotation.set(0,v.dir>0?0:Math.PI,0); _o.scale.setScalar(Math.max(.001,fade)); _o.updateMatrix(); if(V.parts){ for(const m of V.parts[v.var].ims) m.setMatrixAt(v.slot,_o.matrix); } else im.setMatrixAt(i,_o.matrix); });
+    if(V.parts) V.parts.forEach(P=>P.ims.forEach(m=>m.instanceMatrix.needsUpdate=true)); else im.instanceMatrix.needsUpdate=true; }
   PEOPLE.forEach((p,i)=>{ p.x+=p.dir*p.v*dt; if(p.x>cx+40) p.x-=80; if(p.x<cx-40) p.x+=80; const b=Math.abs(Math.sin(t*6+p.ph))*.012;
     _o.position.set(p.x,b,p.z); _o.rotation.set(0,p.dir>0?Math.PI/2:-Math.PI/2,Math.sin(t*6+p.ph)*.05); _o.scale.setScalar(1); _o.updateMatrix(); bodyIM.setMatrixAt(i,_o.matrix); headIM.setMatrixAt(i,_o.matrix); });
   bodyIM.instanceMatrix.needsUpdate=headIM.instanceMatrix.needsUpdate=true;
@@ -3453,6 +3472,139 @@ function stepFrame(rdt){
 }
 let lensOpenedAt=0; new MutationObserver(()=>{ if(lo.classList.contains('open')) lensOpenedAt=performance.now(); }).observe(lo,{attributes:true,attributeFilter:['class']});
 
+/* ================= REAL MODELS =================
+   Downloaded models replace the procedural people and vehicles once they have loaded. Until then,
+   and if the files are missing (for example when this page is opened straight from disk), the
+   procedural versions stay in place, so nothing ever goes blank.
+   - People: Quaternius, Universal Animation Library (CC0 1.0): a rigged human with walk, talk,
+     sit and work cycles, dressed here per character with vertex colours and headwear.
+   - Vehicles: "Bus Simulator India - Traffic Cars" by Villanueva-Jonatan-32621, Sketchfab,
+     CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). UVs are remapped from the packed
+     texture atlases; indicator and brake-lamp overlays are left out. */
+const MODEL_BASE='models/';
+const MIXERS=[]; let WALKERS=null, MODELS_READY=false;
+const dioOf=o=>{ for(let p=o;p;p=p.parent){ const d=DIO.find(d=>d.g===p); if(d) return d.i; } return null; };
+function heroTag(root,dio){ root.traverse(o=>{ if(o.isMesh){ o.castShadow=true; o.receiveShadow=true; if(dio!=null){ o.layers.enable(HERO_LAYER); o.userData.dio=dio; } if(o.isSkinnedMesh){ o.frustumCulled=true; o.computeBoundingSphere(); o.boundingSphere.radius*=1.6; } } }); }
+
+/* ---- vehicles ---- */
+const VMATS=new Map();
+function vehMaterial(src){ if(VMATS.has(src.uuid)) return VMATS.get(src.uuid);
+  const light=/light/i.test(src.name), body=/body|hatchback|luxury|suv|motor$/i.test(src.name);
+  const m=new THREE.MeshStandardMaterial({map:src.map||null,color:src.color?src.color.clone():0xffffff,roughness:light?.35:body?.5:.7,metalness:body?.15:0,side:THREE.FrontSide,
+    emissive:light?0xfff2d8:0x000000,emissiveIntensity:light?.25:0,emissiveMap:light?src.map||null:null});
+  if(m.map){ m.map.colorSpace=THREE.SRGBColorSpace; m.map.anisotropy=4; }
+  patch(m); VMATS.set(src.uuid,m); return m; }
+/* one vehicle, nose to +x, centred, wheels on y=0, in metres */
+function prepVehicle(gl,name){ const node=gl.scene.getObjectByName(name); if(!node) return null; gl.scene.updateMatrixWorld(true);
+  const c=node.clone(true); c.matrixAutoUpdate=true; node.matrixWorld.decompose(c.position,c.quaternion,c.scale);
+  const drop=[]; c.traverse(o=>{ if(!o.isMesh) return; if(/turn|break|_rear_/i.test(o.name)){ drop.push(o); return; }
+    const r=o.material.userData&&o.material.userData.rect; o.geometry=o.geometry.clone();
+    if(r&&o.geometry.attributes.uv){ const uv=o.geometry.attributes.uv, e=.5/1024; for(let i=0;i<uv.count;i++){ const u=Math.min(1-e,Math.max(e,uv.getX(i))), v=Math.min(1-e,Math.max(e,uv.getY(i))); uv.setXY(i,r[0]+u*r[2],r[1]+v*r[3]); } }
+    o.material=vehMaterial(o.material); });
+  drop.forEach(o=>o.parent.remove(o));
+  const turn=new THREE.Group(); turn.add(c); turn.rotation.y=Math.PI/2; const pivot=new THREE.Group(); pivot.add(turn); pivot.updateMatrixWorld(true);
+  const bb=new THREE.Box3().setFromObject(pivot), ce=bb.getCenter(new THREE.Vector3()); turn.position.set(-ce.x,-bb.min.y,-ce.z); pivot.updateMatrixWorld(true);
+  pivot.userData.len=bb.max.x-bb.min.x; pivot.userData.h=bb.max.y-bb.min.y; return pivot; }
+/* merged per material, scaled to world units, for instancing along the timeline road */
+function vehicleParts(pivot,scale){ pivot.updateMatrixWorld(true); const by=new Map();
+  pivot.traverse(o=>{ if(!o.isMesh) return; let g=o.geometry.clone(); g.applyMatrix4(o.matrixWorld); g.scale(scale,scale,scale);
+    for(const k of Object.keys(g.attributes)) if(!['position','normal','uv'].includes(k)) g.deleteAttribute(k);
+    if(!g.attributes.uv) g.setAttribute('uv',new THREE.BufferAttribute(new Float32Array(g.attributes.position.count*2),2));
+    if(g.index) g=g.toNonIndexed(); let a=by.get(o.material); if(!a) by.set(o.material,a=[]); a.push(g); });
+  return [...by].map(([m,gs])=>({m,g:mergeGeometries(gs,false)})); }
+function applyVehicleSwaps(gl){ const cache={};
+  for(const s of SWAPS){ const src=cache[s.name]||(cache[s.name]=prepVehicle(gl,s.name)); if(!src) continue;
+    const m=src.clone(true), k=s.len/src.userData.len; m.scale.setScalar(k); m.position.y=s.y; if(s.flat) s.obj.rotation.x=0;
+    s.obj.children.forEach(c=>c.visible=false); s.obj.add(m); heroTag(m,dioOf(s.obj)); } }
+/* the road traffic: autos, cars, buses and two-wheelers from the 1980s on */
+const TRAFFIC={ auto:['IN_Rickshaw_02','IN_Rickshaw_01','IN_Rickshaw_02','IN_Rickshaw_03'], car:['IN_Hatchback_01','IN_Hatchback_02','IN_Hatchback_03','IN_Hatchback_04','IN_Luxury_02','IN_SUV_01','IN_SUV_02','IN_SUV_04','IN_EV_02'],
+  bus:['IN_Bus_01','IN_Bus_02','IN_Bus_03'], scooter:['IN_Motorbike_01','IN_Motorbike_02','IN_Motorbike_03'] };
+function applyTraffic(gl){ const R=rng(808);
+  VEH.forEach((V,vi)=>{ const names=TRAFFIC[V.k]; if(!names) return; const parts=[];
+    names.forEach(n=>{ const p=prepVehicle(gl,n); if(p) parts.push({name:n,src:vehicleParts(p,.1),ims:[],n:0}); }); if(!parts.length) return;
+    V.list.forEach(v=>{ v.var=(R()*parts.length)|0; v.slot=parts[v.var].n++; });
+    parts.forEach(P=>{ if(!P.n) return; P.ims=P.src.map(({m,g})=>{ const im=new THREE.InstancedMesh(g,m,P.n); im.castShadow=true; im.receiveShadow=true; im.frustumCulled=false; world.add(im); return im; }); });
+    V.parts=parts; V.im.visible=false; }); }
+
+/* ---- people ---- */
+const PEOPLE_MAT=patch(new THREE.MeshStandardMaterial({vertexColors:true,roughness:.82,metalness:0}));
+let MAN=null;   /* {scene, clips, region[], head:{c,r}, H} */
+const REG={skin:0,top:1,bottom:2,shoes:3,hair:4,sleeve:5,shin:6,blouse:7};
+function prepMannequin(gl){ const sks=[]; gl.scene.traverse(o=>{ if(o.isSkinnedMesh) sks.push(o); }); if(!sks.length) return null;
+  gl.scene.updateMatrixWorld(true); const v=new THREE.Vector3(), all=new THREE.Box3(), hb=new THREE.Box3();
+  sks.forEach(sk=>all.expandByObject(sk)); const H=all.max.y-all.min.y;
+  const classify=sk=>{ const g=sk.geometry, pos=g.attributes.position, si=g.attributes.skinIndex, sw=g.attributes.skinWeight, bones=sk.skeleton.bones, bb=new THREE.Box3().setFromBufferAttribute(pos), h=bb.max.y-bb.min.y;
+    const region=new Uint8Array(pos.count), head=[];
+    for(let i=0;i<pos.count;i++){ let best=0,bw=-1; for(let k=0;k<4;k++){ const w=sw.getComponent(i,k); if(w>bw){ bw=w; best=si.getComponent(i,k); } }
+      const n=bones[best].name, y=(pos.getY(i)-bb.min.y)/h; let r;
+      if(/head/.test(n)){ r=REG.skin; head.push(i); } else if(/neck/.test(n)) r=REG.skin;
+      else if(/hand|f_|thumb/.test(n)) r=REG.skin; else if(/forearm/.test(n)) r=REG.sleeve; else if(/upper_arm|shoulder/.test(n)) r=REG.top;
+      else if(/spine/.test(n)) r=REG.top; else if(/hips/.test(n)) r=y>.53?REG.top:REG.bottom; else if(/thigh/.test(n)) r=REG.bottom;
+      else if(/shin/.test(n)) r=y<.16?REG.shin:REG.bottom; else if(/foot|toe/.test(n)) r=REG.shoes; else r=REG.top;
+      region[i]=r; }
+    head.forEach(i=>hb.expandByPoint(v.fromBufferAttribute(pos,i))); return {region,head}; };
+  const per=sks.map(sk=>({name:sk.name,...classify(sk)}));
+  const hc=hb.getCenter(new THREE.Vector3()), hs=hb.getSize(new THREE.Vector3());
+  per.forEach((p,j)=>{ const pos=sks[j].geometry.attributes.position; p.head.forEach(i=>{ v.fromBufferAttribute(pos,i); const ry=(v.y-hc.y)/hs.y, rz=(v.z-hc.z)/hs.z; if(ry>.18||(rz<-.12&&ry>-.15)) p.region[i]=REG.hair; }); });
+  const clips={}; gl.animations.forEach(a=>clips[a.name]=a);
+  return {scene:gl.scene,clips,regions:Object.fromEntries(per.map(p=>[p.name,p.region])),head:{c:hc,s:hs},H,minY:all.min.y}; }
+const POSE_CLIP={stand:'Idle_Loop',walk:'Walk_Loop',sit:'Sitting_Idle_Loop',bend:'Fixing_Kneeling',point:'Idle_Talking_Loop',carry:'Idle_Loop'};
+const SHOES=[0x2a211b,0x3b2f26,0x1c1c1e,0x5a4636];
+function dressedPerson(o){ const R=rng((o.seed||1)*131+7), root=SkeletonUtils.clone(MAN.scene); const sks=[]; root.traverse(c=>{ if(c.isSkinnedMesh) sks.push(c); }); const sk=sks[sks.length-1];
+  const C=new THREE.Color(), pal=[];
+  const skin=new THREE.Color(o.skin??SKINS[0]), top=new THREE.Color(o.top??0xe9e4da), bot=new THREE.Color(o.bottom??0x2f3a4a), acc=new THREE.Color(o.accent??0xc0392b), hair=new THREE.Color(o.hair??0x1b1714);
+  const longSleeve=R()<.55, barefoot=o.dress==='dhoti'||o.dress==='lungi'||(o.dress==='sari'&&R()<.5);
+  pal[REG.skin]=skin; pal[REG.hair]=hair; pal[REG.top]=top; pal[REG.sleeve]=longSleeve?top:skin; pal[REG.bottom]=bot; pal[REG.shin]=bot; pal[REG.shoes]=barefoot?skin:new THREE.Color(SHOES[(R()*4)|0]); pal[REG.blouse]=top;
+  if(o.dress==='dhoti'){ pal[REG.bottom]=new THREE.Color(0xf2ede0); pal[REG.shin]=skin; }
+  if(o.dress==='lungi'){ pal[REG.bottom]=acc; pal[REG.shin]=skin; }
+  if(o.dress==='sari'){ pal[REG.bottom]=acc; pal[REG.shin]=acc; pal[REG.top]=acc; pal[REG.sleeve]=skin; }
+  const jit=(R()-.5)*.06;
+  for(const m of sks){ const rg=MAN.regions[m.name]; if(!rg) continue; const g=m.geometry.clone(), n=g.attributes.position.count, col=new Float32Array(n*3);
+    for(let i=0;i<n;i++){ C.copy(pal[rg[i]]); if(rg[i]===REG.top||rg[i]===REG.bottom) C.offsetHSL(0,0,jit); col[i*3]=C.r; col[i*3+1]=C.g; col[i*3+2]=C.b; }
+    g.setAttribute('color',new THREE.BufferAttribute(col,3)); for(const k of ['uv','uv1']) if(g.attributes[k]) g.deleteAttribute(k); m.geometry=g; m.material=PEOPLE_MAT; }
+  /* headwear and hair shapes ride on the head bone */
+  const head=root.getObjectByName('DEF-head'), hc=MAN.head.c, hs=MAN.head.s, wear=[];
+  sk.skeleton.pose(); root.updateMatrixWorld(true);
+  const add=(geo,colr,x,y,z,sx=1,sy=1,sz=1)=>{ const m=new THREE.Mesh(P(geo,colr),vmat({rough:.85})); m.position.set(hc.x+x*hs.x,hc.y+y*hs.y,hc.z+z*hs.z); m.scale.set(sx,sy,sz); sk.add(m); root.updateMatrixWorld(true); head.attach(m); wear.push(m); };
+  if(o.head==='turban'){ add(new THREE.TorusGeometry(hs.x*.47,hs.x*.2,6,16),acc.getHex(),0,.3,0,1,1,1.1); wear[wear.length-1].rotation.x+=Math.PI/2; add(new THREE.SphereGeometry(hs.x*.5,12,8),acc.getHex(),0,.42,-.02,1,.7,1.05); }
+  if(o.head==='topi') add(new THREE.CylinderGeometry(hs.x*.48,hs.x*.52,hs.y*.22,14),0xf4f1ea,0,.46,-.02,1,1,1.05);
+  if(o.head==='cap'){ add(new THREE.SphereGeometry(hs.x*.54,14,8,0,Math.PI*2,0,Math.PI/2),acc.getHex(),0,.22,0); add(new THREE.BoxGeometry(hs.x*.6,hs.y*.04,hs.z*.4),acc.getHex(),0,.22,.6); }
+  if(o.head==='bun') add(new THREE.SphereGeometry(hs.x*.24,10,8),hair.getHex(),0,.05,-.6);
+  if(o.head==='hair'&&R()<.5) add(new THREE.SphereGeometry(hs.x*.53,12,8,0,Math.PI*2,0,Math.PI*.55),hair.getHex(),0,.14,-.06,1,.75,1.02);
+  if(o.dress==='sari') add(new THREE.SphereGeometry(hs.x*.56,12,8,0,Math.PI*2,0,Math.PI*.55),acc.getHex(),0,.12,-.1,1,.8,1.05);
+  /* animation: the pose picks a clip; the lamplighter holds his torch up */
+  let clip=POSE_CLIP[o.pose]||'Idle_Loop'; if(o.tool==='can'&&o.pose==='point') clip='Idle_Torch_Loop'; if(o.tool==='pick') clip='Fixing_Kneeling';
+  const mixer=new THREE.AnimationMixer(root), a=mixer.clipAction(MAN.clips[clip]||MAN.clips.Idle_Loop); a.play(); a.time=R()*a.getClip().duration; a.timeScale=.85+R()*.3; mixer.update(0);
+  return {root,mixer,clip,action:a}; }
+function hipsY(person){ const h=person.root.getObjectByName('DEF-hips'), v=new THREE.Vector3(); person.root.updateMatrixWorld(true); h.getWorldPosition(v); person.root.worldToLocal(v); return v.y; }
+const FIG_LIVE=[];
+function applyPeople(){
+  for(const f of FIG_SWAPS){ const p=dressedPerson(f.o), s=1/MAN.H; p.root.scale.setScalar(s); p.root.position.y=-MAN.minY*s;
+    if(f.o.pose==='sit'){ p.root.updateMatrixWorld(true); const hy=hipsY(p)*s; p.root.position.y+=.5-hy; p.root.position.z=-.1; }
+    f.g.children.forEach(c=>c.visible=false); f.g.add(p.root); heroTag(p.root,dioOf(f.g));
+    const live={g:f.g,p,walk:f.o.pose==='walk'?{x0:f.g.position.clone(),dir:new THREE.Vector3(Math.sin(f.g.rotation.y),0,Math.cos(f.g.rotation.y)),range:.75,sp:.7*f.g.scale.x*p.action.timeScale}:null};
+    FIG_LIVE.push(live); MIXERS.push(live); }
+  /* pedestrians on the timeline road */
+  WALKERS=[]; const RW=rng(4321), SC=.175/MAN.H, CL=[0xc0392b,0xe67e22,0xf1c40f,0x16a085,0x2980b9,0x8e44ad,0xecf0f1,0xd35400,0x27ae60,0xe84393,0x34495e,0xfdcb6e,0xf3efe6,0x7d8a9a];
+  const DR=['pants','pants','pants','sari','dhoti','lungi','pants','sari'], HD=['hair','hair','bun','turban','topi','cap','hair'];
+  for(let i=0;i<32;i++){ const p=PEOPLE[i], d=DR[(RW()*DR.length)|0], o={seed:900+i,dress:d,head:d==='sari'?'bun':HD[(RW()*HD.length)|0],top:CL[(RW()*CL.length)|0],bottom:[0x2f3a4a,0x4a4f58,0x6b5a46,0x1f2a44,0x3a3a40][(RW()*5)|0],accent:CL[(RW()*CL.length)|0],skin:SKINS[(RW()*SKINS.length)|0],pose:'walk'};
+    const w=dressedPerson(o); w.root.scale.setScalar(SC); w.action.timeScale=clamp((p.v/.1)/1.35,.75,1.5); world.add(w.root); heroTag(w.root,null); w.root.traverse(o=>{ if(o.isMesh) o.castShadow=false; }); WALKERS.push({w,p}); }
+  bodyIM.visible=headIM.visible=false; }
+let _mv=new THREE.Vector3();
+function updateModels(dt,cx){ if(!MODELS_READY) return;
+  for(const m of FIG_LIVE){ m.g.getWorldPosition(_mv); if(Math.abs(_mv.x-cx)>40) continue; m.p.mixer.update(dt);
+    if(m.walk){ const W=m.walk; W.t=(W.t??Math.random()*W.range)+dt*W.sp; const d=W.t%W.range, f=Math.min(1,d/.12,(W.range-d)/.12);
+      m.g.position.copy(W.x0).addScaledVector(W.dir,d-W.range/2); const s=m.g.userData.s0??(m.g.userData.s0=m.g.scale.x); m.g.scale.setScalar(s*Math.max(.001,f)); } }
+  if(WALKERS) for(const {w,p} of WALKERS){ if(p.x>cx+40) p.x-=80; if(p.x<cx-40) p.x+=80; w.root.position.set(p.x,hgt(p.x,p.z),p.z); w.root.rotation.y=p.dir>0?Math.PI/2:-Math.PI/2; const near=Math.abs(p.x-cx)<26; w.root.visible=near; if(near) w.mixer.update(dt); } }
+async function loadModels(){ if(!/^https?:/.test(location.protocol)) return;
+  const L=new GLTFLoader();
+  try{ const [veh,ppl]=await Promise.all([L.loadAsync(MODEL_BASE+'traffic.glb'),L.loadAsync(MODEL_BASE+'people.glb')]);
+    MAN=prepMannequin(ppl); applyVehicleSwaps(veh); applyTraffic(veh); if(MAN) applyPeople();
+    MODELS_READY=true; try{ renderer.compileAsync&&renderer.compileAsync(scene,camera).catch(()=>{}); }catch(e){}
+    document.body.classList.add('models-ready'); }
+  catch(e){ console.warn('Real models not loaded; keeping the built-in ones.',e); } }
+
+
 /* ================= BOOT ================= */
 /* fine monochrome grain tile (SVG turbulence), a stand-in for the Figma noise image */
 const GRAIN='data:image/svg+xml,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180"><filter id="n" x="0" y="0"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="matrix" values="1 0 0 0 0  1 0 0 0 0  1 0 0 0 0  0 0 0 0 1"/></filter><rect width="180" height="180" filter="url(#n)"/></svg>`);
@@ -3474,6 +3626,7 @@ const GRAIN='data:image/svg+xml,'+encodeURIComponent(`<svg xmlns="http://www.w3.
   /* compile every scene's shaders in the background, so no stop hitches the first time it comes into view */
   try{ renderer.compileAsync&&renderer.compileAsync(scene,camera).catch(()=>{}); }catch(e){}
   handleHash();
+  loadModels();
   window.__app={ manual(on){ MANUAL=on; }, step(n=1,r=1/30){ for(let k=0;k<n;k++){ SKIPR=k<n-1; stepFrame(r); } SKIPR=false; }, goTo, enterBuilder, exitBuilder, enterVR, exitVR, openChapter, closeChapter, startFollow, stopFollow, start:()=>startExperience(true), bTap:(k)=>bTap(k), setTool:(k)=>{B.tool=k;}, bResult:()=>bResult(), setDrag(x){ markDragged(); phase='drag'; dragT=x; }, release(){ releaseSnap(restX); }, get state(){ return {fx,phase,zoneIdx,arrived,building,lensMode,vrMode,follow,stamps:stampCount(),cardDX,clayK,ST:!!ST}; }, DIO, earn:earnStamp, camera, cardRect, unlockAll:()=>$('btnUnlockAll').onclick(), ob:()=>({coach:wt.i,static:OB.static,p:OB.p,cls:BODY.className}), obReset:()=>{ try{ localStorage.removeItem(OB_KEY); }catch(e){} }, chScrollTo:(y)=>{ if(chLenis) chLenis.scrollTo(y,{immediate:true}); else loScroll.scrollTop=y; }, scrollInfo:()=>({lenis:!!chLenis,page:!!pageLenis,gsap:gsapReady,triggers:window.ScrollTrigger?ScrollTrigger.getAll().length:0,top:loScroll.scrollTop}) };
 })();
 
