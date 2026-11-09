@@ -7,6 +7,15 @@ import * as store from '../store.js';
 import { todaySchedule, dayProgress, currentWeek, WEEKS } from '../plan.js';
 import * as level from '../level.js';
 
+// A colour per block, so the shape of the day is legible at a glance and
+// the speaking blocks read as one family.
+const CHIP = {
+  echauffement:'var(--orange)', vocab:'var(--vert)',    grammaire:'var(--bleu)',
+  shadowing:   'var(--rose)',   questions:'var(--rose)', sectionA:'var(--rose)',
+  sectionB:    'var(--rose)',   monologue:'var(--rose)', ecrire:'var(--violet)',
+  bilan:       'var(--jaune)',
+};
+
 export default function home(el, { go }) {
   const sched = todaySchedule(store.settings().startHour || 7);
   const prog = dayProgress();
@@ -54,7 +63,7 @@ export default function home(el, { go }) {
     <div class="grid2" style="align-items:start;margin-bottom:.5rem">
       <div class="meter">
         <div class="meter__row">
-          <span class="meter__n">${spokenMin}</span>
+          <span class="meter__n" data-count="${spokenMin}">0</span>
           <span class="meter__unit">min parlées aujourd’hui${assistOn ? ' · spoken today' : ''}</span>
         </div>
         <div class="meter__track">
@@ -69,7 +78,7 @@ export default function home(el, { go }) {
 
       <div class="meter">
         <div class="meter__row">
-          <span class="meter__n">${prog.done}<span style="font-size:.45em;color:var(--ink-faint)"> / ${prog.total}</span></span>
+          <span class="meter__n"><span data-count="${prog.done}">0</span><span style="font-size:.45em;color:var(--ink-faint)"> / ${prog.total}</span></span>
           <span class="meter__unit">blocs faits${assistOn ? ' · blocks done' : ''}</span>
         </div>
         <div class="meter__track">
@@ -95,22 +104,21 @@ export default function home(el, { go }) {
     </div>
 
     <div class="sched">
-      ${sched.map(b => `
+      ${sched.map((b, k) => `
         <button class="block" data-act="block" data-id="${esc(b.id)}" data-route="${esc(b.route)}"
-                data-min="${b.min}" data-done="${b.done ? 1 : 0}">
-          <span class="block__time">${b.from}</span>
+                data-min="${b.min}" data-done="${b.done ? 1 : 0}"
+                style="--chip:${CHIP[b.id] || 'var(--accent)'}">
+          <span class="block__chip">${b.speaking ? icon.mic : k + 1}</span>
           <span class="block__body">
-            <span class="block__name">
-              ${b.speaking ? `<span class="tagmic" aria-label="bloc de parole">${icon.mic}</span>` : ''}
-              ${esc(b.fr)}
-            </span>
+            <span class="block__time">${b.from} – ${b.to}</span>
+            <span class="block__name">${esc(b.fr)}</span>
             <span class="block__desc">
               ${esc(b.desc)}${assistOn ? `<span class="gloss">${esc(b.descEn)}</span>` : ''}
             </span>
           </span>
           <span class="block__meta">
             <span>${b.min} min</span>
-            ${b.done ? '' : '<span style="color:var(--ink)">commencer</span>'}
+            ${b.done ? '<span>terminé</span>' : '<span class="block__go">commencer</span>'}
           </span>
         </button>`).join('')}
     </div>

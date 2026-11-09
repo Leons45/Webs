@@ -18,6 +18,7 @@ const blank = () => ({
     startDate: dayKey(),
     targetCLB: 7,
     assist: true,        // show English alongside French
+    sound: true,         // synthesised feedback tones
     voice: '',
     rate: 0.9,
     theme: 'auto',

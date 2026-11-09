@@ -1,10 +1,11 @@
 // Grammar, taught the way it is useful: a short rule, three examples you
 // could actually say, then drills. A lesson only counts as passed at 70%.
 
-import { esc, acts, $, $$, LETTERS, shuffle } from '../ui.js';
+import { esc, acts, $, $$, LETTERS, shuffle, icon } from '../ui.js';
 import { bindPeeks } from '../i18n.js';
 import * as store from '../store.js';
 import * as speech from '../speech.js';
+import * as fx from '../fx.js';
 import { GRAMMAR, lessonById } from '../data/grammar.js';
 import { todayLesson, currentWeek } from '../plan.js';
 
@@ -123,7 +124,7 @@ function view(el, lesson, go) {
           <div class="ex">
             <div class="row row--split" style="gap:.75rem;align-items:flex-start">
               <span class="ex__fr">${esc(x.fr)}</span>
-              <button class="btn btn--plain" data-act="say" data-fr="${esc(x.fr)}" aria-label="Écouter">♪</button>
+              <button class="audiobtn" data-act="say" data-fr="${esc(x.fr)}" aria-label="Écouter">${icon.speak}</button>
             </div>
             ${a ? `<span class="ex__en">${esc(x.en)}</span>` : ''}
           </div>`).join('')}
@@ -223,6 +224,8 @@ function view(el, lesson, go) {
         sessionStorage.removeItem('atelier.block');
       }
     } catch {}
+
+    if (pct >= 70) fx.celebrate(`${pct} %`); else fx.sndWrong();
 
     $('#footer', frame).remove();
     $('#result', frame).innerHTML = `

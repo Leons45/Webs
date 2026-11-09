@@ -1,5 +1,6 @@
 import { $, esc, tabIcon } from './ui.js';
 import * as store from './store.js';
+import * as fx from './fx.js';
 import { loadVoices, stopAll } from './speech.js';
 import { dayProgress } from './plan.js';
 
@@ -39,6 +40,12 @@ const NAV = [
   { group: '' },
   { href: '#/progres',   fr: 'Progrès',      en: 'Progress' },
 ];
+
+const SECTION_OF = {
+  '/': 'home', '/parler': 'parler', '/phrases': 'phrases',
+  '/grammaire': 'grammaire', '/vocab': 'vocab', '/ecrire': 'ecrire',
+  '/progres': 'progres', '/reglages': 'progres',
+};
 
 const TABS = [
   { href: '#/',                   fr: 'Jour',    icon: 'accueil' },
@@ -122,12 +129,16 @@ async function render() {
   const el = $('#view');
   el.innerHTML = '';
   document.title = `${route.title} — L'Atelier`;
+  // One colour per section, so the app is navigable by colour before you
+  // read a word. Every component picks it up through --accent.
+  document.documentElement.dataset.section = SECTION_OF[path] || 'home';
   renderNav(path, search);
   paintAssist();
 
   const params = new URLSearchParams(search || '');
   teardown = await route.view(el, { params, go, repaint: () => renderNav(path, search) }) || null;
 
+  fx.countAll(el);
   scrollTo({ top: 0, behavior: 'instant' });
 }
 

@@ -6,6 +6,7 @@ import { hide, bindPeeks } from '../i18n.js';
 import * as store from '../store.js';
 import * as speech from '../speech.js';
 import * as srs from '../srs.js';
+import * as fx from '../fx.js';
 import { SHADOW, QUESTION_DRILL, QUICK, SECTION_A, SECTION_B, MONOLOGUE } from '../data/speaking.js';
 import { currentWeek } from '../plan.js';
 
@@ -13,12 +14,13 @@ import { currentWeek } from '../plan.js';
 function finishBlock() {
   try {
     const raw = sessionStorage.getItem('atelier.block');
-    if (!raw) return;
+    if (!raw) { fx.sndDone(); return; }
     const { id, min } = JSON.parse(raw);
     store.completeBlock(id, 0);
     sessionStorage.removeItem('atelier.block');
+    fx.celebrate('Bloc fait');
     toast(`Bloc terminé · ${min} min`);
-  } catch {}
+  } catch { fx.sndDone(); }
 }
 
 export default function parler(el, { params, go }) {
@@ -86,11 +88,13 @@ function hub(el) {
  */
 function recorderPanel(mount, { label = 'Appuie et parle', max = 0, onDone, autoStart = false }) {
   let rec = null, url = null, watch = null, stopTimer = null, running = false;
+  let killWave = null;
 
   mount.innerHTML = `
     <div class="mic">
       <button class="mic__btn" data-act="rec" aria-label="Enregistrer">${icon.mic}</button>
       <span class="mic__time u-num" id="micT">0:00</span>
+      <canvas class="wave" id="micWave" hidden aria-hidden="true"></canvas>
       <span class="mic__label" id="micL">${esc(label)}</span>
     </div>
     <div id="micOut"></div>`;
@@ -98,6 +102,7 @@ function recorderPanel(mount, { label = 'Appuie et parle', max = 0, onDone, auto
   const btn = $('[data-act="rec"]', mount);
   const tEl = $('#micT', mount);
   const lEl = $('#micL', mount);
+  const wave = $('#micWave', mount);
 
   async function start() {
     if (running) return;
@@ -105,9 +110,14 @@ function recorderPanel(mount, { label = 'Appuie et parle', max = 0, onDone, auto
     btn.dataset.on = '1';
     btn.innerHTML = icon.stop;
     lEl.textContent = 'Parle… appuie pour arrêter';
+    fx.sndStart();
     try {
       rec = await speech.recorder();
       rec.start();
+      // The waveform is the proof that the mic is live — without it the
+      // whole speaking practice feels like talking into a dead form.
+      wave.hidden = false;
+      killWave = fx.waveform(wave, rec.stream);
     } catch {
       rec = null;
       lEl.textContent = 'Micro indisponible — le chronomètre tourne quand même';
@@ -122,6 +132,8 @@ function recorderPanel(mount, { label = 'Appuie et parle', max = 0, onDone, auto
     clearTimeout(stopTimer);
     btn.dataset.on = '0';
     btn.innerHTML = icon.mic;
+    if (killWave) { killWave(); killWave = null; }
+    wave.hidden = true;
     const seconds = watch ? watch.elapsed() : 0;
     if (watch) watch.stop();
     if (rec) { try { url = await rec.stop(); } catch {} rec = null; }
@@ -140,6 +152,7 @@ function recorderPanel(mount, { label = 'Appuie et parle', max = 0, onDone, auto
     isRunning: () => running,
     cleanup: () => {
       clearTimeout(stopTimer);
+      if (killWave) killWave();
       if (watch) watch.stop();
       if (rec) { try { rec.stop(); } catch {} }
       if (url) URL.revokeObjectURL(url);
@@ -207,6 +220,7 @@ function shadowMode(el, go) {
   function advance(grade) {
     const item = list[i];
     srs.grade(item.id, grade, ['shadowing']);
+    grade >= 2 ? fx.sndRight() : fx.sndWrong();
     i += 1;
     draw();
   }
@@ -316,7 +330,12 @@ function questionMode(el, go) {
   acts(frame, {
     reveal,
     replay: () => { speech.resetCancel(); speech.say(items[i].fr, { rate: store.settings().rate, voiceName: store.settings().voice }); },
-    g: (b) => { srs.grade(items[i].id, Number(b.dataset.g), ['questions']); i += 1; draw(); },
+    g: (b) => {
+      const g = Number(b.dataset.g);
+      srs.grade(items[i].id, g, ['questions']);
+      g >= 2 ? fx.sndRight() : fx.sndWrong();
+      i += 1; draw();
+    },
     again: () => go('#/parler?mode=questions'),
   });
 

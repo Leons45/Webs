@@ -4,6 +4,7 @@
 
 import { esc, acts, $, $$, words, mmss, countdown, toast } from '../ui.js';
 import * as store from '../store.js';
+import * as fx from '../fx.js';
 import { WRITING } from '../data/writing.js';
 import { PHRASES, byGroup } from '../data/phrases.js';
 
@@ -184,6 +185,7 @@ function compose(el, item) {
       }
     } catch {}
 
+    fx.celebrate('Rendu');
     const flags = selfCheck(text, item);
     $('#review', el).innerHTML = `
       <hr class="hair">

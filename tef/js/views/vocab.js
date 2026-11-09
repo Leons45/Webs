@@ -2,11 +2,12 @@
 // chunk aloud, then you see the whole sentence it lives in — because an
 // isolated word is a word you will not retrieve under pressure.
 
-import { esc, acts, $, shuffle } from '../ui.js';
+import { esc, acts, $, shuffle, icon } from '../ui.js';
 import { hide, bindPeeks } from '../i18n.js';
 import * as store from '../store.js';
 import * as srs from '../srs.js';
 import * as speech from '../speech.js';
+import * as fx from '../fx.js';
 import { VOCAB, THEMES, byTheme } from '../data/vocab.js';
 import { todayThemes, currentWeek } from '../plan.js';
 
@@ -109,7 +110,7 @@ function drill(el, go, theme) {
         <div class="ex" style="max-width:38rem;width:100%">
           <div class="row row--split" style="gap:.75rem;align-items:flex-start">
             <span class="ex__fr">${esc(v.ex)}</span>
-            <button class="btn btn--plain" data-act="replay" aria-label="Réécouter">♪</button>
+            <button class="audiobtn" data-act="replay" aria-label="Réécouter">${icon.speak}</button>
           </div>
           ${a ? `<span class="ex__en">${esc(v.exEn)}</span>` : hide(v.exEn, 'anglais')}
         </div>
@@ -131,6 +132,7 @@ function drill(el, go, theme) {
         sessionStorage.removeItem('atelier.block');
       }
     } catch {}
+    fx.celebrate('Fait');
     store.logMinutes(15);
     frame.innerHTML = `
       <div class="score">
@@ -146,7 +148,12 @@ function drill(el, go, theme) {
   acts(frame, {
     reveal,
     replay: () => { speech.resetCancel(); speech.say(items[i].ex, { rate: store.settings().rate, voiceName: store.settings().voice }); },
-    g: (b) => { srs.grade(items[i].id, Number(b.dataset.g), ['vocab', items[i].theme]); i += 1; draw(); },
+    g: (b) => {
+      const g = Number(b.dataset.g);
+      srs.grade(items[i].id, g, ['vocab', items[i].theme]);
+      g >= 2 ? fx.sndRight() : fx.sndWrong();
+      i += 1; draw();
+    },
     again: () => go('#/vocab?drill=1' + (theme ? '&theme=' + theme : '')),
   });
 

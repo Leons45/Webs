@@ -1,6 +1,7 @@
 import { esc, acts, $, toast } from '../ui.js';
 import * as store from '../store.js';
 import * as speech from '../speech.js';
+import * as fx from '../fx.js';
 
 export default function reglages(el, { go }) {
   const s = store.settings();
@@ -52,6 +53,20 @@ export default function reglages(el, { go }) {
         <div class="row">
           <button class="assist" data-act="toggle" aria-pressed="${a}">
             ${a ? 'English on' : 'English off'}</button>
+        </div>
+      </section>
+
+      <section class="sheet stack">
+        <h2 style="font-size:var(--t-md)">Son et effets${a ? '<span class="gloss">Sound & effects</span>' : ''}</h2>
+        <p style="font-size:var(--t-sm);color:var(--ink-soft);margin:0">
+          Petits retours sonores quand une réponse est juste ou fausse, et une estampe
+          quand un bloc est terminé. Rien n’est enregistré ni envoyé.
+          ${a ? '<span class="gloss">Small tones when an answer is right or wrong, and a stamp when a block is done. Nothing is recorded or sent.</span>' : ''}
+        </p>
+        <div class="row">
+          <button class="assist" data-act="sound" aria-pressed="${s.sound}">
+            ${s.sound ? 'Son activé' : 'Son coupé'}</button>
+          <button class="btn btn--ghost" data-act="testsound">Essayer</button>
         </div>
       </section>
 
@@ -133,6 +148,14 @@ export default function reglages(el, { go }) {
 
   acts(el, {
     toggle: () => { store.toggleAssist(); go('#/reglages'); },
+
+    sound: () => {
+      store.setSetting('sound', !store.settings().sound);
+      if (store.settings().sound) fx.sndRight();
+      go('#/reglages');
+    },
+
+    testsound: () => fx.celebrate('Bravo'),
 
     test: () => speech.say(
       'Bonjour. Pourriez-vous me préciser le montant du loyer, s’il vous plaît ?',

@@ -98,8 +98,28 @@ sw.js               offline cache
 
 ## Design
 
-The surface is *papier Séyès* — the ruled French exercise book — with
-fountain-pen navy. Red and green are the teacher's two correction pens and
-carry meaning rather than decoration: red marks an error, a weak point, or
-a live microphone. Spectral sets the French; Archivo sets the interface and
-the English gloss, so the apparatus is visibly not the text.
+The language is **risograph poster printing**: flat saturated inks, hard ink
+outlines, and solid offset shadows that collapse when you press them.
+Nothing is soft-shadowed — depth comes from offset, not blur.
+
+One colour per section, so the app is navigable by colour before you read a
+word: yellow for today's programme, pink for speaking, orange for phrases,
+blue for grammar, green for vocabulary, violet for writing. Every component
+picks it up through a single `--accent` custom property set on `<html>`.
+
+Bricolage Grotesque sets the display and the interface; Spectral sets the
+French itself, so the language you are learning always looks different from
+the apparatus around it — including the English gloss, which is deliberately
+sans-serif and quiet so you can learn to stop seeing it.
+
+### The feedback layer
+
+- a **live waveform** off the recording stream, because the one thing that
+  makes speaking practice feel like an instrument rather than a form is
+  seeing the microphone respond
+- a **rubber stamp** that thwacks down when a block is finished, plus confetti
+- **synthesised tones** for right, wrong and done — no audio files to ship
+- animated counters, slammed-in examiner objections, pressable everything
+
+All of it respects `prefers-reduced-motion`, and the sound can be switched
+off in Réglages.

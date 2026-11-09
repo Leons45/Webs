@@ -114,6 +114,8 @@ export async function recorder() {
   mr.ondataavailable = (e) => { if (e.data.size) chunks.push(e.data); };
 
   return {
+    // Exposed so the UI can draw a live waveform off the same stream.
+    stream,
     start: () => mr.start(250),
     stop: () => new Promise((resolve) => {
       mr.onstop = () => {
