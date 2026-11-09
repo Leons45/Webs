@@ -1,89 +1,105 @@
-# L'Atelier — TEF Canada
+# L'Atelier — A2 → B2 for the TEF Canada
 
-A daily training app for the TEF Canada exam. No build step, no account, no
-server: open it and work. Everything is stored in the browser, and it runs
-offline after the first visit.
+A daily programme for getting from A2 to the level CLB 7 asks for, built
+around one idea: **at A2, comprehension improves on its own from exposure.
+Production does not.** So just under half of every study day is spent
+speaking, and the number the app puts first is minutes spoken.
 
-## What it does
+No build step, no account, no server. Runs offline after the first visit.
+English sits next to the French everywhere, and switches off when you stop
+needing it.
 
-**Révision espacée.** An SM-2 scheduler over a bank of grammar, usage and
-vocabulary cards. Cards you miss come back in six minutes; cards you know
-drift out to weeks. The queue leads with your weakest tags, so the hard
-material gets the freshest attention rather than the tail end of a session.
+## The day
 
-**Atelier.** A drill built only from the tags you are actually failing.
-Running accuracy per tag is tracked on every answer across every mode, so
-the diagnosis comes from your work, not from a placement test.
+Open it and the day arrives as a timetable, not a menu — at three to four
+hours a day, deciding what to do next is itself a cost. Ten blocks, scaled
+automatically to the hours you set:
 
-**Compréhension écrite.** Original passages in all four TEF formats —
-short notices, informative texts, two texts to compare, and a gap-fill.
-The whole set is marked at once, as in the exam, with an explanation per
-question.
+| | block | what it trains |
+|---|---|---|
+| 🎙 | Échauffement | ten ready-made phrases, said aloud |
+| | Vocabulaire | the week's themed chunks, spaced repetition |
+| | Grammaire | one short lesson, then drills |
+| 🎙 | Shadowing | hear it, repeat it at once, compare |
+| 🎙 | Questions éclair | see English, say the French question |
+| 🎙 | Section A | five timed minutes of asking only |
+| 🎙 | Section B | ten minutes against spoken objections |
+| 🎙 | Monologue | sixty seconds, no preparation |
+| | Écriture | one short timed task |
+| | Bilan | what resisted, and where you stand |
 
-**Compréhension orale.** Scripts are spoken by the browser's French voice,
-so there are no audio files to download and you can slow the delivery to
-0.75× while you build the ear, then take it back up. Replays are capped at
-two. The transcript unlocks after marking.
+## Thirteen weeks
 
-**Dictée.** You hear a sentence and write it; the two versions are then
-diffed word by word. Every sentence was chosen because its error is silent
-— a participle agreement, an auxiliary, a negation out of position. This is
-the fastest way to find out which of your mistakes you cannot hear.
+Weeks 1–13 run A2 → B2, each ending in a goal you can test yourself on
+("ask ten different questions about an advert with no preparation", "land
+three correct subjunctives in an argument"). The week decides which grammar
+lesson and which vocabulary theme the day's blocks draw on.
 
-**Expression orale.** Prep timer, task timer, microphone recording and
-playback, plus a five-criterion self-assessment. Recordings stay on the
-device.
+## What's distinctive
 
-**Expression écrite.** Timed composition on a ruled sheet with a live word
-count, a clickable bank of connectors and formal formulas, and a mechanical
-pass that flags spoken register, incomplete negation, a missing concession,
-and `mais` used three times.
+**Section B objections are spoken aloud.** The examiner's five objections
+play through the French voice at intervals while you are recording, so you
+have to react in real time instead of reciting a prepared speech.
 
-**Progrès.** Practice accuracy is placed on the official TEF module scales
-(CO /360, CE /300, EE /450, EO /450) and read against IRCC's published NCLC
-bands for exams taken from 11 December 2023 onward. The page leads with the
-only number that governs eligibility: your weakest skill.
+**The phrase bank is organised by function, not topic** — survival,
+buying time and repairing, Section A asking, Section B persuading. The
+"buying time" group is the highest-value one at A2: a B2 speaker is not
+someone who never hesitates, it is someone who hesitates *in French*.
+
+**Grammar is ordered by what it unblocks**, not by tradition. Lesson 2 is
+the three ways of forming a question, because Section A is five minutes of
+nothing else.
+
+**The level ladder is explicit and cannot be gamed.** Five rungs, each with
+three conditions — hours spoken, lessons passed at 70%, drill accuracy — and
+all three must be met. Hours spoken is deliberately the slowest: you can
+read a grammar in an afternoon, you cannot shortcut the sixty hours of
+production that separate A2 from B2.
+
+**The pace check does the arithmetic honestly.** It compares the speech you
+still owe against the days remaining and tells you plainly whether the
+current rate gets you there.
 
 ## Running it
 
-It is a static site. Open `index.html` over any HTTP server:
+A static site. Any HTTP server will do:
 
 ```
 python3 -m http.server 8000
 ```
 
-Or use the hosted copy on GitHub Pages.
-
 ## Notes
 
-- Score estimates steer revision. They are not a prediction of exam day, and
-  the expression modules are only as honest as your self-marking. Check the
-  current bands on the IRCC site before making any decision about a file.
-- Listening needs a French voice installed in the browser. Chrome, Edge and
-  Safari ship one; on Windows, add French under Settings → Time & language →
-  Speech.
+- Speech needs a French voice in the browser. Chrome, Edge and Safari ship
+  one; on Windows add French under Settings → Time & language → Speech.
+- Recordings stay on the device and are never uploaded.
 - Progress lives in `localStorage` for this origin. Export a backup from
   Réglages before clearing browser data or switching devices.
+- The NCLC equivalences shown are IRCC's published bands, but only a real
+  TEF Canada gives an official score. Check the current bands on the IRCC
+  site before making any decision about a file.
 
 ## Structure
 
 ```
 index.html          shell
-css/app.css         the whole design system
-js/app.js           hash router, nav, theme
-js/store.js         persistence, streak, day log
-js/srs.js           SM-2 scheduling and queue building
-js/scoring.js       TEF scales, NCLC bands, estimator
+css/app.css         the design system
+js/app.js           router, nav, English toggle
+js/plan.js          the day's timetable + the thirteen weeks
+js/level.js         the ladder, the gaps, the pace arithmetic
+js/store.js         persistence; speakingSeconds is the key field
+js/srs.js           spaced repetition over any item
+js/i18n.js          English assistance
 js/speech.js        synthesis, recognition, recording
 js/views/*.js       one file per screen
-js/data/*.js        the content bank
+js/data/*.js        phrases, grammar, vocabulary, speaking, writing
 sw.js               offline cache
 ```
 
 ## Design
 
 The surface is *papier Séyès* — the ruled French exercise book — with
-fountain-pen navy for the voice. Red and green are the teacher's two
-correction pens and are never decoration: red marks an error or a weak
-point, green marks something right or consolidated. Spectral sets the
-French; Archivo sets the interface.
+fountain-pen navy. Red and green are the teacher's two correction pens and
+carry meaning rather than decoration: red marks an error, a weak point, or
+a live microphone. Spectral sets the French; Archivo sets the interface and
+the English gloss, so the apparatus is visibly not the text.

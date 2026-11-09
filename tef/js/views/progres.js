@@ -1,176 +1,211 @@
-import { esc, acts, pct } from '../ui.js';
-import * as store from '../store.js';
-import * as srs from '../srs.js';
-import { MODULES, profile, weakestSkill } from '../scoring.js';
-import { TAGS } from '../data/cards.js';
+// Progress. The ladder is explicit on purpose: a number you cannot
+// interrogate is demotivating, and a number that flatters you is worse
+// than none at all.
 
-const ACT_LABEL = {
-  review: 'Révision', dictee: 'Dictée', lire: 'Compréhension écrite',
-  ecouter: 'Compréhension orale', parler: 'Expression orale', ecrire: 'Expression écrite',
-};
+import { esc, acts, pct, dur } from '../ui.js';
+import * as store from '../store.js';
+import * as level from '../level.js';
+import { RUNGS } from '../level.js';
+import { WEEKS, currentWeek } from '../plan.js';
+import { GRAMMAR } from '../data/grammar.js';
+import { PHRASES } from '../data/phrases.js';
+import { VOCAB } from '../data/vocab.js';
+import * as srs from '../srs.js';
 
 export default function progres(el, { go }) {
-  const prof = profile(store);
-  const weakest = weakestSkill(prof);
-  const target = store.settings().target;
-  const acc = store.tagAccuracy();
-  const c = srs.counts();
+  const a = store.assist();
+  const { rung, metrics } = level.current();
+  const nextRung = level.next();
+  const gaps = level.gaps();
+  const pace = level.pace();
+  const week = currentWeek();
   const days = store.daysUntilExam();
 
   const last30 = store.lastDays(30);
-  const activeDays = last30.filter(d => d.cards > 0 || d.minutes > 0).length;
-  const totalQs = last30.reduce((s, d) => s + d.cards, 0);
-  const totalMin = last30.reduce((s, d) => s + d.minutes, 0);
+  const activeDays = last30.filter(d => d.minutes > 0).length;
+  const spokenMonth = Math.round(last30.reduce((s, d) => s + d.speakingSeconds, 0) / 60);
 
-  const actTotals = {};
-  for (const d of store.lastDays(90)) {
-    for (const [k, v] of Object.entries(d.acts || {})) actTotals[k] = (actTotals[k] || 0) + v;
-  }
-  const actMax = Math.max(1, ...Object.values(actTotals));
+  const byMode = {};
+  for (const s of store.get().speaking) byMode[s.mode] = (byMode[s.mode] || 0) + s.seconds;
+  const modeMax = Math.max(1, ...Object.values(byMode));
+  const MODE_LABEL = {
+    shadow:'Shadowing', questions:'Questions éclair', quick:'Réponses rapides',
+    sectionA:'Section A', sectionB:'Section B', monologue:'Monologue', phrases:'Phrases',
+  };
 
   const weeks = 18;
   const cells = store.lastDays(weeks * 7);
-  const goal = store.settings().dailyGoal;
   const todayKey = store.today();
-  const level = (n) => (n === 0 ? 0 : n < goal * 0.4 ? 1 : n < goal * 0.8 ? 2 : n < goal * 1.5 ? 3 : 4);
+  const lv = (m) => (m === 0 ? 0 : m < 40 ? 1 : m < 100 ? 2 : m < 180 ? 3 : 4);
+
+  const tagAcc = store.tagAccuracy();
 
   el.innerHTML = `
   <div class="view view--wide">
     <div class="ph">
-      <h1>Progrès</h1>
-      <p class="ph__sub">Les scores sont des estimations calculées sur ta réussite en entraînement,
-        placées sur les barèmes officiels. Ils servent à décider où travailler, pas à prédire ta note.</p>
+      <h1>Progrès${a ? '<span class="gloss" style="font-size:var(--t-base)">Progress</span>' : ''}</h1>
+      <p class="ph__sub">Trois choses te font monter, et les trois doivent bouger :
+        les heures de parole produite, la grammaire réellement réussie, et la précision en exercice.
+        ${a ? '<span class="gloss">Three things move you up, and all three must move: hours of speech produced, grammar actually passed, and accuracy under drill conditions.</span>' : ''}</p>
     </div>
 
-    ${weakest ? `
-      <section class="today" style="margin-bottom:2rem">
-        <div class="today__date u-ui">niveau retenu${days != null && days >= 0 ? ` · examen dans ${days} jour${days === 1 ? '' : 's'}` : ''}</div>
-        <h2 class="today__line" style="font-size:var(--t-xl)">
-          <b>NCLC ${weakest.nclc}</b> — fixé par <em>${esc(weakest.label.toLowerCase())}</em>${weakest.nclc < target
-            ? `, soit ${target - weakest.nclc} niveau${target - weakest.nclc > 1 ? 'x' : ''} sous ton objectif.`
-            : `, ton objectif est atteint sur cette compétence.`}
-        </h2>
-        <p class="today__note">Pour l’admissibilité, c’est toujours la compétence la plus faible qui
-          détermine le niveau retenu : un excellent score ailleurs ne la compense pas.</p>
-      </section>` : `
-      <div class="empty" style="margin-bottom:2rem">
-        Fais une série dans chacune des quatre épreuves et cette page se remplira.
+    ${pace && pace.started ? `
+      <div class="pace" data-track="${pace.onTrack ? 1 : 0}" style="margin-bottom:2rem">
+        <div class="pace__head">${pace.onTrack
+          ? 'Au rythme actuel, l’objectif de février tient.'
+          : 'Au rythme actuel, l’objectif de février ne tient pas.'}</div>
+        <div class="pace__body">
+          Il reste ${pace.days} jours et ${pace.hoursNeeded.toFixed(0)} heures de parole à produire,
+          soit ${pace.minutesPerDayNeeded} minutes par jour. Sur les quatorze derniers jours
+          tu en produis ${pace.minutesPerDayActual}.
+          ${a ? `<span class="gloss">${pace.days} days left and ${pace.hoursNeeded.toFixed(0)} hours of speech to produce — ${pace.minutesPerDayNeeded} min a day. Over the last fourteen days you are producing ${pace.minutesPerDayActual}.</span>` : ''}
+        </div>
+      </div>` : `
+      <div class="pace" style="margin-bottom:2rem">
+        <div class="pace__head">Pas encore assez de données pour juger le rythme.</div>
+        <div class="pace__body">Fais quelques blocs de parole et cette estimation apparaîtra.</div>
       </div>`}
 
-    <h2 style="font-size:var(--t-md);margin-bottom:1.75rem">Les quatre compétences</h2>
-    <div class="ladder" style="margin-bottom:2.5rem">
-      ${prof.map(p => {
-        const max = MODULES[p.module].max;
-        const width = p.score == null ? 0 : Math.min(100, (p.score / max) * 100);
-        const tpos = Math.min(100, (p.targetFloor / max) * 100);
-        const cls = p.score == null ? '' : p.met ? 'lad__fill--met' : 'lad__fill--short';
+    <h2 style="font-size:var(--t-md);margin-bottom:.9rem">
+      L’échelle${a ? '<span class="gloss">The ladder</span>' : ''}</h2>
+    <div class="rungs" style="margin-bottom:1.25rem">
+      ${RUNGS.map(r => {
+        const idx = RUNGS.findIndex(x => x.key === r.key);
+        const here = RUNGS.findIndex(x => x.key === rung.key);
+        const state = idx < here ? 'passed' : idx === here ? 'here' : 'todo';
         return `
-        <div class="lad">
-          <span class="lad__name">${esc(p.label)}</span>
-          <div class="lad__track">
-            <div class="lad__fill ${cls}" style="width:${width}%"></div>
-            <div class="lad__target" style="left:${tpos}%" data-label="NCLC ${target}"></div>
+        <div class="rung" data-state="${state}">
+          <div>
+            <div class="rung__k">${esc(r.fr)}${a ? `<span class="gloss">${esc(r.en)}</span>` : ''}</div>
+            <div class="rung__says">${esc(r.says)}${a ? `<span class="gloss">${esc(r.saysEn)}</span>` : ''}</div>
+            ${idx > here ? `<div class="rung__says" style="color:var(--ink-faint);font-size:var(--t-xs);margin-top:.3rem">
+              ${r.speakHours} h de parole · ${r.lessons} leçons · ${Math.round(r.acc * 100)} % de précision</div>` : ''}
           </div>
-          <span class="lad__val u-num">
-            ${p.score == null ? '—' : `${p.score} / ${max}`}
-            <small>${p.score == null ? `${p.attempts} série${p.attempts === 1 ? '' : 's'}`
-              : p.met ? `NCLC ${p.nclc} · atteint` : `NCLC ${p.nclc} · ${p.gap} pts à gagner`}</small>
-          </span>
+          <span class="rung__clb">NCLC ${r.clb}</span>
         </div>`;
       }).join('')}
     </div>
+
+    ${nextRung ? `
+      <div class="sheet" style="margin-bottom:2rem;display:grid;gap:.85rem">
+        <b style="font:500 var(--t-base)/1.3 var(--ff-text)">
+          Ce qui bloque ${esc(nextRung.fr)}${a ? `<span class="gloss">What is blocking the next rung</span>` : ''}</b>
+        ${gaps.length ? gaps.map(g => `
+          <div>
+            <div style="font-size:var(--t-sm)">${esc(g.fr)}${a ? `<span class="gloss">${esc(g.en)}</span>` : ''}</div>
+            <div style="font-size:var(--t-xs);color:var(--ink-faint);margin-top:.2rem">
+              ${esc(g.detail)}${a ? `<span class="gloss">${esc(g.detailEn)}</span>` : ''}</div>
+          </div>`).join('')
+        : '<div style="font-size:var(--t-sm);color:var(--vert)">Rien — le palier se débloque au prochain exercice.</div>'}
+      </div>` : ''}
 
     <hr class="hair">
 
     <div class="grid3" style="margin-bottom:2.5rem">
       <div class="read">
-        <span class="read__n u-num">${activeDays}<span style="color:var(--ink-faint);font-size:.55em"> / 30</span></span>
-        <span class="read__l">jours travaillés sur les 30 derniers</span>
+        <span class="read__n u-num">${metrics.speakHours.toFixed(1)} h</span>
+        <span class="read__l">de parole produite au total${a ? ' · total speech produced' : ''}</span>
       </div>
       <div class="read">
-        <span class="read__n u-num">${totalQs}</span>
-        <span class="read__l">questions répondues ce mois-ci</span>
+        <span class="read__n u-num">${metrics.lessons}<span style="color:var(--ink-faint);font-size:.55em"> / ${GRAMMAR.length}</span></span>
+        <span class="read__l">leçons réussies à 70 %${a ? ' · lessons passed' : ''}</span>
       </div>
       <div class="read">
-        <span class="read__n u-num">${Math.round(totalMin / 60)} h ${totalMin % 60} min</span>
-        <span class="read__l">temps mesuré ce mois-ci</span>
+        <span class="read__n u-num">${metrics.acc == null ? '—' : Math.round(metrics.acc * 100) + ' %'}</span>
+        <span class="read__l">de précision en exercice${a ? ' · drill accuracy' : ''}</span>
       </div>
     </div>
 
-    <h2 style="font-size:var(--t-md);margin-bottom:1rem">Régularité</h2>
-    <div class="cahier__wrap" style="margin-bottom:.9rem">
-      <div class="cahier" role="img" aria-label="Régularité sur dix-huit semaines">
-        ${cells.map(d => `<div class="cahier__sq" data-l="${level(d.cards)}"
-          ${d.key === todayKey ? 'data-today="1"' : ''}
-          title="${d.key} — ${d.cards} question${d.cards === 1 ? '' : 's'}, ${d.minutes} min"></div>`).join('')}
+    <div class="grid2" style="align-items:start;margin-bottom:2.5rem">
+      <div>
+        <h2 style="font-size:var(--t-md);margin-bottom:1rem">
+          Où passe ta parole${a ? '<span class="gloss">Where your speaking goes</span>' : ''}</h2>
+        ${Object.keys(byMode).length ? `
+          <div class="weak">
+            ${Object.entries(byMode).sort((x, y) => y[1] - x[1]).map(([k, v]) => `
+              <div class="weakrow">
+                <span class="weakrow__n">${esc(MODE_LABEL[k] || k)}</span>
+                <span class="weakrow__bar"><i style="width:${Math.round((v / modeMax) * 100)}%" data-ok="1"></i></span>
+                <span class="weakrow__p u-num">${Math.round(v / 60)} min</span>
+              </div>`).join('')}
+          </div>
+          <p style="margin-top:1rem;font-size:var(--t-sm);color:var(--ink-soft)">
+            Si Section B est en bas de cette liste, c’est elle qui te coûtera le plus :
+            c’est l’épreuve où l’on doit réagir sans script.
+            ${a ? '<span class="gloss">If Section B sits at the bottom of this list, that is what will cost you most — it is the task where you must react without a script.</span>' : ''}
+          </p>`
+        : '<div class="empty">Rien encore. Fais un bloc de parole.</div>'}
+      </div>
+
+      <div>
+        <h2 style="font-size:var(--t-md);margin-bottom:1rem">
+          Ce qui résiste${a ? '<span class="gloss">What is resisting</span>' : ''}</h2>
+        ${tagAcc.length ? `<div class="weak">
+          ${tagAcc.slice(0, 8).map(t => `
+            <div class="weakrow">
+              <span class="weakrow__n">${esc(t.tag)}</span>
+              <span class="weakrow__bar"><i style="width:${Math.round(t.acc * 100)}%" ${t.acc >= 0.85 ? 'data-ok="1"' : ''}></i></span>
+              <span class="weakrow__p">${pct(t.acc)}</span>
+            </div>`).join('')}</div>`
+        : '<div class="empty">Au moins trois réponses sur un thème pour qu’il apparaisse ici.</div>'}
       </div>
     </div>
-    <p style="font-size:var(--t-sm);color:var(--ink-soft);max-width:56ch;margin-bottom:2.5rem">
-      Série actuelle : ${store.liveStreak()} jour${store.liveStreak() === 1 ? '' : 's'} ·
-      record ${store.get().streak.best} · ${c.learned} des ${c.total} points sont consolidés,
-      c’est-à-dire revus à plus de trois semaines d’intervalle sans erreur.
+
+    <hr class="hair">
+
+    <h2 style="font-size:var(--t-md);margin-bottom:1rem">
+      Régularité${a ? '<span class="gloss">Consistency</span>' : ''}</h2>
+    <div class="cahier__wrap" style="margin-bottom:.9rem">
+      <div class="cahier" role="img" aria-label="Régularité sur dix-huit semaines">
+        ${cells.map(d => `<div class="cahier__sq" data-l="${lv(d.minutes)}"
+          ${d.key === todayKey ? 'data-today="1"' : ''}
+          title="${d.key} — ${d.minutes} min, dont ${Math.round(d.speakingSeconds / 60)} min parlées"></div>`).join('')}
+      </div>
+    </div>
+    <p style="font-size:var(--t-sm);color:var(--ink-soft);max-width:58ch;margin-bottom:2.5rem">
+      ${activeDays} jours travaillés sur les 30 derniers · ${spokenMonth} minutes parlées ce mois-ci ·
+      série de ${store.liveStreak()} jours, record ${store.get().streak.best} ·
+      ${dur(store.totalHours() * 60)} au total.
     </p>
 
     <hr class="hair">
 
-    <div class="grid2" style="align-items:start">
-      <div>
-        <h2 style="font-size:var(--t-md);margin-bottom:1rem">Tous tes points, du plus fragile au plus solide</h2>
-        ${acc.length ? `<div class="weak">${acc.map(w => `
-          <div class="weakrow">
-            <span class="weakrow__n">${esc(TAGS[w.tag]?.label || w.tag)}</span>
-            <span class="weakrow__bar"><i style="width:${Math.round(w.acc * 100)}%" ${w.acc >= 0.85 ? 'data-ok="1"' : ''}></i></span>
-            <span class="weakrow__p">${pct(w.acc)}</span>
-          </div>`).join('')}</div>
-          <button class="btn btn--ghost" style="margin-top:1.1rem" data-act="drill">Atelier sur les trois plus fragiles</button>`
-        : `<div class="empty">Pas encore assez de réponses. Il faut au moins trois réponses sur un thème
-             pour qu’il apparaisse ici.</div>`}
+    <div class="grid3" style="margin-bottom:2rem">
+      <div class="read read--tight">
+        <span class="read__n u-num">${srs.counts(PHRASES).learned} / ${PHRASES.length}</span>
+        <span class="read__l">phrases consolidées</span>
       </div>
-
-      <div>
-        <h2 style="font-size:var(--t-md);margin-bottom:1rem">Où passe ton temps</h2>
-        ${Object.keys(actTotals).length ? `
-          <div class="weak">
-            ${Object.entries(actTotals).sort((a, b) => b[1] - a[1]).map(([k, v]) => `
-              <div class="weakrow">
-                <span class="weakrow__n">${esc(ACT_LABEL[k] || k)}</span>
-                <span class="weakrow__bar"><i style="width:${Math.round((v / actMax) * 100)}%" data-ok="1"></i></span>
-                <span class="weakrow__p u-num">${v}</span>
-              </div>`).join('')}
-          </div>
-          <p style="margin-top:1rem;font-size:var(--t-sm);color:var(--ink-soft)">
-            Si une épreuve manque dans cette liste, c’est celle qui te coûtera le plus cher le jour J —
-            le niveau retenu étant celui de la compétence la plus faible.
-          </p>`
-        : `<div class="empty">Rien à montrer encore.</div>`}
+      <div class="read read--tight">
+        <span class="read__n u-num">${srs.counts(VOCAB).learned} / ${VOCAB.length}</span>
+        <span class="read__l">blocs de vocabulaire consolidés</span>
+      </div>
+      <div class="read read--tight">
+        <span class="read__n u-num">${week.n} / ${WEEKS.length}</span>
+        <span class="read__l">semaine du programme${days != null && days > 0 ? ` · examen dans ${days} j` : ''}</span>
       </div>
     </div>
 
-    <hr class="hair">
-
     <details class="sheet sheet--quiet">
-      <summary style="cursor:pointer;font:500 var(--t-base)/1.3 var(--ff-text)">Comment ces scores sont calculés</summary>
+      <summary style="cursor:pointer;font:500 var(--t-base)/1.3 var(--ff-text)">
+        Comment ce niveau est calculé${a ? ' · How this level is worked out' : ''}</summary>
       <div style="margin-top:1rem;font-size:var(--t-sm);line-height:1.7;color:var(--ink-soft)">
-        <p>Les échelles sont celles du TEF Canada : compréhension de l’oral sur 360, compréhension de
-        l’écrit sur 300, expression écrite et expression orale sur 450. Les paliers NCLC utilisés sont
-        ceux publiés par IRCC pour les examens passés à partir du 11 décembre 2023 — par exemple,
-        NCLC 7 commence à 249 en compréhension orale, 207 en compréhension écrite et 310 pour
-        chaque épreuve d’expression.</p>
-        <p>Ta position sur l’échelle est déduite de ton taux de réussite sur tes six dernières séries.
-        Pour les deux épreuves d’expression, ce taux vient de ton auto-évaluation : il vaut exactement
-        ce que vaut ta sévérité envers toi-même.</p>
-        <p>Vérifie les barèmes en vigueur sur le site d’IRCC avant toute décision liée à un dossier :
-        ils peuvent changer, et seule la grille officielle compte.</p>
+        <p>Ce n’est pas un score d’examen. C’est un indicateur à trois conditions, et il ne monte
+        que lorsque les trois sont remplies : les heures de parole que tu as réellement produites
+        dans l’application, le nombre de leçons de grammaire réussies à 70 % ou plus, et ta
+        précision moyenne en exercice.</p>
+        <p>Les heures de parole sont volontairement l’élément le plus lent. On peut lire
+        une grammaire en un après-midi ; on ne peut pas accélérer les soixante heures de production
+        orale qui séparent A2 de B2. C’est pour cette raison que l’application compte les minutes
+        plutôt que les leçons.</p>
+        <p>Les équivalences NCLC indiquées sont celles d’IRCC, mais seul un vrai TEF Canada
+        donne un score officiel. Vérifie les barèmes en vigueur sur le site d’IRCC avant toute
+        décision liée à un dossier.</p>
       </div>
     </details>
 
     <div class="row" style="margin-top:1.5rem">
-      <a class="btn btn--plain" href="#/">Retour</a>
+      <a class="btn btn--plain" href="#/">Retour au programme</a>
       <a class="btn btn--plain" href="#/reglages">Réglages et sauvegarde</a>
     </div>
   </div>`;
-
-  acts(el, {
-    drill: () => go('#/atelier?tags=' + acc.slice(0, 3).map(a => a.tag).join(',')),
-  });
 }

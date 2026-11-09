@@ -122,7 +122,12 @@ button { cursor: pointer; }
   padding: 1.5rem 0 1rem;
   background: var(--paper-2);
   border-right: 1px solid var(--hair);
+  /* The nav is long; without this the footer controls fall off short screens. */
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
+.rail::-webkit-scrollbar { width: 6px; }
+.rail::-webkit-scrollbar-thumb { background: var(--hair-firm); border-radius: 6px; }
 .rail__mark { padding: 0 1.25rem 1.5rem; }
 .rail__mark b {
   display: block; font: 500 var(--t-md)/1 var(--ff-text);
@@ -652,3 +657,277 @@ audio { width: 100%; }
   .rail, .tabbar, .btn { display: none !important; }
   body { background: #fff; }
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   v2 — speaking-first, bilingual
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── English alongside French ───────────────────────────────────── */
+/* The gloss is deliberately quiet and sans-serif: it reads as apparatus,
+   not as the text. You should be able to stop seeing it. */
+
+.gloss {
+  display: block;
+  margin-top: .22em;
+  font: 400 var(--t-sm)/1.45 var(--ff-ui);
+  color: var(--ink-faint);
+}
+.gloss--inline { display: inline; margin: 0 0 0 .4em; font-size: .82em; }
+/* Catches any gloss written straight into the markup rather than rendered. */
+[data-assist='0'] .gloss { display: none; }
+
+.peek {
+  display: inline-flex; align-items: center; gap: .35rem;
+  padding: .18rem .5rem; border: 1px dashed var(--hair-firm); border-radius: 20px;
+  background: transparent; font: 500 var(--t-xs)/1.4 var(--ff-ui); color: var(--ink-faint);
+}
+.peek:hover { border-style: solid; color: var(--ink); }
+.peek[aria-expanded='true'] {
+  border-style: solid; border-color: var(--hair-firm);
+  color: var(--ink-soft); font-family: var(--ff-ui);
+}
+.peek__text { font-weight: 400; }
+
+/* assistance switch in the header */
+.assist {
+  display: inline-flex; align-items: center; gap: .4rem;
+  padding: .3rem .6rem; border: 1px solid var(--hair-firm); border-radius: 20px;
+  background: transparent; font: 500 var(--t-xs)/1.4 var(--ff-ui); color: var(--ink-faint);
+}
+.assist[aria-pressed='true'] { background: var(--ink); border-color: var(--ink); color: var(--paper-2); }
+
+/* ── the day as a timetable ─────────────────────────────────────── */
+/* A ruled column with a time gutter: the day reads as a schedule you can
+   follow, not a grid of cards you have to choose between. */
+
+.sched { display: grid; gap: 0; border-top: 1px solid var(--hair); }
+
+.block {
+  display: grid; grid-template-columns: 4.25rem 1fr auto; gap: 1.1rem;
+  align-items: start; width: 100%; text-align: left;
+  padding: 1.05rem .4rem 1.05rem .25rem;
+  background: none; border: 0; border-bottom: 1px solid var(--hair);
+  transition: background .15s var(--ease);
+}
+.block:hover { background: var(--paper-2); }
+.block__time {
+  font: 500 var(--t-sm)/1.5 var(--ff-ui); color: var(--ink-faint);
+  font-variant-numeric: tabular-nums; padding-top: .1rem;
+}
+.block__body { min-width: 0; }
+.block__name {
+  display: flex; align-items: center; gap: .5rem; flex-wrap: wrap;
+  font: 500 var(--t-md)/1.25 var(--ff-text);
+}
+.block__desc { margin-top: .3rem; font-size: var(--t-sm); line-height: 1.55; color: var(--ink-soft); }
+.block__desc .gloss { font-size: var(--t-xs); }
+.block__meta {
+  display: grid; gap: .35rem; justify-items: end; padding-top: .2rem;
+  font: 500 var(--t-xs)/1.4 var(--ff-ui); color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
+}
+.block[data-done='1'] .block__name { color: var(--ink-faint); }
+.block[data-done='1'] .block__name::after {
+  content: '✓'; color: var(--vert); font-family: var(--ff-ui); font-size: .8em;
+}
+.block[data-done='1'] .block__desc { opacity: .6; }
+
+.tagmic {
+  display: inline-grid; place-items: center; width: 1.15rem; height: 1.15rem;
+  border-radius: 50%; background: var(--rouge); color: #fff; flex: 0 0 auto;
+}
+.tagmic svg { width: 11px; height: 11px; }
+
+@media (max-width: 640px) {
+  .block { grid-template-columns: 3.4rem 1fr; gap: .8rem; }
+  .block__meta { grid-column: 2; justify-items: start; flex-direction: row; }
+  .block__name { font-size: var(--t-base); }
+}
+
+/* ── speaking meter — the hero number ───────────────────────────── */
+
+.meter { display: grid; gap: .6rem; }
+.meter__row { display: flex; align-items: baseline; gap: .5rem; }
+.meter__n {
+  font: 300 var(--t-3xl)/.95 var(--ff-text); font-variant-numeric: tabular-nums;
+}
+.meter__unit { font: 500 var(--t-base)/1 var(--ff-ui); color: var(--ink-faint); }
+.meter__track { height: 6px; background: var(--paper-sunk); border-radius: 6px; overflow: hidden; }
+.meter__fill {
+  height: 100%; border-radius: 6px; background: var(--rouge);
+  transition: width .6s var(--ease);
+}
+.meter__fill[data-met='1'] { background: var(--vert); }
+.meter__cap { font: 500 var(--t-xs)/1.5 var(--ff-ui); color: var(--ink-faint); }
+
+/* ── the level ladder ───────────────────────────────────────────── */
+
+.rungs { display: grid; gap: 0; border-top: 1px solid var(--hair); }
+.rung {
+  display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: center;
+  padding: .95rem .25rem; border-bottom: 1px solid var(--hair);
+}
+.rung__k { font: 500 var(--t-base)/1.3 var(--ff-text); }
+.rung__says { margin-top: .25rem; font-size: var(--t-sm); line-height: 1.5; color: var(--ink-soft); }
+.rung__clb { font: 500 var(--t-xs)/1.4 var(--ff-ui); color: var(--ink-faint); white-space: nowrap; }
+.rung[data-state='passed'] .rung__k::before { content: '✓ '; color: var(--vert); }
+.rung[data-state='here'] {
+  background: var(--paper-2);
+  box-shadow: inset 2px 0 0 var(--ink);
+  padding-left: .9rem;
+}
+.rung[data-state='here'] .rung__clb { color: var(--ink); }
+.rung[data-state='todo'] { opacity: .55; }
+
+/* ── big record control ─────────────────────────────────────────── */
+
+.mic {
+  display: grid; place-items: center; gap: .55rem;
+  width: 100%; padding: 1.75rem 1rem;
+  background: var(--paper-2); border: 1px solid var(--hair); border-radius: var(--r-lg);
+}
+.mic__btn {
+  width: 5.25rem; height: 5.25rem; border-radius: 50%;
+  display: grid; place-items: center;
+  border: 1px solid var(--rouge); background: var(--rouge); color: #fff;
+  transition: transform .14s var(--spring);
+}
+.mic__btn svg { width: 26px; height: 26px; }
+.mic__btn:active { transform: scale(.95); }
+.mic__btn[data-on='1'] { animation: micpulse 1.7s var(--ease) infinite; }
+.mic__btn[disabled] { background: var(--ink-faint); border-color: var(--ink-faint); }
+@keyframes micpulse {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--rouge) 38%, transparent); }
+  50%      { box-shadow: 0 0 0 14px transparent; }
+}
+.mic__label { font: 500 var(--t-sm)/1.3 var(--ff-ui); color: var(--ink-soft); text-align: center; }
+.mic__time {
+  font: 500 var(--t-lg)/1 var(--ff-text); font-variant-numeric: tabular-nums;
+}
+
+/* ── the spoken prompt ──────────────────────────────────────────── */
+
+.say {
+  display: grid; gap: 1rem; justify-items: center; text-align: center;
+  padding: 2.75rem 1.5rem;
+  background: var(--paper-2); border: 1px solid var(--hair); border-radius: var(--r-lg);
+}
+.say__cue {
+  max-width: 30ch; font: 400 var(--t-xl)/1.3 var(--ff-text); text-wrap: balance;
+}
+.say__cue--en { font-family: var(--ff-ui); font-weight: 500; font-size: var(--t-lg); }
+.say__model {
+  max-width: 34ch; font: 500 var(--t-lg)/1.35 var(--ff-text); color: var(--vert);
+}
+.say__alt { font-size: var(--t-sm); color: var(--ink-soft); }
+.say__use {
+  max-width: 44ch; padding-top: .9rem; border-top: 1px solid var(--hair);
+  font: 400 var(--t-sm)/1.6 var(--ff-ui); color: var(--ink-soft);
+}
+
+/* ── phrase cards ───────────────────────────────────────────────── */
+
+.phrase {
+  display: grid; gap: .5rem; padding: 1.1rem 1.15rem;
+  border-bottom: 1px solid var(--hair);
+}
+.phrase:last-child { border-bottom: 0; }
+.phrase__fr { font: 400 var(--t-md)/1.4 var(--ff-text); }
+.phrase__en { font: 400 var(--t-sm)/1.45 var(--ff-ui); color: var(--ink-faint); }
+.phrase__use { font: 400 var(--t-sm)/1.55 var(--ff-ui); color: var(--ink-soft); }
+.phrase__bar { display: flex; gap: .4rem; align-items: center; margin-top: .15rem; }
+.phrase__lv {
+  padding: .1rem .4rem; border: 1px solid var(--hair-firm); border-radius: 3px;
+  font: 600 var(--t-xs)/1.4 var(--ff-ui); color: var(--ink-faint);
+}
+
+/* ── lesson body ────────────────────────────────────────────────── */
+
+.rule {
+  display: grid; gap: .3rem; padding: .75rem 0;
+  border-bottom: 1px solid var(--hair);
+}
+.rule:last-child { border-bottom: 0; }
+.rule__fr { font: 400 var(--t-base)/1.5 var(--ff-text); }
+.rule__en { font: 400 var(--t-sm)/1.5 var(--ff-ui); color: var(--ink-faint); }
+
+.ex {
+  display: grid; gap: .25rem; padding: .7rem .9rem;
+  background: var(--paper-sunk); border-radius: var(--r); margin-bottom: .5rem;
+}
+.ex__fr { font: 400 var(--t-base)/1.5 var(--ff-text); }
+.ex__en { font: 400 var(--t-sm)/1.45 var(--ff-ui); color: var(--ink-faint); }
+
+.why {
+  padding: 1rem 1.15rem; border-left: 2px solid var(--ink);
+  background: var(--paper-2); border-radius: 0 var(--r) var(--r) 0;
+  font: 400 var(--t-sm)/1.65 var(--ff-ui); color: var(--ink-soft);
+  max-width: 58ch;
+}
+
+/* ── objection, spoken by the examiner ──────────────────────────── */
+
+.objection {
+  display: grid; gap: .4rem; padding: 1.1rem 1.2rem;
+  border: 1px solid var(--rouge); border-radius: var(--r-lg);
+  background: var(--rouge-wash);
+  animation: lift .35s var(--ease) both;
+}
+.objection__who {
+  font: 600 var(--t-xs)/1.4 var(--ff-ui); color: var(--rouge);
+}
+.objection__fr { font: 400 var(--t-md)/1.45 var(--ff-text); }
+.objection__en { font: 400 var(--t-sm)/1.45 var(--ff-ui); color: var(--ink-soft); }
+
+/* ── checklist of things to cover while speaking ────────────────── */
+
+.musts { display: grid; gap: .1rem; }
+.must {
+  display: flex; align-items: flex-start; gap: .6rem;
+  padding: .5rem .1rem; border-bottom: 1px solid var(--hair);
+  font-size: var(--t-sm); line-height: 1.45; text-align: left;
+  background: none; border-left: 0; border-right: 0; border-top: 0; width: 100%;
+}
+.must:last-child { border-bottom: 0; }
+.must__box {
+  flex: 0 0 auto; width: 1.05rem; height: 1.05rem; margin-top: .12rem;
+  border: 1px solid var(--hair-firm); border-radius: 3px;
+}
+.must[data-on='1'] .must__box { background: var(--vert); border-color: var(--vert); }
+.must[data-on='1'] .must__box::after {
+  content: '✓'; display: block; color: #fff; font-size: .7rem; line-height: 1rem; text-align: center;
+}
+.must[data-on='1'] { color: var(--ink-faint); }
+
+/* ── pace banner ────────────────────────────────────────────────── */
+
+.pace {
+  display: grid; gap: .5rem; padding: 1.2rem 1.3rem;
+  border-radius: var(--r-lg); border: 1px solid var(--hair);
+  background: var(--paper-2);
+}
+.pace[data-track='0'] { border-color: var(--rouge); background: var(--rouge-wash); }
+.pace[data-track='1'] { border-color: var(--vert); background: var(--vert-wash); }
+.pace__head { font: 500 var(--t-base)/1.3 var(--ff-text); }
+.pace__body { font: 400 var(--t-sm)/1.6 var(--ff-ui); color: var(--ink-soft); max-width: 56ch; }
+
+/* ── week strip ─────────────────────────────────────────────────── */
+
+.weekstrip { display: flex; gap: 3px; flex-wrap: wrap; }
+.weekstrip__w {
+  flex: 1 1 1.5rem; min-width: 1.5rem; height: 2.1rem; border-radius: 2px;
+  display: grid; place-items: center;
+  background: var(--paper-sunk);
+  font: 600 var(--t-xs)/1 var(--ff-ui); color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
+}
+.weekstrip__w[data-state='past'] { background: color-mix(in srgb, var(--ink) 45%, var(--paper-sunk)); color: var(--paper-2); }
+.weekstrip__w[data-state='now'] { background: var(--ink); color: var(--paper-2); }
+
+/* ── compare: your take vs the model ────────────────────────────── */
+
+.compare { display: grid; gap: .75rem; }
+.compare__side { display: grid; gap: .4rem; padding: .9rem 1rem; border-radius: var(--r); }
+.compare__side--model { background: var(--vert-wash); }
+.compare__side--you   { background: var(--paper-sunk); }
+.compare__lbl { font: 600 var(--t-xs)/1.4 var(--ff-ui); color: var(--ink-faint); }

@@ -1,57 +1,54 @@
-import { $, $$, esc, tabIcon } from './ui.js';
+import { $, esc, tabIcon } from './ui.js';
 import * as store from './store.js';
-import * as srs from './srs.js';
-import { loadVoices } from './speech.js';
-import { stopAll } from './speech.js';
+import { loadVoices, stopAll } from './speech.js';
+import { dayProgress } from './plan.js';
 
-import home     from './views/home.js';
-import reviser  from './views/reviser.js';
-import atelier  from './views/atelier.js';
-import lire     from './views/lire.js';
-import ecouter  from './views/ecouter.js';
-import dictee   from './views/dictee.js';
-import parler   from './views/parler.js';
-import ecrire   from './views/ecrire.js';
-import progres  from './views/progres.js';
-import reglages from './views/reglages.js';
+import home      from './views/home.js';
+import parler    from './views/parler.js';
+import phrases   from './views/phrases.js';
+import grammaire from './views/grammaire.js';
+import vocab     from './views/vocab.js';
+import ecrire    from './views/ecrire.js';
+import progres   from './views/progres.js';
+import reglages  from './views/reglages.js';
 
 const ROUTES = {
-  '/':         { view: home,     title: 'Accueil' },
-  '/reviser':  { view: reviser,  title: 'Réviser' },
-  '/atelier':  { view: atelier,  title: 'Atelier' },
-  '/ecouter':  { view: ecouter,  title: 'Écouter' },
-  '/lire':     { view: lire,     title: 'Lire' },
-  '/dictee':   { view: dictee,   title: 'Dictée' },
-  '/parler':   { view: parler,   title: 'Parler' },
-  '/ecrire':   { view: ecrire,   title: 'Écrire' },
-  '/progres':  { view: progres,  title: 'Progrès' },
-  '/reglages': { view: reglages, title: 'Réglages' },
+  '/':          { view: home,      title: 'Aujourd’hui' },
+  '/parler':    { view: parler,    title: 'Parler' },
+  '/phrases':   { view: phrases,   title: 'Phrases' },
+  '/grammaire': { view: grammaire, title: 'Grammaire' },
+  '/vocab':     { view: vocab,     title: 'Vocabulaire' },
+  '/ecrire':    { view: ecrire,    title: 'Écrire' },
+  '/progres':   { view: progres,   title: 'Progrès' },
+  '/reglages':  { view: reglages,  title: 'Réglages' },
 };
 
+// Kept deliberately short: the five speaking modes live on the Parler hub,
+// where each one is described by what it trains. A rail long enough to push
+// items off a laptop screen is worse than one click more.
 const NAV = [
-  { group: 'Chaque jour' },
-  { href: '#/',        label: 'Aujourd’hui', badge: 'due' },
-  { href: '#/reviser', label: 'Réviser',     key: 'R' },
-  { href: '#/atelier', label: 'Atelier',     key: 'A' },
-  { group: 'Les quatre épreuves' },
-  { href: '#/ecouter', label: 'Compréhension orale' },
-  { href: '#/lire',    label: 'Compréhension écrite' },
-  { href: '#/parler',  label: 'Expression orale' },
-  { href: '#/ecrire',  label: 'Expression écrite' },
-  { group: 'Entraînement ciblé' },
-  { href: '#/dictee',  label: 'Dictée' },
-  { href: '#/progres', label: 'Progrès' },
+  { group: 'Le programme', groupEn: 'The programme' },
+  { href: '#/',          fr: 'Aujourd’hui',  en: 'Today', badge: true },
+  { group: 'Parler — la priorité', groupEn: 'Speaking — the priority' },
+  { href: '#/parler',    fr: 'Parler',       en: 'Speaking' },
+  { group: 'Construire', groupEn: 'Building blocks' },
+  { href: '#/phrases',   fr: 'Phrases',      en: 'Phrase bank' },
+  { href: '#/grammaire', fr: 'Grammaire',    en: 'Grammar' },
+  { href: '#/vocab',     fr: 'Vocabulaire',  en: 'Vocabulary' },
+  { href: '#/ecrire',    fr: 'Écrire',       en: 'Writing' },
+  { group: '' },
+  { href: '#/progres',   fr: 'Progrès',      en: 'Progress' },
 ];
 
 const TABS = [
-  { href: '#/',        label: 'Jour',    icon: 'accueil' },
-  { href: '#/reviser', label: 'Réviser', icon: 'reviser' },
-  { href: '#/ecouter', label: 'Écouter', icon: 'ecouter' },
-  { href: '#/lire',    label: 'Lire',    icon: 'lire' },
-  { href: '#/progres', label: 'Progrès', icon: 'progres' },
+  { href: '#/',                   fr: 'Jour',    icon: 'accueil' },
+  { href: '#/parler',             fr: 'Parler',  icon: 'parler' },
+  { href: '#/phrases',            fr: 'Phrases', icon: 'phrases' },
+  { href: '#/grammaire',          fr: 'Gram.',   icon: 'grammaire' },
+  { href: '#/progres',            fr: 'Progrès', icon: 'progres' },
 ];
 
-/* ── theme ──────────────────────────────────────────────────────── */
+/* ── theme and assistance ──────────────────────────────────────── */
 
 function applyTheme() {
   const pref = store.settings().theme;
@@ -60,19 +57,41 @@ function applyTheme() {
 }
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme);
 
-/* ── chrome ─────────────────────────────────────────────────────── */
+function paintAssist() {
+  const on = store.assist();
+  document.documentElement.dataset.assist = on ? '1' : '0';
+  for (const id of ['assist', 'assistM']) {
+    const b = $('#' + id);
+    if (b) b.setAttribute('aria-pressed', String(on));
+  }
+  const l = $('#assistLabel'); if (l) l.textContent = on ? 'English on' : 'English off';
+  const lm = $('#assistLabelM'); if (lm) lm.textContent = on ? 'EN' : 'FR';
+}
 
-function renderNav(path) {
-  const { due, new: neu } = srs.counts();
-  const pending = due + Math.max(0, Math.min(neu, store.settings().dailyGoal - due));
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.assist')) return;
+  store.toggleAssist();
+  paintAssist();
+  render();
+});
+
+/* ── chrome ────────────────────────────────────────────────────── */
+
+function renderNav(path, search) {
+  const here = '#' + path + (search ? '?' + search : '');
+  const prog = dayProgress();
+  const left = prog.total - prog.done;
 
   $('#nav').innerHTML = NAV.map(item => {
-    if (item.group) return `<div class="rail__group">${esc(item.group)}</div>`;
-    const active = item.href === '#' + (path === '/' ? '/' : path);
-    const badge = item.badge === 'due' && pending > 0
-      ? `<span class="navitem__dot">${pending}</span>`
-      : item.key ? `<span class="navitem__k">${item.key}</span>` : '';
-    return `<a class="navitem" href="${item.href}"${active ? ' aria-current="page"' : ''}>${esc(item.label)}${badge}</a>`;
+    if (item.group !== undefined) {
+      if (!item.group) return `<div class="rail__group" aria-hidden="true"></div>`;
+      return `<div class="rail__group">${esc(item.group)}${
+        store.assist() ? `<span class="gloss">${esc(item.groupEn)}</span>` : ''}</div>`;
+    }
+    const active = item.href === '#' + path || (item.href === '#/' && path === '/');
+    const badge = item.badge && left > 0 ? `<span class="navitem__dot">${left}</span>` : '';
+    return `<a class="navitem" href="${item.href}"${active ? ' aria-current="page"' : ''}>
+      <span>${esc(item.fr)}${store.assist() ? `<span class="gloss">${esc(item.en)}</span>` : ''}</span>${badge}</a>`;
   }).join('');
 
   const settingsLink = $('.rail__foot .navitem');
@@ -82,25 +101,19 @@ function renderNav(path) {
   }
 
   $('#tabbar').innerHTML = TABS.map(t => {
-    const active = t.href === '#' + (path === '/' ? '/' : path);
+    const active = path === t.href.replace('#', '').split('?')[0];
     return `<a class="tab" href="${t.href}"${active ? ' aria-current="page"' : ''}>
-      ${tabIcon[t.icon]}<span>${esc(t.label)}</span></a>`;
+      ${tabIcon[t.icon]}<span>${esc(t.fr)}</span></a>`;
   }).join('');
-
-  const mh = $('#mhead');
-  if (mh) {
-    const s = store.liveStreak();
-    mh.textContent = pending > 0 ? `${pending} à revoir` : s > 0 ? `série de ${s} j` : '';
-  }
 }
 
-/* ── routing ────────────────────────────────────────────────────── */
+/* ── routing ───────────────────────────────────────────────────── */
 
 let teardown = null;
 
 async function render() {
   const raw = location.hash.replace(/^#/, '') || '/';
-  const [path, query] = raw.split('?');
+  const [path, search] = raw.split('?');
   const route = ROUTES[path] || ROUTES['/'];
 
   if (teardown) { try { teardown(); } catch {} teardown = null; }
@@ -108,32 +121,22 @@ async function render() {
 
   const el = $('#view');
   el.innerHTML = '';
-  document.title = `${route.title} — L'Atelier TEF`;
-  renderNav(path);
+  document.title = `${route.title} — L'Atelier`;
+  renderNav(path, search);
+  paintAssist();
 
-  const params = new URLSearchParams(query || '');
-  teardown = await route.view(el, { params, go, refreshChrome: () => renderNav(path) }) || null;
+  const params = new URLSearchParams(search || '');
+  teardown = await route.view(el, { params, go, repaint: () => renderNav(path, search) }) || null;
 
-  if (!el.dataset.keepScroll) scrollTo({ top: 0, behavior: 'instant' });
+  scrollTo({ top: 0, behavior: 'instant' });
 }
 
 function go(hash) {
-  if (location.hash === hash) render(); else location.hash = hash;
+  if (location.hash === hash) render();
+  else location.hash = hash;
 }
 
 addEventListener('hashchange', render);
-
-/* ── keyboard shortcuts ────────────────────────────────────────── */
-
-addEventListener('keydown', (e) => {
-  if (e.metaKey || e.ctrlKey || e.altKey) return;
-  const t = e.target;
-  if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
-  const k = e.key.toLowerCase();
-  if (k === 'r') go('#/reviser');
-  else if (k === 'a') go('#/atelier');
-  else if (k === 'g') go('#/progres');
-});
 
 /* ── boot ──────────────────────────────────────────────────────── */
 
