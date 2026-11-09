@@ -1,0 +1,23 @@
+{
+  "name": "L'Atelier — TEF Canada",
+  "short_name": "L'Atelier",
+  "description": "Entraînement quotidien au TEF Canada : révision espacée, compréhension orale et écrite, dictée, expression orale et écrite.",
+  "lang": "fr-CA",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#F1F3F0",
+  "theme_color": "#F1F3F0",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ],
+  "shortcuts": [
+    { "name": "Session du jour", "url": "./#/reviser" },
+    { "name": "Dictée", "url": "./#/dictee" },
+    { "name": "Atelier ciblé", "url": "./#/atelier" }
+  ]
+}

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>L'Atelier — préparation au TEF Canada</title>
+<meta name="description" content="Entraînement quotidien au TEF Canada : révision espacée, compréhension orale et écrite, dictée, expression orale et écrite, estimation NCLC.">
+<meta name="theme-color" content="#F1F3F0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121722" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<div class="shell">
+  <aside class="rail">
+    <div class="rail__mark">
+      <b>L'Atelier</b>
+      <i>TEF CANADA</i>
+    </div>
+    <nav class="rail__nav" id="nav" aria-label="Sections"></nav>
+    <div class="rail__foot">
+      <a class="navitem" href="#/reglages">Réglages</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="mobile-head">
+      <b>L'Atelier</b>
+      <span class="u-ui" id="mhead" style="font-size:.75rem;color:var(--ink-faint)"></span>
+    </div>
+    <div id="view" role="region" aria-live="polite"></div>
+  </main>
+</div>
+
+<nav class="tabbar" id="tabbar" aria-label="Sections"></nav>
+<div class="toast" id="toast" role="status"></div>
+
+<script type="module" src="js/app.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+}
+</script>
+</body>
+</html>
