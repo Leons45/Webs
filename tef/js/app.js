@@ -10,18 +10,20 @@ import phrases   from './views/phrases.js';
 import grammaire from './views/grammaire.js';
 import vocab     from './views/vocab.js';
 import ecrire    from './views/ecrire.js';
+import chunks    from './views/chunks.js';
 import progres   from './views/progres.js';
 import reglages  from './views/reglages.js';
 
 const ROUTES = {
-  '/':          { view: home,      title: 'Aujourd’hui' },
-  '/parler':    { view: parler,    title: 'Parler' },
-  '/phrases':   { view: phrases,   title: 'Phrases' },
-  '/grammaire': { view: grammaire, title: 'Grammaire' },
-  '/vocab':     { view: vocab,     title: 'Vocabulaire' },
-  '/ecrire':    { view: ecrire,    title: 'Écrire' },
-  '/progres':   { view: progres,   title: 'Progrès' },
-  '/reglages':  { view: reglages,  title: 'Réglages' },
+  ‘/’:          { view: home,      title: ‘Aujourd’hui’ },
+  ‘/parler’:    { view: parler,    title: ‘Parler’ },
+  ‘/phrases’:   { view: phrases,   title: ‘Phrases’ },
+  ‘/grammaire’: { view: grammaire, title: ‘Grammaire’ },
+  ‘/vocab’:     { view: vocab,     title: ‘Vocabulaire’ },
+  ‘/ecrire’:    { view: ecrire,    title: ‘Écrire’ },
+  ‘/chunks’:    { view: chunks,    title: ‘Formules’ },
+  ‘/progres’:   { view: progres,   title: ‘Progrès’ },
+  ‘/reglages’:  { view: reglages,  title: ‘Réglages’ },
 };
 
 // Kept deliberately short: the five speaking modes live on the Parler hub,
@@ -37,6 +39,7 @@ const NAV = [
   { href: '#/grammaire', fr: 'Grammaire',    en: 'Grammar' },
   { href: '#/vocab',     fr: 'Vocabulaire',  en: 'Vocabulary' },
   { href: '#/ecrire',    fr: 'Écrire',       en: 'Writing' },
+  { href: '#/chunks',    fr: 'Formules',     en: 'Writing chunks' },
   { group: '' },
   { href: '#/progres',   fr: 'Progrès',      en: 'Progress' },
 ];
@@ -44,7 +47,7 @@ const NAV = [
 const SECTION_OF = {
   '/': 'home', '/parler': 'parler', '/phrases': 'phrases',
   '/grammaire': 'grammaire', '/vocab': 'vocab', '/ecrire': 'ecrire',
-  '/progres': 'progres', '/reglages': 'progres',
+  '/chunks': 'ecrire', '/progres': 'progres', '/reglages': 'progres',
 };
 
 const TABS = [

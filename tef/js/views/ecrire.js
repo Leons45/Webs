@@ -36,6 +36,22 @@ function index(el, go) {
         ${a ? '<span class="gloss">One task a day, no more. Writing improves quickly once the grammar holds, and mainly serves to fix what you will later say aloud.</span>' : ''}</p>
     </div>
 
+    <!-- Formules shortcut -->
+    <div class="sheet" style="margin-bottom:2rem;display:flex;align-items:center;
+         justify-content:space-between;gap:1rem;flex-wrap:wrap">
+      <div>
+        <b style="font:600 var(--t-base)/1.3 var(--ff-ui)">
+          Formules à mémoriser${a ? '<span class="gloss" style="font-weight:400"> · Writing chunks</span>' : ''}
+        </b>
+        <p style="font-size:var(--t-sm);color:var(--ink-faint);margin:.2rem 0 0">
+          50 phrases fixes pour Section A et B${a ? ' · 50 fixed phrases for Sections A and B' : ''}
+        </p>
+      </div>
+      <a class="btn" href="#/chunks" style="white-space:nowrap;flex-shrink:0">
+        Étudier →${a ? '<span class="gloss">Study</span>' : ''}
+      </a>
+    </div>
+
     ${['A', 'B'].map(sec => `
       <section style="margin-bottom:2rem">
         <h2 style="font-size:var(--t-md);margin-bottom:.3rem">
