@@ -9,12 +9,12 @@ import { WRITING } from '../data/writing.js';
 import { PHRASES, byGroup } from '../data/phrases.js';
 
 const BANK = [
-  { fr:'Annoncer sa position', en:'State your position', list:['Il me semble que…','Je suis d’avis que…','Force est de constater que…'] },
-  { fr:'Ajouter', en:'Add', list:['Par ailleurs,','En outre,','Qui plus est,','D’autant plus que…'] },
+  { fr:'Annoncer sa position', en:'State your position', list:['Il me semble que…','Je suis d'avis que…','Force est de constater que…'] },
+  { fr:'Ajouter', en:'Add', list:['Par ailleurs,','En outre,','Qui plus est,','D'autant plus que…'] },
   { fr:'Opposer', en:'Contrast', list:['En revanche,','Toutefois,','Néanmoins,','Or,'] },
-  { fr:'Concéder', en:'Concede', list:['Certes…, mais…','Il n’en demeure pas moins que…','On peut l’admettre ; reste que…'] },
+  { fr:'Concéder', en:'Concede', list:['Certes…, mais…','Il n'en demeure pas moins que…','On peut l'admettre ; reste que…'] },
   { fr:'Cause', en:'Cause', list:['Étant donné que…','Dans la mesure où…','En raison de…'] },
-  { fr:'Conséquence', en:'Consequence', list:['Par conséquent,','C’est pourquoi…','Dès lors,'] },
+  { fr:'Conséquence', en:'Consequence', list:['Par conséquent,','C'est pourquoi…','Dès lors,'] },
   { fr:'Conclure', en:'Conclude', list:['En définitive,','En somme,','Tout bien considéré,'] },
   { fr:'Lettre', en:'Letter', list:['Madame, Monsieur,','Je me permets de vous écrire afin de…','Veuillez agréer mes salutations distinguées.'] },
 ];
@@ -31,8 +31,8 @@ function index(el, go) {
   <div class="view">
     <div class="ph">
       <h1>Écrire${a ? '<span class="gloss" style="font-size:var(--t-base)">Writing</span>' : ''}</h1>
-      <p class="ph__sub">Une tâche par jour, pas plus. L’écrit progresse vite une fois que la
-        grammaire tient, et il te sert surtout à fixer ce que tu diras ensuite à l’oral.
+      <p class="ph__sub">Une tâche par jour, pas plus. L'écrit progresse vite une fois que la
+        grammaire tient, et il te sert surtout à fixer ce que tu diras ensuite à l'oral.
         ${a ? '<span class="gloss">One task a day, no more. Writing improves quickly once the grammar holds, and mainly serves to fix what you will later say aloud.</span>' : ''}</p>
     </div>
 
@@ -113,7 +113,7 @@ function compose(el, item) {
           <button class="btn btn--plain" data-act="start" id="startbtn">Lancer le chronomètre</button>
         </div>
         <textarea class="area area--ruled" id="draft" rows="14" spellcheck="false"
-          placeholder="${item.section === 'A' ? 'Commence par un complément de temps : « Quelques minutes plus tard, … »' : 'Commence par la formule d’appel, puis annonce ta position dès la première phrase.'}">${esc(saved.text || '')}</textarea>
+          placeholder="${item.section === 'A' ? 'Commence par un complément de temps : « Quelques minutes plus tard, … »' : 'Commence par la formule d'appel, puis annonce ta position dès la première phrase.'}">${esc(saved.text || '')}</textarea>
         <div class="row" style="margin-top:1rem">
           <button class="btn btn--lg" data-act="finish">Terminer et relire</button>
           <span class="u-ui" id="savedat" style="font-size:var(--t-xs);color:var(--ink-faint)"></span>
@@ -247,19 +247,19 @@ function compose(el, item) {
 
 function selfCheck(text, item) {
   const flags = [];
-  const t = ' ' + text.toLowerCase().replace(/[’]/g, "'") + ' ';
+  const t = ' ' + text.toLowerCase().replace(/[']/g, "'") + ' ';
 
   const oral = ['du coup', 'genre', 'super ', 'hyper ', 'y a ', 'bah ', 'ben '];
   const found = oral.filter(o => t.includes(o));
   if (found.length) flags.push({
     fr: 'Tournures orales détectées',
-    detail: `« ${found.join(' », « ')} » appartiennent à l’oral. du coup → par conséquent ; y a → il y a.`,
+    detail: `« ${found.join(' », « ')} » appartiennent à l'oral. du coup → par conséquent ; y a → il y a.`,
   });
 
   if (/\b(je|tu|il|elle|on|nous|vous|ils|elles)\s+\w+\s+pas\b/.test(t) && !/\bn[e']/.test(t)) {
     flags.push({
       fr: 'Négation peut-être incomplète',
-      detail: 'À l’écrit le « ne » ne tombe jamais : « je ne pense pas ». Vérifie chaque pas, jamais, plus, rien.',
+      detail: 'À l'écrit le « ne » ne tombe jamais : « je ne pense pas ». Vérifie chaque pas, jamais, plus, rien.',
     });
   }
 
@@ -271,7 +271,7 @@ function selfCheck(text, item) {
 
   if (item.section === 'B' && !/(certes|il est vrai que|sans doute|on peut l'admettre)/.test(t)) flags.push({
     fr: 'Aucune concession repérée',
-    detail: 'Une argumentation qui n’admet rien plafonne. Ajoute « Certes… », puis réfute.',
+    detail: 'Une argumentation qui n'admet rien plafonne. Ajoute « Certes… », puis réfute.',
   });
 
   const mais = (t.match(/\bmais\b/g) || []).length;
@@ -281,7 +281,7 @@ function selfCheck(text, item) {
   });
 
   if (item.section === 'B' && !/(madame|monsieur|salutations|agréer|cordialement)/.test(t)) flags.push({
-    fr: 'Formule d’appel ou de clôture absente',
+    fr: 'Formule d'appel ou de clôture absente',
     detail: 'Une lettre sans « Madame, Monsieur, » ni formule finale perd des points sur la tâche.',
   });
 
