@@ -23,7 +23,7 @@ export const RUNGS = [
     saysEn:'You defend a position and answer an objection.' },
   { key:'B1+', clb:6, fr:'B1+ — enchaîner sans bloquer', en:'B1+ — keeping going',
     speakHours:40, lessons:13, acc:0.80,
-    says:'Tu parles dix minutes sans t’arrêter net, avec des pronoms et des connecteurs.',
+    says:'Tu parles dix minutes sans t'arrêter net, avec des pronoms et des connecteurs.',
     saysEn:'You speak for ten minutes without stopping dead, with pronouns and connectors.' },
   { key:'B2',  clb:7, fr:'B2 — le niveau visé',  en:'B2 — the target',
     speakHours:60, lessons:16, acc:0.85,
@@ -80,7 +80,7 @@ export function gaps() {
       key: 'speak',
       fr: `${left.toFixed(1)} h de parole à produire`,
       en: `${left.toFixed(1)} more hours of speech to produce`,
-      detail: 'C’est le facteur le plus lent et le plus déterminant. Rien ne le remplace.',
+      detail: 'C'est le facteur le plus lent et le plus déterminant. Rien ne le remplace.',
       detailEn: 'This is the slowest and most decisive factor. Nothing substitutes for it.',
     });
   }
@@ -97,7 +97,7 @@ export function gaps() {
     out.push({
       key: 'acc',
       fr: m.acc == null
-        ? 'Pas encore assez d’exercices pour mesurer ta précision'
+        ? 'Pas encore assez d'exercices pour mesurer ta précision'
         : `Précision à ${Math.round(m.acc * 100)} %, il en faut ${Math.round(n.acc * 100)} %`,
       en: m.acc == null
         ? 'Not enough drills yet to measure accuracy'

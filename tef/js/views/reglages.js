@@ -21,7 +21,7 @@ export default function reglages(el, { go }) {
       <section class="sheet stack">
         <h2 style="font-size:var(--t-md)">Le programme${a ? '<span class="gloss">The programme</span>' : ''}</h2>
         <label class="field">
-          <span>Heures d’étude par jour${a ? ' · Study hours per day' : ''}</span>
+          <span>Heures d'étude par jour${a ? ' · Study hours per day' : ''}</span>
           <input class="input u-num" type="number" id="hours" min="1" max="8" step="0.5" value="${s.dailyHours}">
         </label>
         <label class="field">
@@ -29,12 +29,12 @@ export default function reglages(el, { go }) {
           <input class="input u-num" type="number" id="startHour" min="4" max="20" step="1" value="${s.startHour}">
         </label>
         <p style="font-size:var(--t-sm);color:var(--ink-soft);margin:0">
-          Les durées des blocs s’ajustent automatiquement. La proportion reste la même :
-          un peu moins de la moitié du temps passe à parler, et c’est l’essentiel du dispositif.
+          Les durées des blocs s'ajustent automatiquement. La proportion reste la même :
+          un peu moins de la moitié du temps passe à parler, et c'est l'essentiel du dispositif.
           ${a ? '<span class="gloss">Block lengths adjust automatically. The proportion stays the same: just under half the time is spent speaking, which is the whole point.</span>' : ''}
         </p>
         <label class="field">
-          <span>Date de l’examen${a ? ' · Exam date' : ''}</span>
+          <span>Date de l'examen${a ? ' · Exam date' : ''}</span>
           <input class="input" type="date" id="exam" value="${esc(s.examDate)}">
         </label>
         <label class="field">
@@ -46,8 +46,8 @@ export default function reglages(el, { go }) {
       <section class="sheet stack">
         <h2 style="font-size:var(--t-md)">Anglais${a ? '<span class="gloss">English</span>' : ''}</h2>
         <p style="font-size:var(--t-sm);color:var(--ink-soft);margin:0">
-          L’anglais est affiché partout par défaut. Coupe-le épreuve par épreuve quand tu n’en
-          as plus besoin : c’est le meilleur signe de progrès que tu puisses t’offrir.
+          L'anglais est affiché partout par défaut. Coupe-le épreuve par épreuve quand tu n'en
+          as plus besoin : c'est le meilleur signe de progrès que tu puisses t'offrir.
           ${a ? '<span class="gloss">English is shown everywhere by default. Switch it off task by task as you stop needing it — it is the clearest progress signal you can give yourself.</span>' : ''}
         </p>
         <div class="row">
@@ -60,7 +60,7 @@ export default function reglages(el, { go }) {
         <h2 style="font-size:var(--t-md)">Son et effets${a ? '<span class="gloss">Sound & effects</span>' : ''}</h2>
         <p style="font-size:var(--t-sm);color:var(--ink-soft);margin:0">
           Petits retours sonores quand une réponse est juste ou fausse, et une estampe
-          quand un bloc est terminé. Rien n’est enregistré ni envoyé.
+          quand un bloc est terminé. Rien n'est enregistré ni envoyé.
           ${a ? '<span class="gloss">Small tones when an answer is right or wrong, and a stamp when a block is done. Nothing is recorded or sent.</span>' : ''}
         </p>
         <div class="row">
@@ -110,7 +110,7 @@ export default function reglages(el, { go }) {
         <h2 style="font-size:var(--t-md)">Sauvegarde${a ? '<span class="gloss">Backup</span>' : ''}</h2>
         <p style="font-size:var(--t-sm);color:var(--ink-soft);margin:0">
           Vider le cache du navigateur efface ta progression. Exporte un fichier avant de
-          changer d’appareil.
+          changer d'appareil.
           ${a ? '<span class="gloss">Clearing browser data erases your progress. Export a file before switching devices.</span>' : ''}
         </p>
         <div class="row">
@@ -158,7 +158,7 @@ export default function reglages(el, { go }) {
     testsound: () => fx.celebrate('Bravo'),
 
     test: () => speech.say(
-      'Bonjour. Pourriez-vous me préciser le montant du loyer, s’il vous plaît ?',
+      'Bonjour. Pourriez-vous me préciser le montant du loyer, s'il vous plaît ?',
       { rate: store.settings().rate, voiceName: store.settings().voice }),
 
     export: () => {

@@ -52,8 +52,8 @@ export default function progres(el, { go }) {
     ${pace && pace.started ? `
       <div class="pace" data-track="${pace.onTrack ? 1 : 0}" style="margin-bottom:2rem">
         <div class="pace__head">${pace.onTrack
-          ? 'Au rythme actuel, l’objectif de février tient.'
-          : 'Au rythme actuel, l’objectif de février ne tient pas.'}</div>
+          ? 'Au rythme actuel, l'objectif de février tient.'
+          : 'Au rythme actuel, l'objectif de février ne tient pas.'}</div>
         <div class="pace__body">
           Il reste ${pace.days} jours et ${pace.hoursNeeded.toFixed(0)} heures de parole à produire,
           soit ${pace.minutesPerDayNeeded} minutes par jour. Sur les quatorze derniers jours
@@ -67,7 +67,7 @@ export default function progres(el, { go }) {
       </div>`}
 
     <h2 style="font-size:var(--t-md);margin-bottom:.9rem">
-      L’échelle${a ? '<span class="gloss">The ladder</span>' : ''}</h2>
+      L'échelle${a ? '<span class="gloss">The ladder</span>' : ''}</h2>
     <div class="rungs" style="margin-bottom:1.25rem">
       ${RUNGS.map(r => {
         const idx = RUNGS.findIndex(x => x.key === r.key);
@@ -130,8 +130,8 @@ export default function progres(el, { go }) {
               </div>`).join('')}
           </div>
           <p style="margin-top:1rem;font-size:var(--t-sm);color:var(--ink-soft)">
-            Si Section B est en bas de cette liste, c’est elle qui te coûtera le plus :
-            c’est l’épreuve où l’on doit réagir sans script.
+            Si Section B est en bas de cette liste, c'est elle qui te coûtera le plus :
+            c'est l'épreuve où l'on doit réagir sans script.
             ${a ? '<span class="gloss">If Section B sits at the bottom of this list, that is what will cost you most — it is the task where you must react without a script.</span>' : ''}
           </p>`
         : '<div class="empty">Rien encore. Fais un bloc de parole.</div>'}
@@ -147,7 +147,7 @@ export default function progres(el, { go }) {
               <span class="weakrow__bar"><i style="width:${Math.round(t.acc * 100)}%" ${t.acc >= 0.85 ? 'data-ok="1"' : ''}></i></span>
               <span class="weakrow__p">${pct(t.acc)}</span>
             </div>`).join('')}</div>`
-        : '<div class="empty">Au moins trois réponses sur un thème pour qu’il apparaisse ici.</div>'}
+        : '<div class="empty">Au moins trois réponses sur un thème pour qu'il apparaisse ici.</div>'}
       </div>
     </div>
 
@@ -189,16 +189,16 @@ export default function progres(el, { go }) {
       <summary style="cursor:pointer;font:500 var(--t-base)/1.3 var(--ff-text)">
         Comment ce niveau est calculé${a ? ' · How this level is worked out' : ''}</summary>
       <div style="margin-top:1rem;font-size:var(--t-sm);line-height:1.7;color:var(--ink-soft)">
-        <p>Ce n’est pas un score d’examen. C’est un indicateur à trois conditions, et il ne monte
+        <p>Ce n'est pas un score d'examen. C'est un indicateur à trois conditions, et il ne monte
         que lorsque les trois sont remplies : les heures de parole que tu as réellement produites
-        dans l’application, le nombre de leçons de grammaire réussies à 70 % ou plus, et ta
+        dans l'application, le nombre de leçons de grammaire réussies à 70 % ou plus, et ta
         précision moyenne en exercice.</p>
-        <p>Les heures de parole sont volontairement l’élément le plus lent. On peut lire
+        <p>Les heures de parole sont volontairement l'élément le plus lent. On peut lire
         une grammaire en un après-midi ; on ne peut pas accélérer les soixante heures de production
-        orale qui séparent A2 de B2. C’est pour cette raison que l’application compte les minutes
+        orale qui séparent A2 de B2. C'est pour cette raison que l'application compte les minutes
         plutôt que les leçons.</p>
-        <p>Les équivalences NCLC indiquées sont celles d’IRCC, mais seul un vrai TEF Canada
-        donne un score officiel. Vérifie les barèmes en vigueur sur le site d’IRCC avant toute
+        <p>Les équivalences NCLC indiquées sont celles d'IRCC, mais seul un vrai TEF Canada
+        donne un score officiel. Vérifie les barèmes en vigueur sur le site d'IRCC avant toute
         décision liée à un dossier.</p>
       </div>
     </details>

@@ -26,15 +26,15 @@ function index(el, go) {
   <div class="view">
     <div class="ph">
       <h1>Vocabulaire${a ? '<span class="gloss" style="font-size:var(--t-base)">Vocabulary</span>' : ''}</h1>
-      <p class="ph__sub">Des blocs, pas des mots isolés. Tu n’as pas besoin de « loyer » :
-        tu as besoin de « le loyer charges comprises », parce que c’est ça qui sort de la bouche.
-        ${a ? '<span class="gloss">Chunks, not isolated words. You don’t need "loyer" — you need "le loyer charges comprises", because that is what actually comes out.</span>' : ''}</p>
+      <p class="ph__sub">Des blocs, pas des mots isolés. Tu n'as pas besoin de « loyer » :
+        tu as besoin de « le loyer charges comprises », parce que c'est ça qui sort de la bouche.
+        ${a ? '<span class="gloss">Chunks, not isolated words. You don't need "loyer" — you need "le loyer charges comprises", because that is what actually comes out.</span>' : ''}</p>
     </div>
 
     <div class="row row--split" style="margin-bottom:1.5rem">
       <span class="u-ui u-num" style="font-size:var(--t-sm);color:var(--ink-faint)">
         ${c.learned} / ${c.total} consolidés · ${c.due} à revoir</span>
-      <button class="btn" data-act="week">Thème de la semaine${a ? ' · This week’s theme' : ''}</button>
+      <button class="btn" data-act="week">Thème de la semaine${a ? ' · This week's theme' : ''}</button>
     </div>
 
     <p class="why" style="margin-bottom:1.75rem">

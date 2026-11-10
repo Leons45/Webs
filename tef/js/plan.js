@@ -11,12 +11,12 @@ import * as store from './store.js';
 
 export const BLOCKS = [
   { id:'echauffement', min:10, fr:'Échauffement',          en:'Warm-up',
-    desc:'Dix phrases prêtes à l’emploi, dites à voix haute.',
+    desc:'Dix phrases prêtes à l'emploi, dites à voix haute.',
     descEn:'Ten ready-made phrases, said aloud.', route:'#/phrases?drill=1', speaking:true },
 
   { id:'vocab', min:25, fr:'Vocabulaire',                  en:'Vocabulary',
     desc:'Les chunks du thème de la semaine, en révision espacée.',
-    descEn:'This week’s themed chunks, spaced repetition.', route:'#/vocab?drill=1' },
+    descEn:'This week's themed chunks, spaced repetition.', route:'#/vocab?drill=1' },
 
   { id:'grammaire', min:30, fr:'Grammaire du jour',        en:'Grammar',
     desc:'Une leçon courte, puis les exercices.',
@@ -27,27 +27,27 @@ export const BLOCKS = [
     descEn:'Listen, repeat at once, compare.', route:'#/parler?mode=shadow', speaking:true },
 
   { id:'questions', min:20, fr:'Questions éclair',         en:'Rapid questions',
-    desc:'Section A : tu vois l’anglais, tu dis la question en français.',
+    desc:'Section A : tu vois l'anglais, tu dis la question en français.',
     descEn:'Section A: you see English, you say the French question.', route:'#/parler?mode=questions', speaking:true },
 
   { id:'sectionA', min:15, fr:'Simulation — Section A',    en:'Section A simulation',
     desc:'Cinq minutes au chronomètre. Tu poses, tu ne donnes pas ton avis.',
-    descEn:'Five minutes on the clock. You ask; you don’t give opinions.', route:'#/parler?mode=sectionA', speaking:true },
+    descEn:'Five minutes on the clock. You ask; you don't give opinions.', route:'#/parler?mode=sectionA', speaking:true },
 
   { id:'sectionB', min:25, fr:'Simulation — Section B',    en:'Section B simulation',
-    desc:'Dix minutes. L’examinateur t’objecte à voix haute ; tu réponds.',
+    desc:'Dix minutes. L'examinateur t'objecte à voix haute ; tu réponds.',
     descEn:'Ten minutes. The examiner objects aloud; you respond.', route:'#/parler?mode=sectionB', speaking:true },
 
   { id:'monologue', min:15, fr:'Monologue 60 secondes',    en:'60-second monologue',
-    desc:'Un sujet, une minute, sans préparation. Ne pas s’arrêter.',
-    descEn:'One topic, one minute, no prep. Don’t stop.', route:'#/parler?mode=monologue', speaking:true },
+    desc:'Un sujet, une minute, sans préparation. Ne pas s'arrêter.',
+    descEn:'One topic, one minute, no prep. Don't stop.', route:'#/parler?mode=monologue', speaking:true },
 
   { id:'ecrire', min:30, fr:'Écriture',                    en:'Writing',
     desc:'Une tâche courte, chronométrée.',
     descEn:'One short task, timed.', route:'#/ecrire' },
 
   { id:'bilan', min:10, fr:'Bilan',                        en:'Review',
-    desc:'Ce qui a résisté aujourd’hui, et où tu en es.',
+    desc:'Ce qui a résisté aujourd'hui, et où tu en es.',
     descEn:'What gave trouble today, and where you stand.', route:'#/progres' },
 ];
 
@@ -100,7 +100,7 @@ export const WEEKS = [
     goalEn:'Ask ten different questions about an advert, with no preparation.' },
   { n:2,  level:'A2', fr:'Interroger et raconter', en:'Asking and recounting',
     lessons:['g03','g04'], themes:['travail'], focus:'questions',
-    goal:'Raconter ta journée d’hier en huit phrases au passé composé.',
+    goal:'Raconter ta journée d'hier en huit phrases au passé composé.',
     goalEn:'Recount yesterday in eight sentences in the perfect tense.' },
   { n:3,  level:'A2', fr:'Le passé qui tient debout', en:'A past tense that holds up',
     lessons:['g05','g06'], themes:['demarches'], focus:'monologue',
@@ -124,9 +124,9 @@ export const WEEKS = [
     goalEn:'A ten-minute Section B using at least six object pronouns.' },
   { n:8,  level:'B1', fr:'Y, en, et la fluidité', en:'Y, en, and flow',
     lessons:['g12'], themes:['alimentation'], focus:'sectionB',
-    goal:'Répondre à cinq objections sans jamais t’arrêter net.',
+    goal:'Répondre à cinq objections sans jamais t'arrêter net.',
     goalEn:'Answer five objections without ever stopping dead.' },
-  { n:9,  level:'B1', fr:'La politesse et l’hypothèse', en:'Politeness and hypothesis',
+  { n:9,  level:'B1', fr:'La politesse et l'hypothèse', en:'Politeness and hypothesis',
     lessons:['g13'], themes:['societe'], focus:'sectionA',
     goal:'Toute une Section A au conditionnel de politesse.',
     goalEn:'An entire Section A in the polite conditional.' },
@@ -140,7 +140,7 @@ export const WEEKS = [
     goalEn:'Three correct sentences over twenty words in one monologue.' },
   { n:12, level:'B2', fr:'Articuler un raisonnement', en:'Structuring an argument',
     lessons:['g16'], themes:['quebec'], focus:'sectionB',
-    goal:'Une concession suivie d’une réfutation, à l’oral, sans notes.',
+    goal:'Une concession suivie d'une réfutation, à l'oral, sans notes.',
     goalEn:'A concession followed by a rebuttal, spoken, without notes.' },
   { n:13, level:'B2', fr:'Simulation et rodage', en:'Full simulation',
     lessons:['g02','g07','g14','g16'], themes:['logement','travail','societe'], focus:'sectionB',
