@@ -1198,3 +1198,26 @@ hr.hair { border: 0; border-top: 2px dotted var(--hair); margin: 2rem 0; }
 [data-theme='dark'] .chunks-tab { background: color-mix(in srgb, var(--ink) 85%, var(--paper)); color: var(--paper); }
 [data-theme='dark'] .chunks-tab--active { background: var(--accent); color: var(--on-accent); }
 [data-theme='dark'] .drill-card { background: color-mix(in srgb, var(--ink) 90%, var(--paper)); }
+
+/* ── Update button (rail footer) ────────────────────────────────── */
+.update-btn {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  width: 100%;
+  padding: .35rem .6rem;
+  font: 500 var(--t-xs)/1 var(--ff-ui);
+  color: var(--ink-faint);
+  background: none;
+  border: 1.5px solid var(--hair);
+  border-radius: var(--r);
+  cursor: pointer;
+  transition: color .15s, border-color .15s, background .15s;
+}
+.update-btn:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-wash);
+}
+.update-btn:disabled { opacity: .5; cursor: wait; }
+.update-btn svg { flex-shrink: 0; }

@@ -28,6 +28,10 @@
         <span id="assistLabel">English on</span>
       </button>
       <a class="navitem" href="#/reglages">Réglages <span class="gloss gloss--inline">Settings</span></a>
+      <button class="update-btn" id="updateBtn" onclick="updateApp()" title="Check for update" style="margin-top:.6rem">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        <span id="updateLabel">v2026-11-10b</span>
+      </button>
     </div>
   </aside>
 
@@ -45,6 +49,31 @@
 
 <script type="module" src="js/app.js"></script>
 <script>
+function updateApp() {
+  const btn = document.getElementById('updateBtn');
+  const lbl = document.getElementById('updateLabel');
+  btn.disabled = true;
+  lbl.textContent = 'Checking…';
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(regs => {
+      Promise.all(regs.map(r => r.unregister())).then(() => {
+        // Clear all caches then hard reload
+        if ('caches' in window) {
+          caches.keys().then(keys => {
+            Promise.all(keys.map(k => caches.delete(k))).then(() => {
+              window.location.reload(true);
+            });
+          });
+        } else {
+          window.location.reload(true);
+        }
+      });
+    });
+  } else {
+    window.location.reload(true);
+  }
+}
+
 if ('serviceWorker' in navigator) {
   addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
 }
