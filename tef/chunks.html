@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L'Atelier — TEF Chunk Master</title>
+<style>
+  :root {
+    --bg: #0d0d0f;
+    --surface: #16161a;
+    --surface2: #1e1e24;
+    --border: #2a2a35;
+    --accent: #7c6af7;
+    --accent2: #f97316;
+    --accent3: #22d3ee;
+    --accent4: #4ade80;
+    --text: #e8e8f0;
+    --muted: #8888a0;
+    --red: #f87171;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; min-height: 100vh; }
+
+  header {
+    padding: 18px 24px 0;
+    display: flex; align-items: center; gap: 12px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 14px;
+  }
+  .logo { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; }
+  .logo span { color: var(--accent); }
+  .badge { background: var(--accent); color: #fff; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px; letter-spacing: 1px; text-transform: uppercase; }
+  .mode-toggle { margin-left: auto; display: flex; gap: 8px; }
+  .mode-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--muted); font-size: 12px; font-weight: 600; padding: 6px 14px; border-radius: 20px; cursor: pointer; transition: all .2s; }
+  .mode-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  .tabs { display: flex; gap: 4px; padding: 14px 24px 0; overflow-x: auto; scrollbar-width: none; border-bottom: 1px solid var(--border); }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab { padding: 8px 16px; font-size: 13px; font-weight: 600; border-radius: 8px 8px 0 0; cursor: pointer; white-space: nowrap; color: var(--muted); border: 1px solid transparent; border-bottom: none; transition: all .2s; }
+  .tab.active { background: var(--surface2); color: var(--text); border-color: var(--border); }
+  .tab:hover:not(.active) { color: var(--text); }
+  .tab-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 6px; }
+
+  .content { padding: 20px 24px; max-width: 900px; margin: 0 auto; }
+
+  .section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: var(--muted); margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  .cards-grid { display: grid; gap: 10px; }
+
+  .chunk-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex; align-items: center; gap: 12px;
+    transition: border-color .2s;
+  }
+  .chunk-card:hover { border-color: var(--accent); }
+  .chunk-card.learned { border-color: var(--accent4); background: rgba(74,222,128,.04); }
+  .chunk-card.learned .fr { color: var(--accent4); }
+
+  .chunk-left { flex: 1; min-width: 0; }
+  .fr { font-size: 15px; font-weight: 600; color: var(--text); line-height: 1.4; }
+  .en { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .tag { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 10px; margin-top: 5px; letter-spacing: .5px; }
+  .tag-sec-a { background: rgba(249,115,22,.12); color: var(--accent2); }
+  .tag-sec-b { background: rgba(124,106,247,.12); color: var(--accent); }
+  .tag-universal { background: rgba(34,211,238,.12); color: var(--accent3); }
+  .tag-connector { background: rgba(74,222,128,.12); color: var(--accent4); }
+  .tag-letter { background: rgba(248,113,113,.12); color: var(--red); }
+
+  .chunk-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+  .speak-btn {
+    width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border);
+    background: var(--surface2); color: var(--muted); cursor: pointer;
+    display: flex; align-items: center; justify-content: center; font-size: 15px;
+    transition: all .2s;
+  }
+  .speak-btn:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .speak-btn.playing { background: var(--accent); border-color: var(--accent); color: #fff; animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+  .learn-btn {
+    width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border);
+    background: var(--surface2); color: var(--muted); cursor: pointer;
+    display: flex; align-items: center; justify-content: center; font-size: 15px;
+    transition: all .2s;
+  }
+  .learn-btn:hover { background: rgba(74,222,128,.2); border-color: var(--accent4); color: var(--accent4); }
+  .learn-btn.done { background: rgba(74,222,128,.2); border-color: var(--accent4); color: var(--accent4); }
+
+  .drill-wrap { display: flex; flex-direction: column; align-items: center; padding: 20px 0; }
+  .drill-counter { font-size: 12px; color: var(--muted); margin-bottom: 20px; }
+  .flip-card {
+    width: 100%; max-width: 540px; height: 200px;
+    perspective: 1000px; cursor: pointer; margin-bottom: 20px;
+  }
+  .flip-inner {
+    width: 100%; height: 100%;
+    position: relative; transform-style: preserve-3d;
+    transition: transform .5s;
+  }
+  .flip-inner.flipped { transform: rotateY(180deg); }
+  .flip-face {
+    position: absolute; width: 100%; height: 100%;
+    backface-visibility: hidden;
+    border-radius: 16px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 24px; text-align: center;
+    border: 1px solid var(--border);
+  }
+  .flip-front { background: var(--surface); }
+  .flip-back { background: var(--surface2); transform: rotateY(180deg); border-color: var(--accent); }
+  .flip-hint { font-size: 11px; color: var(--muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px; }
+  .flip-text { font-size: 20px; font-weight: 700; color: var(--text); line-height: 1.4; }
+  .flip-sub { font-size: 13px; color: var(--muted); margin-top: 8px; }
+  .drill-btns { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  .drill-btn {
+    padding: 10px 28px; border-radius: 10px; font-size: 14px; font-weight: 700;
+    border: none; cursor: pointer; transition: all .2s;
+  }
+  .drill-speak { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .drill-speak:hover { border-color: var(--accent); color: var(--accent); }
+  .drill-next { background: var(--accent); color: #fff; }
+  .drill-next:hover { opacity: .85; }
+  .drill-mark { background: rgba(74,222,128,.15); color: var(--accent4); border: 1px solid var(--accent4); }
+  .drill-mark:hover { background: rgba(74,222,128,.3); }
+  .drill-progress { width: 100%; max-width: 540px; height: 4px; background: var(--border); border-radius: 4px; overflow: hidden; margin-bottom: 8px; }
+  .drill-bar { height: 100%; background: var(--accent); border-radius: 4px; transition: width .4s; }
+  .drill-filter { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px; }
+  .filter-chip { padding: 5px 12px; font-size: 12px; font-weight: 600; border-radius: 20px; border: 1px solid var(--border); background: var(--surface2); color: var(--muted); cursor: pointer; transition: all .2s; }
+  .filter-chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  .stats-bar { display: flex; gap: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 18px; margin-bottom: 18px; }
+  .stat { display: flex; flex-direction: column; }
+  .stat-n { font-size: 20px; font-weight: 800; color: var(--accent); }
+  .stat-l { font-size: 11px; color: var(--muted); margin-top: 1px; }
+  .stat-sep { width: 1px; background: var(--border); }
+
+  .tip-box { background: rgba(124,106,247,.07); border: 1px solid rgba(124,106,247,.25); border-radius: 10px; padding: 12px 14px; margin-bottom: 14px; font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .tip-box strong { color: var(--accent); }
+
+  .conn-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .conn-table th { text-align: left; padding: 8px 12px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); border-bottom: 1px solid var(--border); }
+  .conn-table td { padding: 10px 12px; border-bottom: 1px solid rgba(42,42,53,.8); vertical-align: middle; }
+  .conn-table tr:hover td { background: var(--surface2); }
+  .avoid { color: var(--red); text-decoration: line-through; opacity: .7; }
+  .upgrade { color: var(--accent4); font-weight: 600; }
+  .speak-inline { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 14px; padding: 2px 6px; border-radius: 6px; transition: all .15s; }
+  .speak-inline:hover { color: var(--accent); background: rgba(124,106,247,.1); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">L'<span>Atelier</span></div>
+  <div class="badge">TEF Chunks</div>
+  <div class="mode-toggle">
+    <button class="mode-btn active" onclick="setMode('study')" id="btn-study">📚 Study</button>
+    <button class="mode-btn" onclick="setMode('drill')" id="btn-drill">🃏 Drill</button>
+  </div>
+</header>
+
+<div class="tabs" id="tabs"></div>
+<div class="content" id="main-content"></div>
+
+<script>
+const CHUNKS = [
+  { id:'u1', cat:'universal', fr:'Il convient de noter que', en:'It is worth noting that', usage:'Opens any observation with authority' },
+  { id:'u2', cat:'universal', fr:'Force est de constater que', en:'One cannot help but notice that', usage:'Strong factual opener' },
+  { id:'u3', cat:'universal', fr:'Il est indéniable que', en:'It is undeniable that', usage:'Introduces an undisputed fact' },
+  { id:'u4', cat:'universal', fr:'Il va sans dire que', en:'It goes without saying that', usage:'Soft-starts an obvious point' },
+  { id:'u5', cat:'universal', fr:'On ne peut nier que', en:'One cannot deny that', usage:'Concedes then pivots' },
+  { id:'u6', cat:'universal', fr:'Il est largement reconnu que', en:'It is widely recognized that', usage:'Cites consensus' },
+
+  { id:'a1', cat:'sec-a', fr:"C'est avec stupéfaction que", en:'It was with astonishment that', usage:'Dramatic event opener' },
+  { id:'a2', cat:'sec-a', fr:'Les faits remontent à', en:'The events date back to', usage:'Establishes timeline' },
+  { id:'a3', cat:'sec-a', fr:"Selon les premiers éléments de l'enquête,", en:'According to initial investigation findings,', usage:'Journalistic tone' },
+  { id:'a4', cat:'sec-a', fr:'Les témoins présents sur place ont rapporté que', en:'Witnesses present on the scene reported that', usage:'Introduces eyewitness' },
+  { id:'a5', cat:'sec-a', fr:"D'après les informations disponibles,", en:'According to available information,', usage:'General news hedge' },
+  { id:'a6', cat:'sec-a', fr:'Le bilan provisoire fait état de', en:'The provisional report indicates', usage:'Injury/damage report' },
+  { id:'a7', cat:'sec-a', fr:'Suite à cet incident,', en:'Following this incident,', usage:'Transitions to aftermath' },
+  { id:'a8', cat:'sec-a', fr:"En l'espace de quelques minutes,", en:'Within the space of a few minutes,', usage:'Conveys speed/urgency' },
+  { id:'a9', cat:'sec-a', fr:'Sans crier gare,', en:'Without warning,', usage:'Sudden event' },
+  { id:'a10', cat:'sec-a', fr:'Contre toute attente,', en:'Against all expectations,', usage:'Unexpected twist' },
+  { id:'a11', cat:'sec-a', fr:"C'est alors que", en:'It was then that', usage:'Plot turn marker' },
+  { id:'a12', cat:'sec-a', fr:'Les secours ont été immédiatement dépêchés sur les lieux.', en:'Emergency services were immediately dispatched to the scene.', usage:'Standard closing fact' },
+  { id:'a13', cat:'sec-a', fr:'Une enquête a été ouverte afin de', en:'An investigation has been opened in order to', usage:'Official closing' },
+  { id:'a14', cat:'sec-a', fr:"Les autorités compétentes ont été saisies de l'affaire.", en:'The relevant authorities have been notified.', usage:'Formal closing sentence' },
+  { id:'a15', cat:'sec-a', fr:"L'affaire a depuis suscité de nombreuses réactions.", en:'The matter has since sparked many reactions.', usage:'Links to public response' },
+  { id:'a16', cat:'sec-a', fr:"Les circonstances exactes de l'événement restent à établir.", en:'The exact circumstances remain to be established.', usage:'Open-ended close' },
+
+  { id:'b1', cat:'sec-b', fr:'Il me semble évident que', en:'It seems evident to me that', usage:'Authoritative personal stance' },
+  { id:'b2', cat:'sec-b', fr:'Je suis fermement convaincu(e) que', en:'I am firmly convinced that', usage:'Strong position statement' },
+  { id:'b3', cat:'sec-b', fr:'Tout porte à croire que', en:'Everything points to the fact that', usage:'Evidence-based claim' },
+  { id:'b4', cat:'sec-b', fr:'Il apparaît clairement que', en:'It clearly appears that', usage:'Formal observation' },
+  { id:'b5', cat:'sec-b', fr:'On peut affirmer sans hésitation que', en:'One can state without hesitation that', usage:'Confident assertion' },
+  { id:'b6', cat:'sec-b', fr:"Je défends l'idée selon laquelle", en:'I defend the idea that', usage:'Formal thesis statement' },
+  { id:'b7', cat:'sec-b', fr:'En premier lieu,', en:'In the first place,', usage:'First argument marker' },
+  { id:'b8', cat:'sec-b', fr:"D'une part... d'autre part...", en:'On one hand... on the other hand...', usage:'Classic two-side structure' },
+  { id:'b9', cat:'sec-b', fr:'Non seulement... mais également...', en:'Not only... but also...', usage:'Adds weight to argument' },
+  { id:'b10', cat:'sec-b', fr:"À cela s'ajoute le fait que", en:'Add to this the fact that', usage:'Stacks a second point' },
+  { id:'b11', cat:'sec-b', fr:'Il importe également de souligner que', en:'It is also important to emphasize that', usage:'Introduces emphasis point' },
+  { id:'b12', cat:'sec-b', fr:"Un autre aspect mérite d'être mentionné :", en:'Another aspect worth mentioning:', usage:'Adds a third argument' },
+  { id:'b13', cat:'sec-b', fr:"À titre d'exemple,", en:'As an example,', usage:'Introduces illustration' },
+  { id:'b14', cat:'sec-b', fr:"C'est notamment le cas de", en:'This is notably the case of', usage:'Specific example' },
+  { id:'b15', cat:'sec-b', fr:'On peut citer, entre autres,', en:'One can cite, among others,', usage:'Multiple examples' },
+  { id:'b16', cat:'sec-b', fr:'Il suffit de penser à', en:'One only needs to think about', usage:'Rhetorical example pointer' },
+  { id:'b17', cat:'sec-b', fr:'Les chiffres parlent d\'eux-mêmes :', en:'The numbers speak for themselves:', usage:'Data reference intro' },
+  { id:'b18', cat:'sec-b', fr:'Certes,... cependant...', en:'Admittedly,... however...', usage:'🔑 Key CLB 7 move — shows nuance' },
+  { id:'b19', cat:'sec-b', fr:'Il est vrai que... néanmoins...', en:'It is true that... nevertheless...', usage:'Concede + rebound' },
+  { id:'b20', cat:'sec-b', fr:'Bien que + subjonctif,', en:'Although...,', usage:'Complex concession (needs subjunctive)' },
+  { id:'b21', cat:'sec-b', fr:"Même si l'on admet que...", en:'Even if one accepts that...', usage:'Hypothetical concession' },
+  { id:'b22', cat:'sec-b', fr:'Sans nier que..., il reste que...', en:'Without denying that..., it remains that...', usage:'Soft concede + strong pivot' },
+  { id:'b23', cat:'sec-b', fr:'En définitive,', en:'Ultimately, / In the end,', usage:'Closing signal' },
+  { id:'b24', cat:'sec-b', fr:'En guise de conclusion,', en:'By way of conclusion,', usage:'Formal conclusion opener' },
+  { id:'b25', cat:'sec-b', fr:'Il ressort de ce qui précède que', en:'From the foregoing, it emerges that', usage:'Academic summary phrase' },
+  { id:'b26', cat:'sec-b', fr:'Pour toutes ces raisons,', en:'For all these reasons,', usage:'Wraps up all arguments' },
+  { id:'b27', cat:'sec-b', fr:'En somme,', en:'In short, / All in all,', usage:'Brief summary' },
+  { id:'b28', cat:'sec-b', fr:'Je reste persuadé(e) que', en:'I remain convinced that', usage:'Reaffirms position at close' },
+
+  { id:'l1', cat:'letter', fr:'Madame, Monsieur,', en:'Dear Sir/Madam,', usage:'Standard neutral opener' },
+  { id:'l2', cat:'letter', fr:'Je me permets de vous écrire au sujet de', en:'I take the liberty of writing to you regarding', usage:'Formal intro' },
+  { id:'l3', cat:'letter', fr:'Suite à l\'article paru le... concernant...', en:'Following the article published on... regarding...', usage:'Response to media' },
+  { id:'l4', cat:'letter', fr:"C'est avec un vif intérêt que j'ai pris connaissance de", en:'It is with great interest that I became aware of', usage:'Positive engagement opener' },
+  { id:'l5', cat:'letter', fr:'Dans l\'attente de votre réponse,', en:'Awaiting your reply,', usage:'Pre-close phrase' },
+  { id:'l6', cat:'letter', fr:'Je reste à votre disposition pour tout renseignement complémentaire.', en:'I remain at your disposal for further information.', usage:'Polite availability offer' },
+  { id:'l7', cat:'letter', fr:'Veuillez agréer, Madame/Monsieur, l\'expression de mes salutations distinguées.', en:'Yours faithfully / Sincerely yours,', usage:'Most formal sign-off' },
+  { id:'l8', cat:'letter', fr:'Cordialement,', en:'Kind regards,', usage:'Warm-but-formal sign-off' },
+];
+
+const CONNECTORS = [
+  { fn:'Adding',      avoid:'aussi, et',       upgrade:'De plus / En outre / Qui plus est' },
+  { fn:'Contrast',    avoid:'mais',             upgrade:'Néanmoins / Toutefois / Or' },
+  { fn:'Cause',       avoid:'parce que',        upgrade:'En raison de / Du fait que / Étant donné que' },
+  { fn:'Consequence', avoid:'donc',             upgrade:"C'est pourquoi / Ainsi / Par conséquent" },
+  { fn:'Illustration',avoid:'par exemple',      upgrade:"À titre d'exemple / C'est notamment le cas de" },
+  { fn:'Concession',  avoid:'mais quand même',  upgrade:'Certes... cependant / Bien que + subj.' },
+  { fn:'Emphasis',    avoid:'vraiment',         upgrade:'Force est de constater / Il convient de souligner' },
+];
+
+const TABS = [
+  { id:'universal',   label:'🌐 Universal', color:'#22d3ee' },
+  { id:'sec-a',       label:'📰 Section A',  color:'#f97316' },
+  { id:'sec-b',       label:'💬 Section B',  color:'#7c6af7' },
+  { id:'connectors',  label:'🔗 Connectors', color:'#4ade80' },
+  { id:'letter',      label:'✉️ Letter',     color:'#f87171' },
+];
+
+let currentTab = 'universal';
+let currentMode = 'study';
+let learned = {};
+try { learned = JSON.parse(localStorage.getItem('tef_learned') || '{}'); } catch(e){}
+let drillIndex = 0;
+let drillList = [];
+let drillFilter = 'all';
+let flipped = false;
+
+function getVoice() {
+  const voices = window.speechSynthesis.getVoices();
+  return voices.find(v => v.lang.startsWith('fr') && v.name.toLowerCase().includes('female'))
+      || voices.find(v => v.lang.startsWith('fr'))
+      || null;
+}
+
+function speak(text, btnEl) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = 'fr-FR';
+  utter.rate = 0.88;
+  utter.pitch = 1;
+  const v = getVoice();
+  if (v) utter.voice = v;
+  if (btnEl) {
+    btnEl.classList.add('playing');
+    utter.onend = () => btnEl.classList.remove('playing');
+    utter.onerror = () => btnEl.classList.remove('playing');
+  }
+  window.speechSynthesis.speak(utter);
+}
+
+function renderTabs() {
+  document.getElementById('tabs').innerHTML = TABS.map(t =>
+    `<div class="tab ${t.id===currentTab?'active':''}" onclick="switchTab('${t.id}')">
+      <span class="tab-dot" style="background:${t.color}"></span>${t.label}
+    </div>`
+  ).join('');
+}
+
+function switchTab(id) {
+  currentTab = id; drillIndex = 0; flipped = false;
+  renderTabs(); renderContent();
+}
+
+function setMode(m) {
+  currentMode = m;
+  document.getElementById('btn-study').classList.toggle('active', m==='study');
+  document.getElementById('btn-drill').classList.toggle('active', m==='drill');
+  drillIndex = 0; flipped = false;
+  buildDrillList(); renderContent();
+}
+
+function toggleLearn(id) {
+  learned[id] = !learned[id];
+  try { localStorage.setItem('tef_learned', JSON.stringify(learned)); } catch(e){}
+  renderContent();
+}
+
+function totalLearned() { return Object.values(learned).filter(Boolean).length; }
+
+function statsHTML() {
+  const total = CHUNKS.length, done = totalLearned();
+  const pct = Math.round(done/total*100);
+  return `<div class="stats-bar">
+    <div class="stat"><span class="stat-n">${done}</span><span class="stat-l">Learned</span></div>
+    <div class="stat-sep"></div>
+    <div class="stat"><span class="stat-n">${total-done}</span><span class="stat-l">Remaining</span></div>
+    <div class="stat-sep"></div>
+    <div class="stat"><span class="stat-n">${pct}%</span><span class="stat-l">Complete</span></div>
+  </div>`;
+}
+
+function escFr(s){ return s.replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+
+function renderStudy() {
+  if (currentTab === 'connectors') return renderConnectors();
+  const chunks = CHUNKS.filter(c => c.cat === currentTab);
+  const catName = TABS.find(t=>t.id===currentTab)?.label || '';
+  let html = statsHTML();
+  if (currentTab === 'sec-b') {
+    html += `<div class="tip-box">💡 <strong>Key move for CLB 7:</strong> Master the concession pattern — <em>Certes... cependant...</em> — it shows the examiner you can reason in two directions. That alone separates B1 from B2.</div>`;
+  }
+  html += `<div class="section-title">${catName} — ${chunks.length} phrases</div><div class="cards-grid">`;
+  chunks.forEach(c => {
+    const isLearned = !!learned[c.id];
+    html += `<div class="chunk-card ${isLearned?'learned':''}">
+      <div class="chunk-left">
+        <div class="fr">${c.fr}</div>
+        <div class="en">${c.en}</div>
+        <span class="tag tag-${c.cat}">${c.usage}</span>
+      </div>
+      <div class="chunk-actions">
+        <button class="speak-btn" onclick="speak('${escFr(c.fr)}',this)" title="Pronounce">🔊</button>
+        <button class="learn-btn ${isLearned?'done':''}" onclick="toggleLearn('${c.id}')">${isLearned?'✓':'○'}</button>
+      </div>
+    </div>`;
+  });
+  html += `</div>`;
+  return html;
+}
+
+function renderConnectors() {
+  let html = statsHTML();
+  html += `<div class="section-title">🔗 Upgrade Connectors — replace weak words instantly</div>`;
+  html += `<div class="tip-box">Examiners see <em>donc</em> and think B1. They see <em>Par conséquent</em> and think B2. <strong>Swap these in every practice text starting today.</strong></div>`;
+  html += `<table class="conn-table"><thead><tr><th>Function</th><th>Avoid (B1)</th><th>Use instead (CLB 7+)</th><th>🔊</th></tr></thead><tbody>`;
+  CONNECTORS.forEach(c => {
+    html += `<tr>
+      <td style="color:var(--muted);font-weight:600">${c.fn}</td>
+      <td><span class="avoid">${c.avoid}</span></td>
+      <td><span class="upgrade">${c.upgrade.split('/').map(s=>s.trim()).join(' / ')}</span></td>
+      <td>${c.upgrade.split('/').map(s=>`<button class="speak-inline" onclick="speak('${escFr(s.trim())}',this)">🔊</button>`).join('')}</td>
+    </tr>`;
+  });
+  html += `</tbody></table>`;
+  return html;
+}
+
+function buildDrillList() {
+  let pool;
+  if (drillFilter === 'connectors') {
+    pool = CONNECTORS.map((c,i) => ({ id:'conn'+i, cat:'connectors', fr:c.upgrade, en:`Replaces: "${c.avoid}" — ${c.fn}`, usage:c.fn }));
+  } else if (drillFilter === 'all') {
+    pool = [...CHUNKS];
+  } else {
+    pool = CHUNKS.filter(c => c.cat === drillFilter);
+  }
+  for (let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
+  drillList = pool;
+}
+
+function renderDrill() {
+  if (!drillList.length) buildDrillList();
+  if (!drillList.length) return '<p style="color:var(--muted);text-align:center;padding:40px">No items.</p>';
+  const idx = drillIndex % drillList.length;
+  const card = drillList[idx];
+  const pct = Math.round(idx / drillList.length * 100);
+  const isLearned = !!learned[card.id];
+  let html = `<div class="drill-wrap">
+    <div class="drill-filter">
+      ${['all','universal','sec-a','sec-b','connectors','letter'].map(f=>
+        `<div class="filter-chip ${drillFilter===f?'active':''}" onclick="setFilter('${f}')">${
+          {all:'All',universal:'🌐 Universal','sec-a':'📰 Sec A','sec-b':'💬 Sec B',connectors:'🔗 Connectors',letter:'✉️ Letter'}[f]
+        }</div>`).join('')}
+    </div>
+    <div class="drill-counter">${idx+1} / ${drillList.length}</div>
+    <div class="drill-progress"><div class="drill-bar" style="width:${pct}%"></div></div>
+    <div class="flip-card" onclick="flipCard()">
+      <div class="flip-inner ${flipped?'flipped':''}" id="flip-inner">
+        <div class="flip-face flip-front">
+          <div class="flip-hint">Tap to reveal meaning</div>
+          <div class="flip-text">${card.fr}</div>
+        </div>
+        <div class="flip-face flip-back">
+          <div class="flip-hint">English meaning</div>
+          <div class="flip-text">${card.en}</div>
+          <div class="flip-sub">${card.usage}</div>
+        </div>
+      </div>
+    </div>
+    <div class="drill-btns">
+      <button class="drill-btn drill-speak" onclick="speak('${escFr(card.fr)}',this)">🔊 Pronounce</button>
+      <button class="drill-btn drill-mark ${isLearned?'done':''}" onclick="toggleLearnDrill('${card.id}')">${isLearned?'✓ Learned':'○ Mark learned'}</button>
+      <button class="drill-btn drill-next" onclick="nextDrill()">Next →</button>
+    </div>
+  </div>`;
+  return html;
+}
+
+function flipCard() {
+  flipped = !flipped;
+  const el = document.getElementById('flip-inner');
+  if (el) el.classList.toggle('flipped', flipped);
+}
+
+function nextDrill() {
+  drillIndex++;
+  flipped = false;
+  if (drillIndex >= drillList.length) { drillIndex = 0; buildDrillList(); }
+  renderContent();
+}
+
+function toggleLearnDrill(id) {
+  learned[id] = !learned[id];
+  try { localStorage.setItem('tef_learned', JSON.stringify(learned)); } catch(e){}
+  renderContent();
+}
+
+function setFilter(f) {
+  drillFilter = f; drillIndex = 0; flipped = false;
+  buildDrillList(); renderContent();
+}
+
+function renderContent() {
+  document.getElementById('main-content').innerHTML =
+    currentMode === 'study' ? renderStudy() : renderDrill();
+}
+
+if (window.speechSynthesis) window.speechSynthesis.onvoiceschanged = () => {};
+buildDrillList();
+renderTabs();
+renderContent();
+</script>
+</body>
+</html>
