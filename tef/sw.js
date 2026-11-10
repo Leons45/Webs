@@ -1,5 +1,5 @@
 // Cache-first app shell, so the whole programme works offline.
-const CACHE = 'atelier-v2-1';
+const CACHE = 'atelier-v2-3';
 
 const SHELL = [
   "./",
@@ -15,6 +15,7 @@ const SHELL = [
   "js/srs.js",
   "js/store.js",
   "js/ui.js",
+  "js/views/chunks.js",
   "js/views/ecrire.js",
   "js/views/grammaire.js",
   "js/views/home.js",
@@ -23,6 +24,7 @@ const SHELL = [
   "js/views/progres.js",
   "js/views/reglages.js",
   "js/views/vocab.js",
+  "js/data/chunks.js",
   "js/data/grammar.js",
   "js/data/phrases.js",
   "js/data/speaking.js",
