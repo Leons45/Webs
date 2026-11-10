@@ -15,9 +15,9 @@
   --rose:   #FF3D8B;
   --orange: #FF6B2C;
   --bleu:   #0A6CF0;
-  --vert:   #00A95C;
+  --vert:   #007A42;
   --violet: #7B5BD6;
-  --rouge:  #E8322B;
+  --rouge:  #C4231C;
 
   /* paper and ink */
   --paper:      #FFFCF4;
@@ -25,7 +25,7 @@
   --paper-sunk: #F2EDE1;
   --ink:        #16121F;
   --ink-soft:   #4A4259;
-  --ink-faint:  #847B93;
+  --ink-faint:  #6D6480;
 
   --hair:       #E3DCCD;
   --hair-firm:  var(--ink);
@@ -85,7 +85,7 @@
   --paper-sunk: #262134;
   --ink:        #FFFCF4;
   --ink-soft:   #BCB4CC;
-  --ink-faint:  #867E96;
+  --ink-faint:  #A09AAF;
   --hair:       #332C45;
   --hair-firm:  var(--ink);
   --rouge-wash: #3A1E1C;
@@ -1063,9 +1063,14 @@ hr.hair { border: 0; border-top: 2px dotted var(--hair); margin: 2rem 0; }
   gap: .5rem;
 }
 .chunk-badge {
-  font-weight: 600;
-  color: var(--accent);
-  letter-spacing: .02em;
+  font-weight: 700;
+  color: var(--ink);
+  background: var(--accent-wash);
+  border: 1.5px solid var(--ink);
+  border-radius: 20px;
+  padding: .1rem .5rem;
+  font-size: var(--t-xs);
+  letter-spacing: .04em;
   text-transform: uppercase;
 }
 .chunk-card__fr {
