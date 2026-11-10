@@ -68,11 +68,7 @@ document.getElementById('updateBtn').addEventListener('click', async () => {
   window.location.reload();
 });
 
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () =>
-    navigator.serviceWorker.register('sw.js').catch(() => {})
-  );
-}
+// SW intentionally disabled — self-destruct sw.js clears old caches.
 </script>
 </body>
 </html>
