@@ -15,7 +15,7 @@ import progres   from './views/progres.js';
 import reglages  from './views/reglages.js';
 
 const ROUTES = {
-  '/':          { view: home,      title: 'Aujourd'hui' },
+  '/':          { view: home,      title: "Aujourd'hui" },
   '/parler':    { view: parler,    title: 'Parler' },
   '/phrases':   { view: phrases,   title: 'Phrases' },
   '/grammaire': { view: grammaire, title: 'Grammaire' },
@@ -31,7 +31,7 @@ const ROUTES = {
 // items off a laptop screen is worse than one click more.
 const NAV = [
   { group: 'Le programme', groupEn: 'The programme' },
-  { href: '#/',          fr: 'Aujourd'hui',  en: 'Today', badge: true },
+  { href: '#/',          fr: "Aujourd'hui",  en: 'Today', badge: true },
   { group: 'Parler — la priorité', groupEn: 'Speaking — the priority' },
   { href: '#/parler',    fr: 'Parler',       en: 'Speaking' },
   { group: 'Construire', groupEn: 'Building blocks' },

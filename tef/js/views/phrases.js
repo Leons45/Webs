@@ -35,15 +35,15 @@ function index(el, only, go) {
   <div class="view">
     <div class="ph">
       <h1>Phrases${a ? '<span class="gloss" style="font-size:var(--t-base)">Phrase bank</span>' : ''}</h1>
-      <p class="ph__sub">Des blocs tout faits, à dire jusqu'à ce qu'ils sortent sans réfléchir.
-        À A2, c'est ce qui fait la différence entre chercher ses mots et paraître fluide.
+      <p class="ph__sub">Des blocs tout faits, à dire jusqu’à ce qu’ils sortent sans réfléchir.
+        À A2, c’est ce qui fait la différence entre chercher ses mots et paraître fluide.
         ${a ? '<span class="gloss">Ready-made chunks, to be said until they come out without thinking. At A2 this is what separates groping for words from sounding fluent.</span>' : ''}</p>
     </div>
 
     <div class="row row--split" style="margin-bottom:1.5rem">
       <span class="u-ui u-num" style="font-size:var(--t-sm);color:var(--ink-faint)">
         ${c.learned} / ${c.total} consolidées · ${c.due} à revoir</span>
-      <button class="btn" data-act="drill">S'entraîner à voix haute${a ? ' · Drill aloud' : ''}</button>
+      <button class="btn" data-act="drill">S’entraîner à voix haute${a ? ' · Drill aloud' : ''}</button>
     </div>
 
     ${only ? `<div class="row" style="margin-bottom:1.25rem"><a class="btn btn--plain" href="#/phrases">Tous les groupes</a></div>` : ''}
@@ -93,15 +93,15 @@ function decks(el, go, a, c) {
   <div class="view">
     <div class="ph">
       <h1>Phrases${a ? '<span class="gloss" style="font-size:var(--t-base)">Phrase bank</span>' : ''}</h1>
-      <p class="ph__sub">Sept paquets de blocs tout faits, à dire jusqu'à ce qu'ils sortent sans
-        réfléchir. À A2, c'est ce qui fait la différence entre chercher ses mots et paraître fluide.
+      <p class="ph__sub">Sept paquets de blocs tout faits, à dire jusqu’à ce qu’ils sortent sans
+        réfléchir. À A2, c’est ce qui fait la différence entre chercher ses mots et paraître fluide.
         ${a ? '<span class="gloss">Seven decks of ready-made chunks, to be said until they come out without thinking. At A2 this is what separates groping for words from sounding fluent.</span>' : ''}</p>
     </div>
 
     <div class="row row--split" style="margin-bottom:1.5rem">
       <span class="u-ui u-num" style="font-size:var(--t-sm);color:var(--ink-faint)">
         ${c.learned} / ${c.total} consolidées · ${c.due} à revoir</span>
-      <button class="btn" data-act="drillall">Tout mélanger et s'entraîner${a ? ' · Drill all' : ''}</button>
+      <button class="btn" data-act="drillall">Tout mélanger et s’entraîner${a ? ' · Drill all' : ''}</button>
     </div>
 
     <div class="grid2">

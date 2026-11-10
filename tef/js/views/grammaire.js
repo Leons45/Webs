@@ -11,7 +11,7 @@ import { todayLesson, currentWeek } from '../plan.js';
 
 const normalise = (s) => String(s || '')
   .trim().toLowerCase()
-  .replace(/[''`´]/g, "'")
+  .replace(/[’‘`´]/g, "'")
   .replace(/\s+/g, ' ')
   .replace(/[.,;!?]+$/, '');
 
@@ -36,15 +36,15 @@ function index(el, go) {
   <div class="view">
     <div class="ph">
       <h1>Grammaire${a ? '<span class="gloss" style="font-size:var(--t-base)">Grammar</span>' : ''}</h1>
-      <p class="ph__sub">Seize leçons, dans l'ordre où elles débloquent la parole.
-        Chacune existe parce qu'elle empêche quelque chose que tu veux dire.
+      <p class="ph__sub">Seize leçons, dans l’ordre où elles débloquent la parole.
+        Chacune existe parce qu’elle empêche quelque chose que tu veux dire.
         ${a ? '<span class="gloss">Sixteen lessons, in the order in which they unblock speech. Each one exists because it stands in the way of something you want to say.</span>' : ''}</p>
     </div>
 
     <div class="row row--split" style="margin-bottom:1.5rem">
       <span class="u-ui u-num" style="font-size:var(--t-sm);color:var(--ink-faint)">
         ${passed} / ${GRAMMAR.length} réussies à 70 %</span>
-      <button class="btn" data-act="today">Leçon du jour${a ? ' · Today's lesson' : ''}</button>
+      <button class="btn" data-act="today">Leçon du jour${a ? ' · Today’s lesson' : ''}</button>
     </div>
 
     <p class="why" style="margin-bottom:1.5rem">
@@ -67,7 +67,7 @@ function index(el, go) {
           </span>
           <span class="block__meta">
             <span>${pct == null ? `${g.drills.length} exercices` : `${pct} %`}</span>
-            ${g.id === suggested ? '<span style="color:var(--ink)">aujourd'hui</span>' : ''}
+            ${g.id === suggested ? '<span style="color:var(--ink)">aujourd’hui</span>' : ''}
           </span>
         </button>`;
       }).join('')}
@@ -234,7 +234,7 @@ function view(el, lesson, go) {
         <div class="score__n u-num">${right} / ${drills.length}</div>
         <p class="score__l">${pct >= 70
           ? 'Leçon validée. Elle compte maintenant dans ton niveau.'
-          : 'Sous 70 % : la leçon ne compte pas encore. Relis la règle et refais la série — c'est le but, pas une sanction.'}</p>
+          : 'Sous 70 % : la leçon ne compte pas encore. Relis la règle et refais la série — c’est le but, pas une sanction.'}</p>
         <span class="score__band u-ui u-num">${pct} %</span>
       </div>
       <div class="row" style="margin-top:1.5rem;justify-content:center">

@@ -43,7 +43,7 @@ export default function home(el, { go }) {
       <h1 class="today__line">
         ${nextBlock
           ? `Prochain bloc : <em>${esc(nextBlock.fr)}</em>, <b>${nextBlock.min}</b> minutes.`
-          : `Programme terminé. <em>${spokenMin} minutes</em> de parole aujourd'hui.`}
+          : `Programme terminé. <em>${spokenMin} minutes</em> de parole aujourd’hui.`}
       </h1>
       <p class="today__note">
         ${esc(week.goal)}
@@ -64,7 +64,7 @@ export default function home(el, { go }) {
       <div class="meter">
         <div class="meter__row">
           <span class="meter__n" data-count="${spokenMin}">0</span>
-          <span class="meter__unit">min parlées aujourd'hui${assistOn ? ' · spoken today' : ''}</span>
+          <span class="meter__unit">min parlées aujourd’hui${assistOn ? ' · spoken today' : ''}</span>
         </div>
         <div class="meter__track">
           <div class="meter__fill" data-met="${spokenMin >= prog.speakingTarget ? 1 : 0}"
@@ -98,7 +98,7 @@ export default function home(el, { go }) {
 
     <!-- The timetable -->
     <div class="row row--split" style="align-items:baseline;margin-bottom:.9rem">
-      <h2 style="font-size:var(--t-md)">Le programme du jour${assistOn ? '<span class="gloss">Today's schedule</span>' : ''}</h2>
+      <h2 style="font-size:var(--t-md)">Le programme du jour${assistOn ? '<span class="gloss">Today’s schedule</span>' : ''}</h2>
       <span class="u-ui u-num" style="font-size:var(--t-xs);color:var(--ink-faint)">
         ${store.settings().dailyHours} h · départ ${store.settings().startHour || 7}:00</span>
     </div>
@@ -188,13 +188,13 @@ function paceBanner(p, assistOn) {
   <div class="pace" data-track="${ok ? 1 : 0}" style="margin-top:1.5rem">
     <div class="pace__head">
       ${ok
-        ? `Au rythme actuel, l'objectif de février tient.`
-        : `Au rythme actuel, tu n'y seras pas en février.`}
+        ? `Au rythme actuel, l’objectif de février tient.`
+        : `Au rythme actuel, tu n’y seras pas en février.`}
     </div>
     <div class="pace__body">
       Il te faut environ <b>${p.minutesPerDayNeeded} minutes de parole par jour</b>
-      d'ici l'examen ; sur les quatorze derniers jours tu en produis ${p.minutesPerDayActual}.
-      ${ok ? 'Tiens ce rythme.' : 'L'écart ne se rattrape pas en lisant — il se rattrape en parlant.'}
+      d’ici l’examen ; sur les quatorze derniers jours tu en produis ${p.minutesPerDayActual}.
+      ${ok ? 'Tiens ce rythme.' : 'L’écart ne se rattrape pas en lisant — il se rattrape en parlant.'}
       ${assistOn ? `<span class="gloss">You need about ${p.minutesPerDayNeeded} min of speech a day until the exam; over the last fourteen days you are producing ${p.minutesPerDayActual}.</span>` : ''}
     </div>
   </div>`;

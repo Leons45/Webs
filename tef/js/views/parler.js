@@ -43,19 +43,19 @@ function hub(el) {
   const { weekMinutes, allMinutes } = store.speakingTotals();
   const MODES = [
     { m:'shadow',    fr:'Shadowing',          en:'Shadowing',        d:'Tu écoutes une phrase, tu la répètes aussitôt, tu compares. Le chemin le plus court entre « je comprends » et « je sais dire ».', dEn:'Hear a sentence, repeat it immediately, compare. The shortest route from understanding to producing.' },
-    { m:'questions', fr:'Questions éclair',   en:'Rapid questions',  d:'Tu vois l'anglais, tu dis la question en français. C'est exactement la compétence de la Section A.', dEn:'See the English, say the French question. This is precisely the Section A skill.' },
-    { m:'quick',     fr:'Réponses rapides',   en:'Quick answers',    d:'Une question, trente secondes, sans préparation. C'est ici que l'hésitation se travaille.', dEn:'One question, thirty seconds, no prep. This is where hesitation gets trained out.' },
+    { m:'questions', fr:'Questions éclair',   en:'Rapid questions',  d:'Tu vois l’anglais, tu dis la question en français. C’est exactement la compétence de la Section A.', dEn:'See the English, say the French question. This is precisely the Section A skill.' },
+    { m:'quick',     fr:'Réponses rapides',   en:'Quick answers',    d:'Une question, trente secondes, sans préparation. C’est ici que l’hésitation se travaille.', dEn:'One question, thirty seconds, no prep. This is where hesitation gets trained out.' },
     { m:'sectionA',  fr:'Simulation Section A',en:'Section A',       d:'Cinq minutes chronométrées. Tu poses des questions ; tu ne donnes jamais ton avis.', dEn:'Five timed minutes. You ask questions; you never give an opinion.' },
-    { m:'sectionB',  fr:'Simulation Section B',en:'Section B',       d:'Dix minutes. L'examinateur t'objecte à voix haute et tu dois répondre sur le moment.', dEn:'Ten minutes. The examiner objects aloud and you must respond on the spot.' },
-    { m:'monologue', fr:'Monologue 60 s',     en:'60-second monologue', d:'Un sujet, une minute, sans notes. L'objectif n'est pas d'être brillant : c'est de ne pas s'arrêter.', dEn:'One topic, one minute, no notes. The aim isn't brilliance, it's not stopping.' },
+    { m:'sectionB',  fr:'Simulation Section B',en:'Section B',       d:'Dix minutes. L’examinateur t’objecte à voix haute et tu dois répondre sur le moment.', dEn:'Ten minutes. The examiner objects aloud and you must respond on the spot.' },
+    { m:'monologue', fr:'Monologue 60 s',     en:'60-second monologue', d:'Un sujet, une minute, sans notes. L’objectif n’est pas d’être brillant : c’est de ne pas s’arrêter.', dEn:'One topic, one minute, no notes. The aim isn’t brilliance, it’s not stopping.' },
   ];
 
   el.innerHTML = `
   <div class="view">
     <div class="ph">
       <h1>Parler${a ? '<span class="gloss" style="font-size:var(--t-base)">Speaking</span>' : ''}</h1>
-      <p class="ph__sub">Presque la moitié de ton temps d'étude passe ici, et c'est volontaire.
-        À A2, la compréhension progresse toute seule avec l'exposition ; la production, non.
+      <p class="ph__sub">Presque la moitié de ton temps d’étude passe ici, et c’est volontaire.
+        À A2, la compréhension progresse toute seule avec l’exposition ; la production, non.
         ${a ? '<span class="gloss">Nearly half your study time goes here, deliberately. At A2, comprehension improves on its own from exposure. Production does not.</span>' : ''}</p>
     </div>
 
@@ -191,7 +191,7 @@ function shadowMode(el, go) {
           ${i + 1} / ${list.length} · niveau ${item.level}</span>
         <p class="say__cue">${esc(item.fr)}</p>
         ${a ? `<p class="gloss" style="font-size:var(--t-sm);max-width:34ch">${esc(item.en)}</p>`
-            : hide(item.en, 'voir l'anglais')}
+            : hide(item.en, 'voir l’anglais')}
         <div class="row" style="justify-content:center">
           <button class="btn btn--ghost" data-act="listen">Écouter${a ? ' · Listen' : ''}</button>
           <button class="btn btn--plain" data-act="slow">Au ralenti</button>
@@ -204,8 +204,8 @@ function shadowMode(el, go) {
       </div>
       <p style="margin-top:1.25rem;font-size:var(--t-sm);color:var(--ink-soft);max-width:54ch">
         Écoute une fois, répète immédiatement sans lire, puis réécoute-toi.
-        Ce que tu cherches n'est pas la perfection : c'est le rythme et la liaison.
-        ${a ? '<span class="gloss">Listen once, repeat at once without reading, then listen back. You're after rhythm and liaison, not perfection.</span>' : ''}
+        Ce que tu cherches n’est pas la perfection : c’est le rythme et la liaison.
+        ${a ? '<span class="gloss">Listen once, repeat at once without reading, then listen back. You’re after rhythm and liaison, not perfection.</span>' : ''}
       </p>`;
 
     bindPeeks(frame);
@@ -318,7 +318,7 @@ function questionMode(el, go) {
       <div class="score">
         <div class="score__n u-num">${items.length}</div>
         <p class="score__l">questions produites à voix haute.
-          En Section A, l'examinateur compte le nombre de questions distinctes et bien formées.
+          En Section A, l’examinateur compte le nombre de questions distinctes et bien formées.
           ${store.assist() ? '<span class="gloss">questions produced aloud. In Section A the examiner counts how many distinct, well-formed questions you produce.</span>' : ''}</p>
       </div>
       <div class="row" style="margin-top:1.5rem;justify-content:center">
@@ -386,8 +386,8 @@ function quickMode(el, go) {
     frame.innerHTML = `
       <div class="score">
         <div class="score__n u-num">${Math.round(spoken / 60)} min</div>
-        <p class="score__l">de parole spontanée. C'est le format le plus proche de ce que
-          l'examinateur te demandera sans prévenir.</p>
+        <p class="score__l">de parole spontanée. C’est le format le plus proche de ce que
+          l’examinateur te demandera sans prévenir.</p>
       </div>
       <div class="row" style="margin-top:1.5rem;justify-content:center">
         <button class="btn" data-act="again">Encore</button>
@@ -416,7 +416,7 @@ function sectionAMode(el, go) {
     <div class="ph" style="margin-bottom:1.25rem">
       <h1 style="font-size:var(--t-xl)">${esc(task.title)}
         ${a ? `<span class="gloss" style="font-size:var(--t-sm)">${esc(task.titleEn)}</span>` : ''}</h1>
-      <p class="ph__sub">Cinq minutes. Tu poses des questions pour obtenir un maximum d'informations.
+      <p class="ph__sub">Cinq minutes. Tu poses des questions pour obtenir un maximum d’informations.
         Tu ne donnes aucun avis — une seule opinion et la tâche est manquée.
         ${a ? '<span class="gloss">Five minutes. You ask questions to extract as much information as possible. You give no opinions — one opinion and the task is failed.</span>' : ''}</p>
     </div>
@@ -482,15 +482,15 @@ function sectionAMode(el, go) {
         <p class="score__l">points couverts en ${mmss(seconds)}.
           ${missed.length
             ? `Non demandé : ${missed.map(m => esc(m.fr)).join(', ')}.`
-            : 'Tout a été demandé — c'est exactement ce qu'attend l'examinateur.'}</p>
+            : 'Tout a été demandé — c’est exactement ce qu’attend l’examinateur.'}</p>
       </div>
       <div class="sheet" style="margin-top:1.25rem">
         <b style="font:500 var(--t-base)/1.3 var(--ff-text)">En te réécoutant, compte :</b>
         <ul style="margin:.7rem 0 0;padding-left:1.1rem;font-size:var(--t-sm);line-height:1.8;color:var(--ink-soft)">
           <li>combien de questions différentes tu as posées${a ? '<span class="gloss">how many different questions you asked</span>' : ''}</li>
-          <li>combien commencent par « est-ce que » (si c'est plus de la moitié, varie)${a ? '<span class="gloss">how many start with "est-ce que" — if more than half, vary them</span>' : ''}</li>
-          <li>combien de fois tu t'es arrêté plus de trois secondes${a ? '<span class="gloss">how often you stopped for more than three seconds</span>' : ''}</li>
-          <li>si tu as dit une opinion (c'est hors tâche)${a ? '<span class="gloss">whether you gave an opinion — that is off-task</span>' : ''}</li>
+          <li>combien commencent par « est-ce que » (si c’est plus de la moitié, varie)${a ? '<span class="gloss">how many start with "est-ce que" — if more than half, vary them</span>' : ''}</li>
+          <li>combien de fois tu t’es arrêté plus de trois secondes${a ? '<span class="gloss">how often you stopped for more than three seconds</span>' : ''}</li>
+          <li>si tu as dit une opinion (c’est hors tâche)${a ? '<span class="gloss">whether you gave an opinion — that is off-task</span>' : ''}</li>
         </ul>
       </div>
       <div class="row" style="margin-top:1.5rem">
@@ -534,10 +534,10 @@ function sectionBMode(el, go) {
     </div>
 
     <div class="why" style="margin-bottom:1.5rem">
-      L'examinateur va t'objecter cinq fois, à voix haute, pendant que tu parles.
-      Ne récite pas un discours : concède d'abord, puis retourne l'objection.
+      L’examinateur va t’objecter cinq fois, à voix haute, pendant que tu parles.
+      Ne récite pas un discours : concède d’abord, puis retourne l’objection.
       Et termine en demandant une réponse — beaucoup de candidats oublient de conclure.
-      ${a ? '<span class="gloss">The examiner will object five times, aloud, while you speak. Don't recite a speech: concede first, then turn the objection around. And finish by asking for a decision — many candidates forget to close.</span>' : ''}
+      ${a ? '<span class="gloss">The examiner will object five times, aloud, while you speak. Don’t recite a speech: concede first, then turn the objection around. And finish by asking for a decision — many candidates forget to close.</span>' : ''}
     </div>
 
     <div class="grid2" style="align-items:start">
@@ -577,7 +577,7 @@ function sectionBMode(el, go) {
     if (box.querySelector('.empty')) box.innerHTML = '';
     box.insertAdjacentHTML('afterbegin', `
       <div class="objection" style="margin-bottom:.75rem">
-        <span class="objection__who">L'examinateur · objection ${objIndex}</span>
+        <span class="objection__who">L’examinateur · objection ${objIndex}</span>
         <span class="objection__fr">${esc(o.fr)}</span>
         ${a ? `<span class="objection__en">${esc(o.en)}</span>` : ''}
       </div>`);
@@ -651,8 +651,8 @@ function monologueMode(el, go) {
         <p class="say__cue">${esc(topic.fr)}</p>
         ${a ? `<p class="gloss" style="font-size:var(--t-sm)">${esc(topic.en)}</p>` : hide(topic.en, 'anglais')}
         <p class="say__use">
-          L'objectif n'est pas d'être brillant, c'est de ne pas s'arrêter. Si le mot manque,
-          dis « comment dire… » ou « c'est quelque chose comme… » et continue.
+          L’objectif n’est pas d’être brillant, c’est de ne pas s’arrêter. Si le mot manque,
+          dis « comment dire… » ou « c’est quelque chose comme… » et continue.
           ${a ? '<span class="gloss">The aim is not brilliance, it is not stopping. If a word is missing, say "comment dire…" and keep going.</span>' : ''}
         </p>
       </div>

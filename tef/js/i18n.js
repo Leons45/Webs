@@ -50,7 +50,7 @@ export function bindPeeks(root) {
 
 /** UI chrome strings, so the interface itself can be read in either language. */
 const UI = {
-  today:      ['Aujourd'hui', 'Today'],
+  today:      ['Aujourd’hui', 'Today'],
   programme:  ['Le programme', 'The programme'],
   speak:      ['Parler', 'Speak'],
   phrases:    ['Phrases', 'Phrases'],
