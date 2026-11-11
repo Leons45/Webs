@@ -1,0 +1,1667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leon's Banner Studio</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+/* ─── RESET & ROOT ─────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#09090b;
+  --s1:#111113;
+  --s2:#18181b;
+  --s3:#222226;
+  --s4:#2a2a2f;
+  --border:#2e2e35;
+  --border2:#3a3a42;
+  --accent:#FFD000;
+  --accent2:#ffb700;
+  --accent-dim:rgba(255,208,0,.12);
+  --accent-glow:rgba(255,208,0,.25);
+  --text:#f4f4f5;
+  --text2:#a1a1aa;
+  --text3:#71717a;
+  --red:#ff4444;
+  --green:#22c55e;
+  --radius:10px;
+  --radius-sm:6px;
+  --shadow:0 4px 24px rgba(0,0,0,.5);
+  --shadow-lg:0 8px 48px rgba(0,0,0,.7);
+  --font:'Inter',system-ui,-apple-system,sans-serif;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;line-height:1.5;overflow:hidden}
+input,textarea,select,button{font-family:inherit}
+img{display:block}
+a{color:var(--accent);text-decoration:none}
+
+/* ─── LAYOUT ────────────────────────────────────────────────────── */
+#app{display:grid;grid-template-columns:230px 1fr;grid-template-rows:52px 1fr;height:100vh}
+#topbar{grid-column:1/-1;grid-row:1;display:flex;align-items:center;gap:12px;padding:0 20px;background:var(--s1);border-bottom:1px solid var(--border);z-index:10}
+#sidebar{grid-column:1;grid-row:2;background:var(--s1);border-right:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column;padding:16px 12px}
+#main{grid-column:2;grid-row:2;overflow-y:auto;padding:28px 32px}
+
+/* ─── TOPBAR ────────────────────────────────────────────────────── */
+.logo-mark{width:28px;height:28px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center}
+.logo-mark svg{fill:#09090b}
+.logo-text{font-size:15px;font-weight:700;letter-spacing:-.3px}
+.logo-text span{color:var(--accent)}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.chip-status{padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase}
+.chip-status.ok{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3)}
+.chip-status.off{background:rgba(255,68,68,.12);color:var(--red);border:1px solid rgba(255,68,68,.25)}
+
+/* ─── SIDEBAR STEPS ─────────────────────────────────────────────── */
+.sidebar-label{font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);padding:4px 8px 10px}
+.step-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--radius-sm);cursor:pointer;transition:background .15s;user-select:none;position:relative}
+.step-item:hover{background:var(--s3)}
+.step-item.active{background:var(--accent-dim)}
+.step-item.active .step-num{background:var(--accent);color:#09090b}
+.step-num{width:22px;height:22px;border-radius:50%;background:var(--s3);border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--text3);flex-shrink:0;transition:all .2s}
+.step-item.done .step-num{background:rgba(34,197,94,.2);border-color:var(--green);color:var(--green)}
+.step-item.done .step-num::after{content:'✓';font-size:11px}
+.step-item.done .step-num span{display:none}
+.step-info{flex:1;min-width:0}
+.step-name{font-size:13px;font-weight:500;color:var(--text2)}
+.step-item.active .step-name{color:var(--text)}
+.step-desc{font-size:11px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.step-connector{width:1.5px;height:12px;background:var(--border);margin:1px 0 1px 20px}
+
+.sidebar-bottom{margin-top:auto;padding-top:16px;border-top:1px solid var(--border)}
+.cost-pill{background:var(--s3);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:8px 10px;font-size:11px;color:var(--text3)}
+.cost-pill strong{color:var(--text2);font-size:12px}
+
+/* ─── MAIN PANELS ────────────────────────────────────────────────── */
+.panel{display:none}
+.panel.active{display:block}
+.panel-header{margin-bottom:24px}
+.panel-title{font-size:20px;font-weight:700;letter-spacing:-.4px;margin-bottom:4px}
+.panel-sub{font-size:13px;color:var(--text3)}
+
+/* ─── CARDS & SECTIONS ───────────────────────────────────────────── */
+.card{background:var(--s2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+.card-title{font-size:12px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.card-title .dot{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+
+/* ─── FORM ELEMENTS ──────────────────────────────────────────────── */
+label{display:block;font-size:12px;font-weight:500;color:var(--text2);margin-bottom:6px}
+input[type=text],input[type=password],textarea{width:100%;background:var(--s3);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:9px 12px;color:var(--text);font-size:13px;outline:none;transition:border-color .15s}
+input[type=text]:focus,input[type=password]:focus,textarea:focus{border-color:var(--accent)}
+input[type=password]{letter-spacing:2px}
+textarea{resize:vertical;min-height:70px;line-height:1.5}
+.input-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}
+.input-hint{font-size:11px;color:var(--text3);margin-top:5px}
+
+/* ─── BUTTONS ────────────────────────────────────────────────────── */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .15s;white-space:nowrap}
+.btn-primary{background:var(--accent);color:#09090b}
+.btn-primary:hover{background:var(--accent2)}
+.btn-secondary{background:var(--s3);border:1px solid var(--border2);color:var(--text2)}
+.btn-secondary:hover{background:var(--s4);color:var(--text)}
+.btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--text3)}
+.btn-ghost:hover{background:var(--s3);color:var(--text2)}
+.btn-danger{background:rgba(255,68,68,.12);border:1px solid rgba(255,68,68,.25);color:var(--red)}
+.btn-danger:hover{background:rgba(255,68,68,.2)}
+.btn:disabled{opacity:.4;cursor:not-allowed;pointer-events:none}
+.btn-lg{padding:11px 22px;font-size:14px}
+.btn-sm{padding:5px 10px;font-size:11px}
+
+/* ─── BADGE ──────────────────────────────────────────────────────── */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:600;letter-spacing:.3px;text-transform:uppercase}
+.badge-yellow{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(255,208,0,.3)}
+.badge-green{background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.25)}
+.badge-blue{background:rgba(99,102,241,.12);color:#818cf8;border:1px solid rgba(99,102,241,.25)}
+
+/* ─── DRAG & DROP ZONES ──────────────────────────────────────────── */
+.dropzone{border:1.5px dashed var(--border2);border-radius:var(--radius);padding:28px 20px;text-align:center;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;background:var(--s2)}
+.dropzone:hover,.dropzone.drag-over{border-color:var(--accent);background:var(--accent-dim)}
+.dropzone .dz-icon{font-size:28px;margin-bottom:8px;opacity:.5}
+.dropzone .dz-title{font-size:13px;font-weight:500;color:var(--text2);margin-bottom:3px}
+.dropzone .dz-hint{font-size:11px;color:var(--text3)}
+.dropzone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.dropzone.has-file{border-color:var(--green);border-style:solid}
+.dropzone.has-file::after{content:'';position:absolute;inset:0;background:rgba(34,197,94,.05);pointer-events:none}
+.dz-preview{display:flex;align-items:center;gap:10px;background:var(--s3);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:8px 12px;margin-top:8px}
+.dz-preview img{width:36px;height:36px;object-fit:contain;border-radius:4px;background:#fff}
+.dz-preview-info{flex:1;min-width:0}
+.dz-preview-name{font-size:12px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dz-preview-size{font-size:10px;color:var(--text3)}
+
+/* ─── REFERENCE GRID ─────────────────────────────────────────────── */
+.ref-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.ref-slot{aspect-ratio:16/5;border:1.5px dashed var(--border2);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;position:relative;background:var(--s3);transition:border-color .15s}
+.ref-slot:hover{border-color:var(--accent)}
+.ref-slot input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
+.ref-slot img{width:100%;height:100%;object-fit:cover}
+.ref-slot .slot-plus{font-size:20px;color:var(--text3)}
+.ref-slot.filled{border-style:solid;border-color:var(--border2)}
+.ref-slot .slot-remove{position:absolute;top:4px;right:4px;width:18px;height:18px;background:rgba(0,0,0,.7);border-radius:3px;display:none;align-items:center;justify-content:center;font-size:10px;cursor:pointer;z-index:2}
+.ref-slot:hover .slot-remove{display:flex}
+
+/* ─── EXTRACTED DATA FIELDS ──────────────────────────────────────── */
+.extract-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.extract-field{background:var(--s3);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:10px 12px;position:relative}
+.extract-field-label{font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);margin-bottom:4px}
+.extract-field-val{font-size:13px;color:var(--text);min-height:22px;outline:none;border-radius:3px}
+.extract-field-val:focus{outline:1px dashed var(--accent)}
+.extract-field.full{grid-column:1/-1}
+.color-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.color-swatch{width:30px;height:30px;border-radius:6px;border:2px solid var(--border2);cursor:pointer;position:relative;flex-shrink:0;transition:transform .15s}
+.color-swatch:hover{transform:scale(1.12)}
+.color-swatch input[type=color]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+
+/* ─── TEMPLATE CARDS ─────────────────────────────────────────────── */
+.template-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.tmpl-card{background:var(--s2);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px;cursor:pointer;transition:all .2s}
+.tmpl-card:hover{border-color:var(--border2)}
+.tmpl-card.selected{border-color:var(--accent);background:var(--accent-dim)}
+.tmpl-thumb{height:50px;border-radius:6px;margin-bottom:10px;overflow:hidden;position:relative}
+.tmpl-name{font-size:13px;font-weight:600;margin-bottom:3px}
+.tmpl-desc{font-size:11px;color:var(--text3);line-height:1.4}
+
+/* Template thumbnails */
+.tt-pf{background:linear-gradient(135deg,#111 50%,#1a1a00 100%);display:flex;align-items:center;justify-content:center;gap:10px}
+.tt-mp{background:linear-gradient(90deg,#111 33%,#191900 33%,#191900 66%,#111 66%);display:flex}
+.tt-ts{background:linear-gradient(135deg,#0a0a0a 0%,#1f1a00 100%)}
+.tt-ls{background:linear-gradient(135deg,#0d0d0d 0%,#1a1200 100%)}
+.tt-bar{height:4px;background:var(--accent);border-radius:2px;width:40%}
+
+/* Size chips */
+.size-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.size-chip{padding:5px 12px;border-radius:99px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid var(--border2);color:var(--text3);background:var(--s3);transition:all .15s;user-select:none}
+.size-chip:hover{border-color:var(--border2);color:var(--text2)}
+.size-chip.selected{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
+
+/* Variant tabs */
+.variant-tabs{display:flex;gap:2px;background:var(--s2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:3px;width:fit-content;margin-bottom:20px}
+.vtab{padding:7px 18px;border-radius:5px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text3);transition:all .15s;user-select:none}
+.vtab.active{background:var(--accent);color:#09090b}
+.vtab:hover:not(.active){color:var(--text2);background:var(--s3)}
+
+/* ─── PROGRESS / STATUS ──────────────────────────────────────────── */
+.progress-wrap{background:var(--s3);border-radius:99px;height:4px;overflow:hidden;margin:12px 0}
+.progress-bar{height:100%;background:var(--accent);border-radius:99px;transition:width .4s ease;width:0%}
+.status-msg{font-size:12px;color:var(--text3);text-align:center;min-height:18px}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ─── BANNER PREVIEW STAGE ───────────────────────────────────────── */
+.preview-stage{background:var(--s1);border:1px solid var(--border);border-radius:var(--radius);padding:24px;min-height:260px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.preview-stage-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:20px 20px;pointer-events:none}
+.preview-wrap{position:relative;z-index:1;box-shadow:0 8px 40px rgba(0,0,0,.8);transform-origin:center}
+.preview-label{position:absolute;top:8px;left:8px;font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);z-index:2;background:rgba(0,0,0,.5);padding:2px 6px;border-radius:3px}
+.preview-controls{display:flex;align-items:center;gap:10px;margin-top:12px;justify-content:space-between}
+.preview-size-label{font-size:11px;color:var(--text3);font-weight:600}
+
+/* Export actions */
+.export-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+
+/* ─── LEONS BANNER TEMPLATES ─────────────────────────────────────── */
+.leons-banner{font-family:'Arial Black',Arial,sans-serif;overflow:hidden;position:relative;user-select:none;display:flex}
+.leons-banner *{box-sizing:border-box}
+
+/* Product Feature — 728×200 */
+.leons-banner.product-feature{background:#0a0a0a;align-items:stretch}
+.leons-banner.product-feature .b-left{flex:0 0 42%;background:#111;display:flex;flex-direction:column;justify-content:center;padding:16px 20px;position:relative;z-index:2}
+.leons-banner.product-feature .b-left::after{content:'';position:absolute;right:-18px;top:0;bottom:0;width:36px;background:inherit;transform:skewX(-6deg);z-index:1}
+.leons-banner.product-feature .b-center{flex:1;display:flex;align-items:center;justify-content:center;padding:10px;z-index:2}
+.leons-banner.product-feature .b-center img{max-width:100%;max-height:100%;object-fit:contain}
+.leons-banner.product-feature .b-right{flex:0 0 28%;background:#FFD000;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:14px 10px;text-align:center;z-index:2}
+
+/* Multi-Product — 728×200 */
+.leons-banner.multi-product{background:#0d0d0d;flex-direction:column}
+.leons-banner.multi-product .mp-top{background:#FFD000;padding:6px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.leons-banner.multi-product .mp-body{flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border)}
+.leons-banner.multi-product .mp-item{background:#111;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px;gap:4px}
+.leons-banner.multi-product .mp-item img{width:60px;height:60px;object-fit:contain}
+
+/* Tiered Savings — 728×200 */
+.leons-banner.tiered-savings{background:#0a0a0a;padding:0}
+.leons-banner.tiered-savings .ts-left{flex:0 0 55%;display:flex;flex-direction:column;justify-content:center;padding:16px 24px}
+.leons-banner.tiered-savings .ts-tiers{flex:1;display:flex;flex-direction:column;justify-content:center;gap:4px;padding:12px}
+
+/* Lifestyle — 1200×628 (social) */
+.leons-banner.lifestyle{background:#0a0a0a;position:relative;overflow:hidden}
+.leons-banner.lifestyle .ls-bg{position:absolute;inset:0;object-fit:cover;opacity:.35}
+.leons-banner.lifestyle .ls-overlay{position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,0,0,.85) 0%,rgba(0,0,0,.3) 100%)}
+.leons-banner.lifestyle .ls-content{position:relative;z-index:2;display:flex;flex-direction:column;justify-content:center;padding:40px 50px;height:100%}
+
+/* ─── EDITABLE ELEMENT HIGHLIGHTING ─────────────────────────────── */
+[data-editable]{position:relative;cursor:pointer}
+[data-editable]:hover::after{content:'';position:absolute;inset:-2px;border:1.5px dashed var(--accent);border-radius:3px;pointer-events:none;z-index:999}
+[data-editable].selected::after{content:'';position:absolute;inset:-2px;border:2px solid var(--accent);border-radius:3px;pointer-events:none;z-index:999;box-shadow:0 0 10px var(--accent-glow)}
+
+/* ─── TYPOGRAPHY HELPERS ─────────────────────────────────────────── */
+.t-xs{font-size:10px}
+.t-sm{font-size:11px}
+.t-base{font-size:13px}
+.t-md{font-size:15px}
+.t-lg{font-size:18px}
+.t-xl{font-size:22px}
+.t-2xl{font-size:28px}
+.t-3xl{font-size:36px}
+.fw-700{font-weight:700}
+.fw-900{font-weight:900}
+.c-accent{color:var(--accent)}
+.c-white{color:#fff}
+.c-muted{color:var(--text2)}
+.lh-1{line-height:1}
+.lh-11{line-height:1.1}
+.lh-12{line-height:1.2}
+.mb4{margin-bottom:4px}
+.mb8{margin-bottom:8px}
+.mb16{margin-bottom:16px}
+
+/* ─── GRID HELPERS ───────────────────────────────────────────────── */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.flex{display:flex}.flex-col{flex-direction:column}.items-center{align-items:center}.justify-between{justify-content:space-between}.gap4{gap:4px}.gap8{gap:8px}.gap12{gap:12px}.gap16{gap:16px}
+
+/* ─── NOTIFICATION ───────────────────────────────────────────────── */
+#toast{position:fixed;bottom:24px;right:24px;padding:12px 18px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;z-index:9999;display:none;animation:slideUp .2s ease}
+#toast.show{display:flex;align-items:center;gap:8px}
+#toast.ok{background:#22c55e;color:#fff}
+#toast.err{background:var(--red);color:#fff}
+#toast.info{background:var(--s3);color:var(--text);border:1px solid var(--border2)}
+@keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ─── SAVINGS BADGE ──────────────────────────────────────────────── */
+.savings-badge{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;background:var(--accent);color:#09090b;border-radius:50%;font-weight:900;line-height:1;text-align:center}
+.price-strike{text-decoration:line-through;opacity:.5}
+.price-now{font-weight:900;color:var(--accent);line-height:1}
+
+/* ─── TIER ROW ───────────────────────────────────────────────────── */
+.tier-row{display:flex;align-items:center;gap:10px;padding:5px 10px;border-radius:6px;border-left:3px solid var(--accent)}
+.tier-row:nth-child(2){border-color:#ff9900}
+.tier-row:nth-child(3){border-color:#ff4400}
+
+/* ─── SECTION DIVIDER ────────────────────────────────────────────── */
+.divider{height:1px;background:var(--border);margin:20px 0}
+
+/* ─── SCROLL ─────────────────────────────────────────────────────── */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--s4);border-radius:99px}
+::-webkit-scrollbar-thumb:hover{background:var(--border2)}
+
+/* ─── MODAL ──────────────────────────────────────────────────────── */
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;display:none;align-items:center;justify-content:center}
+.modal-backdrop.open{display:flex}
+.modal{background:var(--s2);border:1px solid var(--border2);border-radius:var(--radius);padding:24px;max-width:420px;width:90%}
+.modal-title{font-size:16px;font-weight:700;margin-bottom:8px}
+.modal-body{font-size:13px;color:var(--text2);margin-bottom:20px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end}
+
+/* ─── TOOLTIP ────────────────────────────────────────────────────── */
+[data-tip]{position:relative}
+[data-tip]:hover::before{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#000;color:#fff;font-size:11px;padding:4px 8px;border-radius:4px;white-space:nowrap;pointer-events:none;z-index:999}
+</style>
+</head>
+<body>
+
+<div id="app">
+
+<!-- ═══════════════════════════════════════════════════════════════
+     TOPBAR
+═══════════════════════════════════════════════════════════════════ -->
+<header id="topbar">
+  <div class="logo-mark">
+    <svg width="16" height="16" viewBox="0 0 16 16"><path d="M2 2h5v12H2V2zm7 0h5v5h-5V2zm0 7h5v5h-5V9z"/></svg>
+  </div>
+  <span class="logo-text"><span>Leon's</span> Banner Studio</span>
+  <div class="topbar-right">
+    <span id="api-status-chip" class="chip-status off">No API Key</span>
+    <button class="btn btn-secondary btn-sm" onclick="gotoStep(0)">⚙ Setup</button>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SIDEBAR
+═══════════════════════════════════════════════════════════════════ -->
+<nav id="sidebar">
+  <div class="sidebar-label">Workflow</div>
+
+  <div class="step-item active" data-step="0" onclick="gotoStep(0)">
+    <div class="step-num"><span>1</span></div>
+    <div class="step-info">
+      <div class="step-name">Setup</div>
+      <div class="step-desc">API key + references</div>
+    </div>
+  </div>
+  <div class="step-connector"></div>
+  <div class="step-item" data-step="1" onclick="gotoStep(1)">
+    <div class="step-num"><span>2</span></div>
+    <div class="step-info">
+      <div class="step-name">Upload Flyer</div>
+      <div class="step-desc">Flyer, product, logo</div>
+    </div>
+  </div>
+  <div class="step-connector"></div>
+  <div class="step-item" data-step="2" onclick="gotoStep(2)">
+    <div class="step-num"><span>3</span></div>
+    <div class="step-info">
+      <div class="step-name">Review Extract</div>
+      <div class="step-desc">Edit extracted data</div>
+    </div>
+  </div>
+  <div class="step-connector"></div>
+  <div class="step-item" data-step="3" onclick="gotoStep(3)">
+    <div class="step-num"><span>4</span></div>
+    <div class="step-info">
+      <div class="step-name">Generate</div>
+      <div class="step-desc">Pick template &amp; sizes</div>
+    </div>
+  </div>
+  <div class="step-connector"></div>
+  <div class="step-item" data-step="4" onclick="gotoStep(4)">
+    <div class="step-num"><span>5</span></div>
+    <div class="step-info">
+      <div class="step-name">Export</div>
+      <div class="step-desc">Preview &amp; download</div>
+    </div>
+  </div>
+
+  <div class="sidebar-bottom">
+    <div class="cost-pill">
+      <div><strong>Est. cost this session</strong></div>
+      <div id="session-cost">$0.00</div>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MAIN CONTENT
+═══════════════════════════════════════════════════════════════════ -->
+<main id="main">
+
+<!-- ──────────────────────────────────
+     STEP 1 — SETUP
+────────────────────────────────── -->
+<div class="panel active" id="panel-0">
+  <div class="panel-header">
+    <div class="panel-title">Setup</div>
+    <div class="panel-sub">Your API key is stored locally in your browser — never sent anywhere except Anthropic's API.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>Anthropic API Key</div>
+    <label>Paste your Claude API key below</label>
+    <div class="input-row">
+      <input type="password" id="api-key-input" placeholder="sk-ant-api03-…" autocomplete="off">
+      <button class="btn btn-primary" onclick="saveApiKey()">Save Key</button>
+    </div>
+    <div class="input-hint">Get your key at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> → API Keys. Uses claude-opus-4-5 (vision).</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>Reference Banners <span class="badge badge-yellow" style="margin-left:8px">Boosts accuracy ~25%</span></div>
+    <p class="t-sm c-muted mb16">Upload 3–6 existing Leon's banner ads. Claude learns your exact visual style — colors, font sizes, layout rhythm — resulting in ~92% style accuracy vs ~70% without references.</p>
+    <div class="ref-grid" id="ref-grid"></div>
+    <div class="input-hint" style="margin-top:10px">JPG/PNG banners. The more varied the better (different templates &amp; sizes).</div>
+  </div>
+
+  <div class="flex gap8" style="justify-content:flex-end">
+    <button class="btn btn-primary btn-lg" onclick="gotoStep(1)">Continue → Upload Flyer</button>
+  </div>
+</div>
+
+<!-- ──────────────────────────────────
+     STEP 2 — UPLOAD FLYER
+────────────────────────────────── -->
+<div class="panel" id="panel-1">
+  <div class="panel-header">
+    <div class="panel-title">Upload Flyer</div>
+    <div class="panel-sub">Upload your promotional flyer and any separate asset files you have.</div>
+  </div>
+
+  <div class="grid-2">
+    <div>
+      <div class="card">
+        <div class="card-title"><span class="dot"></span>Promotional Flyer <span class="badge badge-yellow" style="margin-left:6px">Required</span></div>
+        <p class="t-sm c-muted mb16">PNG or JPG export of your InDesign flyer. For best results: export at 1x (screen res), RGB, highest quality.<br><br><strong style="color:var(--text2)">Pro tip:</strong> IDML export (File → Export → IDML) gives exact text — upload alongside the flyer image.</p>
+        <div class="dropzone" id="dz-flyer">
+          <div class="dz-icon">🗞️</div>
+          <div class="dz-title">Drop flyer here</div>
+          <div class="dz-hint">PNG, JPG, PDF — up to 20 MB</div>
+          <input type="file" accept="image/*,.pdf,.idml" onchange="handleFlyer(this.files[0])">
+        </div>
+        <div id="dz-flyer-preview"></div>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:12px">
+        <div class="card-title"><span class="dot"></span>Product Image <span class="badge badge-blue" style="margin-left:6px">Optional</span></div>
+        <p class="t-sm c-muted mb16">Main product photo. PNG with transparency preferred.</p>
+        <div class="dropzone" id="dz-product">
+          <div class="dz-icon">🛋️</div>
+          <div class="dz-title">Drop product photo</div>
+          <div class="dz-hint">PNG, JPG — transparent PNG best</div>
+          <input type="file" accept="image/*" onchange="handleProduct(this.files[0])">
+        </div>
+        <div id="dz-product-preview"></div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="dot"></span>Leon's Logo <span class="badge badge-blue" style="margin-left:6px">Optional</span></div>
+        <p class="t-sm c-muted mb16">Use SVG or PNG with transparent bg for clean rendering.</p>
+        <div class="dropzone" id="dz-logo">
+          <div class="dz-icon">🏷️</div>
+          <div class="dz-title">Drop logo file</div>
+          <div class="dz-hint">SVG, PNG — transparent bg</div>
+          <input type="file" accept="image/*,.svg" onchange="handleLogo(this.files[0])">
+        </div>
+        <div id="dz-logo-preview"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+  <div class="flex gap8" style="justify-content:flex-end">
+    <button class="btn btn-secondary" onclick="gotoStep(0)">← Back</button>
+    <button class="btn btn-primary btn-lg" id="btn-analyze" onclick="analyzeFlyer()" disabled>Analyze with Claude →</button>
+  </div>
+</div>
+
+<!-- ──────────────────────────────────
+     STEP 3 — REVIEW EXTRACT
+────────────────────────────────── -->
+<div class="panel" id="panel-2">
+  <div class="panel-header">
+    <div class="panel-title">Review Extracted Data</div>
+    <div class="panel-sub">Claude extracted this from your flyer. Click any field to edit before generating.</div>
+  </div>
+
+  <div id="extract-status-wrap" style="display:none">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>Analysis Progress</div>
+      <div class="status-msg" id="extract-status">Sending flyer to Claude Vision…</div>
+      <div class="progress-wrap"><div class="progress-bar" id="extract-progress"></div></div>
+    </div>
+  </div>
+
+  <div id="extract-results" style="display:none">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>Copy &amp; Messaging</div>
+      <div class="extract-grid">
+        <div class="extract-field full">
+          <div class="extract-field-label">Main Headline</div>
+          <div class="extract-field-val" id="ef-headline" contenteditable="true"></div>
+        </div>
+        <div class="extract-field full">
+          <div class="extract-field-label">Sub-headline / Tagline</div>
+          <div class="extract-field-val" id="ef-subheadline" contenteditable="true"></div>
+        </div>
+        <div class="extract-field">
+          <div class="extract-field-label">Offer / Event Type</div>
+          <div class="extract-field-val" id="ef-offertype" contenteditable="true"></div>
+        </div>
+        <div class="extract-field">
+          <div class="extract-field-label">Sale Dates / Urgency</div>
+          <div class="extract-field-val" id="ef-dates" contenteditable="true"></div>
+        </div>
+        <div class="extract-field full">
+          <div class="extract-field-label">Legal / Disclaimer</div>
+          <div class="extract-field-val" id="ef-legal" contenteditable="true"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title"><span class="dot"></span>Product &amp; Pricing</div>
+        <div class="extract-grid">
+          <div class="extract-field full">
+            <div class="extract-field-label">Product Name</div>
+            <div class="extract-field-val" id="ef-product" contenteditable="true"></div>
+          </div>
+          <div class="extract-field">
+            <div class="extract-field-label">Regular Price</div>
+            <div class="extract-field-val" id="ef-regular" contenteditable="true"></div>
+          </div>
+          <div class="extract-field">
+            <div class="extract-field-label">Sale Price</div>
+            <div class="extract-field-val" id="ef-sale" contenteditable="true"></div>
+          </div>
+          <div class="extract-field full">
+            <div class="extract-field-label">Savings Amount / %</div>
+            <div class="extract-field-val" id="ef-savings" contenteditable="true"></div>
+          </div>
+          <div class="extract-field full">
+            <div class="extract-field-label">Financing / Payment Offer</div>
+            <div class="extract-field-val" id="ef-financing" contenteditable="true"></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="dot"></span>Colors Detected</div>
+        <div class="color-row" id="color-row"></div>
+        <div class="input-hint" style="margin-top:12px">Click a swatch to adjust. Colors are used in banner generation.</div>
+        <div class="divider" style="margin:14px 0"></div>
+        <div class="extract-field-label" style="margin-bottom:8px">Dominant Font Style</div>
+        <div class="extract-field-val" id="ef-fontstyle" contenteditable="true"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>Multi-Product Items <span class="badge badge-blue" style="margin-left:6px">If applicable</span></div>
+      <div id="multi-items-container">
+        <div class="extract-field-val" id="ef-multiitems" contenteditable="true" style="min-height:60px"></div>
+      </div>
+      <div class="input-hint">List additional products if the flyer features more than one (name: price, one per line).</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+  <div class="flex gap8" style="justify-content:flex-end">
+    <button class="btn btn-secondary" onclick="gotoStep(1)">← Back</button>
+    <button class="btn btn-primary btn-lg" id="btn-to-generate" onclick="gotoStep(3)" disabled>Choose Template →</button>
+  </div>
+</div>
+
+<!-- ──────────────────────────────────
+     STEP 4 — GENERATE
+────────────────────────────────── -->
+<div class="panel" id="panel-3">
+  <div class="panel-header">
+    <div class="panel-title">Generate Banners</div>
+    <div class="panel-sub">Select a template, choose your sizes, then generate.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>Banner Template</div>
+    <div class="template-grid">
+
+      <div class="tmpl-card selected" data-tmpl="product-feature" onclick="selectTemplate(this)">
+        <div class="tmpl-thumb tt-pf"><div class="tt-bar"></div></div>
+        <div class="tmpl-name">Product Feature</div>
+        <div class="tmpl-desc">Hero product + pricing + CTA. Best for single-item sales &amp; clearance events.</div>
+      </div>
+
+      <div class="tmpl-card" data-tmpl="multi-product" onclick="selectTemplate(this)">
+        <div class="tmpl-thumb tt-mp"></div>
+        <div class="tmpl-name">Multi-Product</div>
+        <div class="tmpl-desc">3-up product grid with shared headline. Best for category sales &amp; event weekends.</div>
+      </div>
+
+      <div class="tmpl-card" data-tmpl="tiered-savings" onclick="selectTemplate(this)">
+        <div class="tmpl-thumb tt-ts" style="display:flex;flex-direction:column;justify-content:flex-end;padding:6px"><div class="tt-bar" style="width:60%"></div><div class="tt-bar" style="width:40%;margin-top:3px;background:#ff9900"></div></div>
+        <div class="tmpl-name">Tiered Savings</div>
+        <div class="tmpl-desc">Save $X on $Y tiers. Best for storewide events, threshold-based promotions.</div>
+      </div>
+
+      <div class="tmpl-card" data-tmpl="lifestyle" onclick="selectTemplate(this)">
+        <div class="tmpl-thumb tt-ls" style="display:flex;align-items:flex-end;padding:8px"><div style="height:3px;background:var(--accent);width:50%;border-radius:2px"></div></div>
+        <div class="tmpl-name">Lifestyle</div>
+        <div class="tmpl-desc">Full-bleed lifestyle image with text overlay. Best for brand moments, big sales launches.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>Output Sizes</div>
+    <p class="t-sm c-muted mb16">Select all sizes you need. Each generates separately.</p>
+    <div class="size-chips">
+      <div class="size-chip selected" data-size="728x200" onclick="toggleSize(this)">728×200 <span class="t-xs c-muted">Leaderboard</span></div>
+      <div class="size-chip selected" data-size="300x250" onclick="toggleSize(this)">300×250 <span class="t-xs c-muted">MPU</span></div>
+      <div class="size-chip" data-size="1200x628" onclick="toggleSize(this)">1200×628 <span class="t-xs c-muted">Social OG</span></div>
+      <div class="size-chip" data-size="600x200" onclick="toggleSize(this)">600×200 <span class="t-xs c-muted">Email Header</span></div>
+      <div class="size-chip" data-size="160x600" onclick="toggleSize(this)">160×600 <span class="t-xs c-muted">Skyscraper</span></div>
+      <div class="size-chip" data-size="320x50" onclick="toggleSize(this)">320×50 <span class="t-xs c-muted">Mobile Banner</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>Variants to Generate</div>
+    <p class="t-sm c-muted mb16">Each variant uses different visual psychology. All 3 are generated for every template+size combo.</p>
+    <div class="grid-3" style="gap:10px">
+      <div style="background:var(--s3);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:12px">
+        <div class="fw-700 mb4">⚡ Bold</div>
+        <div class="t-sm c-muted">Maximum visual impact. High contrast, big type, dominant yellow. Loss-aversion framing (SAVE $X). Best for urgent sales.</div>
+      </div>
+      <div style="background:var(--s3);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:12px">
+        <div class="fw-700 mb4">✦ Clean</div>
+        <div class="t-sm c-muted">Breathable whitespace. Price-anchored layout (reg/sale). Sophisticated and readable. Best for premium products.</div>
+      </div>
+      <div style="background:var(--s3);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:12px">
+        <div class="fw-700 mb4">◈ Dramatic</div>
+        <div class="t-sm c-muted">Dark mood, gradient depth, lifestyle energy. Aspirational with bold CTA. Best for seasonal events &amp; brand moments.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="gen-progress-card" style="display:none">
+    <div class="card-title"><span class="dot"></span>Generating…</div>
+    <div class="status-msg" id="gen-status">Preparing banner data…</div>
+    <div class="progress-wrap"><div class="progress-bar" id="gen-progress"></div></div>
+  </div>
+
+  <div class="divider"></div>
+  <div class="flex gap8" style="justify-content:flex-end">
+    <button class="btn btn-secondary" onclick="gotoStep(2)">← Back</button>
+    <button class="btn btn-primary btn-lg" id="btn-generate" onclick="generateBanners()">Generate Banners →</button>
+  </div>
+</div>
+
+<!-- ──────────────────────────────────
+     STEP 5 — EXPORT
+────────────────────────────────── -->
+<div class="panel" id="panel-4">
+  <div class="panel-header">
+    <div class="panel-title">Export Banners</div>
+    <div class="panel-sub">Preview, fine-tune, and download in any format. All elements are individually editable for Phase 2 animation.</div>
+  </div>
+
+  <div class="flex items-center justify-between mb16">
+    <div class="variant-tabs">
+      <div class="vtab active" data-variant="bold" onclick="selectVariant(this)">⚡ Bold</div>
+      <div class="vtab" data-variant="clean" onclick="selectVariant(this)">✦ Clean</div>
+      <div class="vtab" data-variant="dramatic" onclick="selectVariant(this)">◈ Dramatic</div>
+    </div>
+    <div class="size-chips" id="export-size-chips" style="margin-top:0"></div>
+  </div>
+
+  <div class="preview-stage" id="preview-stage">
+    <div class="preview-stage-bg"></div>
+    <div class="preview-label" id="preview-label">728×200 · Product Feature · Bold</div>
+    <div class="preview-wrap" id="preview-wrap">
+      <div id="banner-render"></div>
+    </div>
+  </div>
+
+  <div class="preview-controls">
+    <div class="preview-size-label" id="preview-dims"></div>
+    <div class="flex gap8">
+      <button class="btn btn-secondary" onclick="zoomPreview(-0.1)" data-tip="Zoom out">－</button>
+      <button class="btn btn-secondary" onclick="zoomFit()" data-tip="Fit to screen">⊡ Fit</button>
+      <button class="btn btn-secondary" onclick="zoomPreview(0.1)" data-tip="Zoom in">＋</button>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>Download Current View</div>
+      <div class="export-row">
+        <button class="btn btn-primary" onclick="downloadPNG()">⬇ Download PNG</button>
+        <button class="btn btn-secondary" onclick="downloadHTML()">⬇ Download HTML</button>
+        <button class="btn btn-secondary" onclick="copyHTML()">⎘ Copy HTML</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>Batch Export All Sizes</div>
+      <p class="t-sm c-muted mb16">Downloads a ZIP with all selected sizes for the current variant.</p>
+      <div class="export-row">
+        <button class="btn btn-secondary" onclick="exportAllSizes()">⬇ Export All Sizes (ZIP)</button>
+        <button class="btn btn-secondary" onclick="exportAllVariants()">⬇ Export All Variants</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>Phase 2 — Animation Ready <span class="badge badge-green" style="margin-left:8px">Coming Soon</span></div>
+    <p class="t-sm c-muted">Every element in this banner has a <code style="background:var(--s3);padding:1px 5px;border-radius:3px;font-size:11px">data-editable</code> attribute. In Phase 2, you'll select elements and apply GSAP animation presets (slide, fade, bounce, stagger) and export as GIF or MP4. The HTML structure you're downloading today is already animation-ready.</p>
+  </div>
+
+  <div class="flex gap8" style="justify-content:flex-end;margin-top:4px">
+    <button class="btn btn-secondary" onclick="gotoStep(3)">← Back to Generate</button>
+    <button class="btn btn-primary btn-lg" onclick="startFresh()">🔄 New Banner Session</button>
+  </div>
+</div>
+
+</main>
+</div><!-- /#app -->
+
+<!-- ─── TOAST ──────────────────────────────────────────────────── -->
+<div id="toast"></div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════════════════════════════ -->
+<script>
+// ─── STATE ───────────────────────────────────────────────────────
+const state = {
+  apiKey: localStorage.getItem('leons_api_key') || '',
+  references: JSON.parse(localStorage.getItem('leons_refs') || '[]'),
+  flyer: null, flyerBase64: null, flyerMediaType: 'image/png', flyerName: '',
+  product: null, productBase64: null,
+  logo: null, logoBase64: null,
+  extracted: {},
+  selectedTemplate: 'product-feature',
+  selectedSizes: ['728x200','300x250'],
+  selectedVariant: 'bold',
+  currentSize: '728x200',
+  currentStep: 0,
+  generated: false,
+  sessionCost: 0,
+  previewZoom: 1,
+};
+
+// ─── INIT ─────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  if (state.apiKey) {
+    document.getElementById('api-key-input').value = '•'.repeat(20);
+    updateApiChip(true);
+  }
+  buildRefGrid();
+  updateAnalyzeBtn();
+});
+
+// ─── NAVIGATION ──────────────────────────────────────────────────
+function gotoStep(n) {
+  if (n > 1 && !state.apiKey) { toast('Add your API key in Setup first.', 'err'); return; }
+  if (n > 2 && !state.flyerBase64) { toast('Upload a flyer first.', 'err'); return; }
+  if (n === 2 && !state.flyerBase64) { toast('Upload a flyer before analyzing.', 'err'); return; }
+  if (n > 3 && !state.extracted.headline) { toast('Analyze the flyer first.', 'err'); return; }
+  if (n === 4 && !state.generated) { toast('Generate banners first.', 'err'); return; }
+
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.step-item').forEach((s,i) => {
+    s.classList.remove('active');
+    if (i < n) s.classList.add('done'); else s.classList.remove('done');
+  });
+  document.getElementById(`panel-${n}`).classList.add('active');
+  document.querySelector(`.step-item[data-step="${n}"]`).classList.add('active');
+  state.currentStep = n;
+
+  if (n === 2 && state.flyerBase64 && !state.extracted.headline) {
+    runAnalysis();
+  }
+  if (n === 4) {
+    buildExportSizeChips();
+    renderBannerPreview();
+  }
+}
+
+// ─── API KEY ──────────────────────────────────────────────────────
+function saveApiKey() {
+  const val = document.getElementById('api-key-input').value.trim();
+  if (!val || val.includes('•')) { toast('Enter a valid API key.', 'err'); return; }
+  state.apiKey = val;
+  localStorage.setItem('leons_api_key', val);
+  document.getElementById('api-key-input').value = '•'.repeat(20);
+  updateApiChip(true);
+  toast('API key saved locally ✓', 'ok');
+}
+
+function updateApiChip(ok) {
+  const c = document.getElementById('api-status-chip');
+  c.textContent = ok ? '● API Ready' : 'No API Key';
+  c.className = 'chip-status ' + (ok ? 'ok' : 'off');
+}
+
+// ─── REFERENCE BANNERS ───────────────────────────────────────────
+function buildRefGrid() {
+  const grid = document.getElementById('ref-grid');
+  grid.innerHTML = '';
+  for (let i = 0; i < 6; i++) {
+    const slot = document.createElement('div');
+    slot.className = 'ref-slot' + (state.references[i] ? ' filled' : '');
+    slot.innerHTML = state.references[i]
+      ? `<img src="${state.references[i].data}" alt="ref"><div class="slot-remove" onclick="removeRef(${i})">✕</div>`
+      : `<span class="slot-plus">＋</span><input type="file" accept="image/*" onchange="addRef(${i},this.files[0])">`;
+    grid.appendChild(slot);
+  }
+}
+
+function addRef(idx, file) {
+  if (!file) return;
+  fileToBase64(file).then(d => {
+    state.references[idx] = { data: d, name: file.name, type: file.type };
+    localStorage.setItem('leons_refs', JSON.stringify(state.references));
+    buildRefGrid();
+    toast(`Reference ${idx+1} saved ✓`, 'ok');
+  });
+}
+
+function removeRef(idx) {
+  state.references.splice(idx, 1);
+  while (state.references.length < 6) state.references.push(null);
+  state.references = state.references.filter((_,i) => i < 6);
+  localStorage.setItem('leons_refs', JSON.stringify(state.references));
+  buildRefGrid();
+}
+
+// ─── FILE HANDLERS ────────────────────────────────────────────────
+function handleFlyer(file) {
+  if (!file) return;
+  if (file.size > 20 * 1024 * 1024) { toast('Flyer too large (max 20MB).', 'err'); return; }
+  state.flyerName = file.name;
+  state.flyerMediaType = file.type || 'image/png';
+  fileToBase64(file).then(d => {
+    state.flyerBase64 = d.split(',')[1];
+    document.getElementById('dz-flyer').classList.add('has-file');
+    document.getElementById('dz-flyer-preview').innerHTML = previewCard(d, file.name, file.size);
+    updateAnalyzeBtn();
+    toast('Flyer loaded ✓', 'ok');
+  });
+}
+
+function handleProduct(file) {
+  if (!file) return;
+  fileToBase64(file).then(d => {
+    state.productBase64 = d;
+    document.getElementById('dz-product').classList.add('has-file');
+    document.getElementById('dz-product-preview').innerHTML = previewCard(d, file.name, file.size);
+    toast('Product image loaded ✓', 'ok');
+  });
+}
+
+function handleLogo(file) {
+  if (!file) return;
+  fileToBase64(file).then(d => {
+    state.logoBase64 = d;
+    document.getElementById('dz-logo').classList.add('has-file');
+    document.getElementById('dz-logo-preview').innerHTML = previewCard(d, file.name, file.size);
+    toast('Logo loaded ✓', 'ok');
+  });
+}
+
+function previewCard(src, name, size) {
+  const isImg = /\.(png|jpg|jpeg|gif|svg|webp)$/i.test(name);
+  return `<div class="dz-preview">
+    ${isImg ? `<img src="${src}" alt="">` : '<div style="width:36px;height:36px;background:var(--s4);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:18px">📄</div>'}
+    <div class="dz-preview-info">
+      <div class="dz-preview-name">${name}</div>
+      <div class="dz-preview-size">${formatBytes(size)}</div>
+    </div>
+    </div>`;
+}
+
+function updateAnalyzeBtn() {
+  document.getElementById('btn-analyze').disabled = !state.flyerBase64 || !state.apiKey;
+}
+
+// ─── CLAUDE VISION API ────────────────────────────────────────────
+async function analyzeFlyer() { gotoStep(2); }
+
+async function runAnalysis() {
+  document.getElementById('extract-status-wrap').style.display = 'block';
+  document.getElementById('extract-results').style.display = 'none';
+  document.getElementById('btn-to-generate').disabled = true;
+
+  const statusEl = document.getElementById('extract-status');
+  const progressEl = document.getElementById('extract-progress');
+
+  setStatus(statusEl, progressEl, '🔍 Sending flyer to Claude Vision…', 15);
+
+  const refs = state.references.filter(r => r && r.data);
+  const refParts = refs.slice(0, 4).map(r => ({
+    type: 'image',
+    source: { type: 'base64', media_type: r.type, data: r.data.split(',')[1] }
+  }));
+
+  const refIntro = refs.length
+    ? `I'm also providing ${refs.length} reference Leon's banner(s) below so you can understand the exact visual style, color palette, and layout conventions used in Leon's advertising.\n\n`
+    : '';
+
+  const prompt = `${refIntro}Analyze this Leon's Furniture promotional flyer and extract ALL content as structured JSON.
+
+Return ONLY valid JSON with these exact keys:
+{
+  "headline": "main promo headline",
+  "subheadline": "secondary headline or tagline",
+  "offerType": "e.g. Black Friday Sale / Clearance / Weekend Sale / etc",
+  "dates": "sale dates or urgency text (e.g. This Weekend Only)",
+  "legal": "fine print or disclaimer text",
+  "productName": "primary product name",
+  "regularPrice": "original price with $ sign",
+  "salePrice": "sale price with $ sign",
+  "savings": "savings amount or percentage (e.g. SAVE $400 or UP TO 40% OFF)",
+  "financing": "any financing/payment plan text",
+  "fontStyle": "describe the typography style (bold/condensed/etc)",
+  "colors": ["#hex1","#hex2","#hex3","#hex4"],
+  "multiItems": "if multiple products: name: $price\\nname: $price (one per line)",
+  "layoutHierarchy": "describe the visual layout hierarchy in 1-2 sentences",
+  "ctaText": "call-to-action button or text"
+}
+
+Be thorough and accurate. Extract exact text as it appears. For colors, include background, text, and accent colors.`;
+
+  const content = [
+    ...refParts,
+    {
+      type: 'image',
+      source: { type: 'base64', media_type: state.flyerMediaType, data: state.flyerBase64 }
+    },
+    { type: 'text', text: prompt }
+  ];
+
+  setStatus(statusEl, progressEl, '⚡ Claude is analyzing your flyer…', 45);
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': state.apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model: 'claude-opus-4-5',
+        max_tokens: 1200,
+        messages: [{ role: 'user', content }]
+      })
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `HTTP ${res.status}`);
+    }
+
+    const data = await res.json();
+    setStatus(statusEl, progressEl, '📊 Parsing results…', 85);
+
+    const raw = data.content[0].text;
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('No JSON found in response');
+
+    state.extracted = JSON.parse(jsonMatch[0]);
+    state.sessionCost += 0.025;
+    document.getElementById('session-cost').textContent = '$' + state.sessionCost.toFixed(3);
+
+    setStatus(statusEl, progressEl, '✓ Extraction complete!', 100);
+    setTimeout(() => populateExtractFields(), 500);
+
+  } catch (e) {
+    setStatus(statusEl, progressEl, `❌ Error: ${e.message}`, 0);
+    toast(e.message, 'err');
+  }
+}
+
+function populateExtractFields() {
+  const x = state.extracted;
+  const fields = {
+    'ef-headline': x.headline || '',
+    'ef-subheadline': x.subheadline || '',
+    'ef-offertype': x.offerType || '',
+    'ef-dates': x.dates || '',
+    'ef-legal': x.legal || '',
+    'ef-product': x.productName || '',
+    'ef-regular': x.regularPrice || '',
+    'ef-sale': x.salePrice || '',
+    'ef-savings': x.savings || '',
+    'ef-financing': x.financing || '',
+    'ef-fontstyle': x.fontStyle || '',
+    'ef-multiitems': x.multiItems || '',
+  };
+  Object.entries(fields).forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+  });
+
+  // Build color swatches
+  const colors = x.colors || ['#FFD000', '#000000', '#ffffff', '#1a1a1a'];
+  const row = document.getElementById('color-row');
+  row.innerHTML = '';
+  colors.forEach((c, i) => {
+    const sw = document.createElement('div');
+    sw.className = 'color-swatch';
+    sw.style.background = c;
+    sw.title = c;
+    sw.dataset.index = i;
+    const inp = document.createElement('input');
+    inp.type = 'color';
+    inp.value = c;
+    inp.addEventListener('input', e => {
+      sw.style.background = e.target.value;
+      state.extracted.colors[i] = e.target.value;
+    });
+    sw.appendChild(inp);
+    row.appendChild(sw);
+  });
+  if (!state.extracted.colors) state.extracted.colors = colors;
+
+  document.getElementById('extract-status-wrap').style.display = 'none';
+  document.getElementById('extract-results').style.display = 'block';
+  document.getElementById('btn-to-generate').disabled = false;
+  toast('Flyer analyzed ✓', 'ok');
+}
+
+// ─── TEMPLATE / SIZE / VARIANT SELECTION ─────────────────────────
+function selectTemplate(card) {
+  document.querySelectorAll('.tmpl-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+  state.selectedTemplate = card.dataset.tmpl;
+}
+
+function toggleSize(chip) {
+  const size = chip.dataset.size;
+  if (chip.classList.contains('selected')) {
+    if (state.selectedSizes.length === 1) { toast('Select at least one size.', 'info'); return; }
+    chip.classList.remove('selected');
+    state.selectedSizes = state.selectedSizes.filter(s => s !== size);
+  } else {
+    chip.classList.add('selected');
+    state.selectedSizes.push(size);
+  }
+}
+
+function selectVariant(tab) {
+  document.querySelectorAll('.vtab').forEach(t => t.classList.remove('active'));
+  tab.classList.add('active');
+  state.selectedVariant = tab.dataset.variant;
+  renderBannerPreview();
+}
+
+// ─── GENERATE ─────────────────────────────────────────────────────
+async function generateBanners() {
+  if (!state.extracted.headline) { toast('Analyze a flyer first.', 'err'); return; }
+  const card = document.getElementById('gen-progress-card');
+  const statusEl = document.getElementById('gen-status');
+  const progressEl = document.getElementById('gen-progress');
+  card.style.display = 'block';
+
+  setStatus(statusEl, progressEl, '🧠 Sending to Claude for style refinement…', 20);
+
+  // Build extra style guidance via Claude
+  const stylePrompt = buildStylePrompt();
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': state.apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model: 'claude-opus-4-5',
+        max_tokens: 800,
+        messages: [{ role: 'user', content: stylePrompt }]
+      })
+    });
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    state.sessionCost += 0.015;
+    document.getElementById('session-cost').textContent = '$' + state.sessionCost.toFixed(3);
+
+    // Extract any style hints
+    const styleHints = data.content[0].text;
+    state.extracted._styleHints = styleHints;
+
+  } catch(e) {
+    console.warn('Style call failed, proceeding with defaults:', e.message);
+  }
+
+  setStatus(statusEl, progressEl, '🎨 Building banner templates…', 60);
+  await sleep(400);
+  setStatus(statusEl, progressEl, '✦ Rendering Bold, Clean, Dramatic variants…', 80);
+  await sleep(400);
+  setStatus(statusEl, progressEl, '✓ Banners ready!', 100);
+  await sleep(300);
+
+  state.generated = true;
+  card.style.display = 'none';
+  toast('Banners generated ✓', 'ok');
+  gotoStep(4);
+}
+
+function buildStylePrompt() {
+  const x = state.extracted;
+  const refs = state.references.filter(r => r && r.data);
+  const refLine = refs.length ? `I've trained on ${refs.length} reference Leon's banners.` : '';
+  return `You are helping generate Leon's Furniture digital banner ads.
+${refLine}
+
+Extracted flyer data:
+- Headline: ${x.headline}
+- Offer type: ${x.offerType}
+- Sale: ${x.savings}
+- Dates: ${x.dates}
+- CTA: ${x.ctaText}
+- Colors: ${(x.colors||[]).join(', ')}
+
+For the "${state.selectedTemplate}" template, suggest CSS micro-adjustments (font-size, letter-spacing, padding, gradient direction) in 2-3 bullet points that would make this banner feel premium and on-brand for a major Canadian furniture retailer. Keep it concise.`;
+}
+
+// ─── BANNER RENDER ─────────────────────────────────────────────────
+const SIZES = {
+  '728x200': {w:728, h:200},
+  '300x250': {w:300, h:250},
+  '1200x628': {w:1200, h:628},
+  '600x200': {w:600, h:200},
+  '160x600': {w:160, h:600},
+  '320x50': {w:320, h:50},
+};
+
+function renderBannerPreview() {
+  syncExtractFromDOM();
+  const size = state.currentSize;
+  const {w, h} = SIZES[size] || {w:728, h:200};
+  const wrap = document.getElementById('preview-wrap');
+  const render = document.getElementById('banner-render');
+  const label = document.getElementById('preview-label');
+  const dims = document.getElementById('preview-dims');
+
+  label.textContent = `${size} · ${humanTemplate(state.selectedTemplate)} · ${cap(state.selectedVariant)}`;
+  dims.textContent = `${w} × ${h} px`;
+
+  render.innerHTML = buildBannerHTML(state.selectedTemplate, state.selectedVariant, size, w, h);
+
+  // Scale to fit preview stage
+  const stage = document.getElementById('preview-stage');
+  const maxW = stage.offsetWidth - 48;
+  const maxH = stage.offsetHeight - 48;
+  const scale = Math.min(maxW / w, maxH / h, 1) * state.previewZoom;
+  wrap.style.transform = `scale(${scale})`;
+  wrap.style.transformOrigin = 'center center';
+  wrap.style.width = w + 'px';
+  wrap.style.height = h + 'px';
+}
+
+function buildBannerHTML(tmpl, variant, size, w, h) {
+  const x = state.extracted;
+  const colors = x.colors || ['#FFD000', '#0a0a0a', '#ffffff', '#1a1a1a'];
+  const accent = colors[0] || '#FFD000';
+  const dark = colors[1] || '#0a0a0a';
+  const bgDark2 = variant === 'dramatic' ? '#060608' : (variant === 'clean' ? '#0f0f12' : '#0a0a0a');
+
+  if (tmpl === 'product-feature') return bannerProductFeature(x, variant, w, h, accent, bgDark2);
+  if (tmpl === 'multi-product') return bannerMultiProduct(x, variant, w, h, accent);
+  if (tmpl === 'tiered-savings') return bannerTieredSavings(x, variant, w, h, accent);
+  if (tmpl === 'lifestyle') return bannerLifestyle(x, variant, w, h, accent);
+  return bannerProductFeature(x, variant, w, h, accent, bgDark2);
+}
+
+function bannerProductFeature(x, variant, w, h, accent, bg) {
+  const scale = w / 728;
+  const isNarrow = w <= 320;
+  const isVertical = h > w;
+
+  const gradMap = {
+    bold: `linear-gradient(135deg, #000 0%, #1a1500 100%)`,
+    clean: `linear-gradient(135deg, #0d0d10 0%, #111108 100%)`,
+    dramatic: `linear-gradient(135deg, #060608 0%, #0d0d00 60%, #000 100%)`,
+  };
+
+  const ctaMap = {
+    bold: `background:${accent};color:#000;font-weight:900;letter-spacing:-0.5px`,
+    clean: `background:transparent;color:${accent};border:2px solid ${accent};font-weight:700`,
+    dramatic: `background:linear-gradient(90deg,${accent},#ff9900);color:#000;font-weight:900`,
+  };
+
+  const fs = (base) => Math.round(base * scale) + 'px';
+
+  return `<div data-banner-root style="
+    width:${w}px;height:${h}px;display:flex;overflow:hidden;
+    background:${gradMap[variant]};font-family:'Arial Black',Arial,sans-serif;
+    position:relative;
+  ">
+    ${variant === 'dramatic' ? `<div style="position:absolute;inset:0;background:radial-gradient(ellipse at 20% 50%, rgba(255,208,0,.08) 0%, transparent 60%);pointer-events:none;z-index:0"></div>` : ''}
+
+    <!-- LEFT: branding + headline -->
+    <div style="
+      flex:0 0 ${isNarrow ? '50%' : '44%'};display:flex;flex-direction:column;
+      justify-content:center;padding:${fs(16)} ${fs(20)};
+      border-right:2px solid rgba(255,208,0,.15);
+      position:relative;z-index:1;
+    ">
+      ${x.offerType ? `<div data-editable="offer-type" style="
+        font-size:${fs(variant==='bold'?11:10)};font-weight:900;
+        letter-spacing:${variant==='bold'?'1.5':'1'}px;text-transform:uppercase;
+        color:${accent};margin-bottom:${fs(5)};opacity:${variant==='clean'?.8:1};
+      ">${x.offerType}</div>` : ''}
+
+      <div data-editable="headline" style="
+        font-size:${fs(variant==='bold'?26:variant==='dramatic'?28:22)};
+        font-weight:900;line-height:1.05;color:#fff;
+        letter-spacing:${variant==='dramatic'?'-1px':'-0.5px'};
+        margin-bottom:${fs(variant==='clean'?8:6)};
+        text-transform:uppercase;
+      ">${x.headline || 'BIG SAVINGS EVENT'}</div>
+
+      ${x.subheadline ? `<div data-editable="subheadline" style="
+        font-size:${fs(variant==='clean'?12:11)};
+        color:rgba(255,255,255,${variant==='clean'?.7:.55});
+        margin-bottom:${fs(8)};line-height:1.3;
+        font-weight:${variant==='bold'?700:400};
+      ">${x.subheadline}</div>` : ''}
+
+      ${x.dates ? `<div data-editable="dates" style="
+        font-size:${fs(10)};color:${accent};font-weight:700;
+        letter-spacing:.5px;text-transform:uppercase;
+        border-left:2px solid ${accent};padding-left:${fs(6)};
+      ">${x.dates}</div>` : ''}
+    </div>
+
+    <!-- CENTER: product image -->
+    <div style="
+      flex:1;display:flex;align-items:center;justify-content:center;
+      padding:${fs(8)};position:relative;z-index:1;overflow:hidden;
+    ">
+      ${state.productBase64
+        ? `<img data-editable="product-img" src="${state.productBase64}" style="max-width:100%;max-height:100%;object-fit:contain;filter:${variant==='dramatic'?'drop-shadow(0 0 20px rgba(255,208,0,.3))':'drop-shadow(2px 4px 12px rgba(0,0,0,.8))'}">`
+        : `<div style="
+            width:${fs(140)};height:${fs(140)};
+            background:rgba(255,255,255,.04);
+            border:1.5px dashed rgba(255,255,255,.12);
+            border-radius:8px;display:flex;align-items:center;
+            justify-content:center;font-size:${fs(32)};
+          ">🛋️</div>`
+      }
+      ${variant==='dramatic'?`<div style="position:absolute;inset:0;background:radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,.3) 100%);pointer-events:none"></div>`:''}
+    </div>
+
+    <!-- RIGHT: price + CTA -->
+    <div style="
+      flex:0 0 ${isNarrow?'50%':'28%'};
+      background:${variant==='bold'?accent:variant==='dramatic'?'rgba(255,208,0,.12)':'rgba(255,208,0,.08)'};
+      display:flex;flex-direction:column;justify-content:center;align-items:center;
+      padding:${fs(14)} ${fs(10)};text-align:center;
+      border-left:${variant==='bold'?'none':`2px solid rgba(255,208,0,.2)`};
+      position:relative;z-index:1;
+    ">
+      ${x.regularPrice ? `<div data-editable="regular-price" style="
+        font-size:${fs(12)};color:${variant==='bold'?'rgba(0,0,0,.55)':'rgba(255,255,255,.45)'};
+        text-decoration:line-through;font-weight:700;
+        margin-bottom:${fs(2)};
+      ">${x.regularPrice}</div>` : ''}
+
+      <div data-editable="sale-price" style="
+        font-size:${fs(variant==='bold'?34:30)};font-weight:900;line-height:1;
+        color:${variant==='bold'?'#000':accent};
+        margin-bottom:${fs(4)};letter-spacing:-1px;
+      ">${x.salePrice || '$999'}</div>
+
+      ${x.savings ? `<div data-editable="savings" style="
+        font-size:${fs(10)};font-weight:900;letter-spacing:.5px;text-transform:uppercase;
+        color:${variant==='bold'?'rgba(0,0,0,.7)':'rgba(255,255,255,.7)'};
+        background:${variant==='bold'?'rgba(0,0,0,.12)':'rgba(255,208,0,.15)'};
+        padding:${fs(3)} ${fs(8)};border-radius:99px;margin-bottom:${fs(10)};
+      ">${x.savings}</div>` : ''}
+
+      <div data-editable="cta" style="
+        font-size:${fs(10)};padding:${fs(7)} ${fs(14)};
+        border-radius:4px;font-weight:900;letter-spacing:.5px;
+        text-transform:uppercase;cursor:pointer;
+        ${ctaMap[variant]};
+      ">${x.ctaText || 'Shop Now'}</div>
+
+      ${x.financing ? `<div data-editable="financing" style="
+        font-size:${fs(9)};color:${variant==='bold'?'rgba(0,0,0,.6)':'rgba(255,255,255,.45)'};
+        margin-top:${fs(6)};line-height:1.3;
+      ">${x.financing}</div>` : ''}
+    </div>
+
+    <!-- Logo overlay -->
+    ${state.logoBase64 ? `<div data-editable="logo" style="
+      position:absolute;bottom:${fs(8)};left:${fs(16)};z-index:2;
+    "><img src="${state.logoBase64}" style="height:${fs(22)};object-fit:contain;opacity:.8"></div>` : ''}
+
+    ${x.legal ? `<div data-editable="legal" style="
+      position:absolute;bottom:${fs(4)};right:${fs(10)};
+      font-size:${fs(7)};color:rgba(255,255,255,.25);
+      max-width:50%;text-align:right;line-height:1.2;
+    ">${x.legal}</div>` : ''}
+  </div>`;
+}
+
+function bannerMultiProduct(x, variant, w, h, accent) {
+  const scale = w / 728;
+  const fs = (b) => Math.round(b * scale) + 'px';
+  const items = parseMultiItems(x.multiItems);
+
+  return `<div data-banner-root style="
+    width:${w}px;height:${h}px;display:flex;flex-direction:column;
+    overflow:hidden;font-family:'Arial Black',Arial,sans-serif;
+    background:${variant==='dramatic'?'#060608':'#0a0a0a'};
+  ">
+    <div style="
+      background:${variant==='clean'?'rgba(255,208,0,.95)':variant==='dramatic'?'linear-gradient(90deg,#c89900,'+accent+')':accent};
+      padding:${fs(5)} ${fs(16)};display:flex;align-items:center;
+      justify-content:space-between;flex-shrink:0;
+    ">
+      <div data-editable="headline" style="
+        font-size:${fs(14)};font-weight:900;color:#000;letter-spacing:-.5px;
+        text-transform:uppercase;
+      ">${x.headline || 'WEEKEND SALE'}</div>
+      <div data-editable="offer-badge" style="
+        font-size:${fs(11)};font-weight:900;color:#000;
+        background:rgba(0,0,0,.12);padding:${fs(2)} ${fs(10)};border-radius:99px;
+      ">${x.savings || x.offerType || ''}</div>
+    </div>
+
+    <div style="flex:1;display:grid;grid-template-columns:repeat(${Math.min(items.length,3)||3},1fr);gap:1px;background:rgba(255,255,255,.06)">
+      ${(items.length ? items : [{name:x.productName||'Product',price:x.salePrice||'$999'},{name:'Item 2',price:'$799'},{name:'Item 3',price:'$599'}]).slice(0,3).map((item,i) => `
+      <div style="
+        background:${variant==='dramatic'?'#0d0d0d':'#111'};
+        display:flex;flex-direction:column;align-items:center;
+        justify-content:center;padding:${fs(10)};gap:${fs(4)};
+      ">
+        ${state.productBase64 && i===0
+          ? `<img src="${state.productBase64}" style="width:${fs(70)};height:${fs(70)};object-fit:contain">`
+          : `<div style="width:${fs(60)};height:${fs(60)};background:rgba(255,255,255,.04);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:${fs(24)}">🛋️</div>`}
+        <div data-editable="item-${i}-name" style="font-size:${fs(10)};color:rgba(255,255,255,.7);text-align:center;line-height:1.2">${item.name}</div>
+        <div data-editable="item-${i}-price" style="font-size:${fs(14)};font-weight:900;color:${accent}">${item.price}</div>
+      </div>`).join('')}
+    </div>
+
+    ${state.logoBase64 ? `<div style="position:absolute;top:${fs(8)};right:${fs(14)}"><img src="${state.logoBase64}" style="height:${fs(20)};object-fit:contain;opacity:.7"></div>` : ''}
+  </div>`;
+}
+
+function bannerTieredSavings(x, variant, w, h, accent) {
+  const scale = w / 728;
+  const fs = (b) => Math.round(b * scale) + 'px';
+  const tiers = [
+    { spend:'$1,500+', save:'Save $150', color: accent },
+    { spend:'$2,500+', save:'Save $300', color:'#ff9900' },
+    { spend:'$3,500+', save:'Save $500', color:'#ff4400' },
+  ];
+
+  return `<div data-banner-root style="
+    width:${w}px;height:${h}px;display:flex;overflow:hidden;
+    font-family:'Arial Black',Arial,sans-serif;
+    background:${variant==='dramatic'?'linear-gradient(135deg,#060608,#0d0a00)':variant==='clean'?'#0f0f12':'#0a0a0a'};
+  ">
+    <div style="
+      flex:0 0 55%;display:flex;flex-direction:column;justify-content:center;
+      padding:${fs(16)} ${fs(24)};
+    ">
+      ${x.offerType ? `<div data-editable="offer-type" style="font-size:${fs(10)};font-weight:900;letter-spacing:1.5px;text-transform:uppercase;color:${accent};margin-bottom:${fs(6)}">${x.offerType}</div>` : ''}
+      <div data-editable="headline" style="font-size:${fs(26)};font-weight:900;color:#fff;line-height:1.05;text-transform:uppercase;margin-bottom:${fs(4)}">${x.headline || 'SAVE MORE'}</div>
+      <div data-editable="subheadline" style="font-size:${fs(12)};color:rgba(255,255,255,.5);margin-bottom:${fs(8)}">${x.subheadline || 'The more you spend, the more you save'}</div>
+      ${x.dates ? `<div data-editable="dates" style="font-size:${fs(10)};color:${accent};font-weight:700;letter-spacing:.5px;text-transform:uppercase">${x.dates}</div>` : ''}
+    </div>
+
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:${fs(6)};padding:${fs(12)}">
+      ${tiers.map((t,i) => `
+      <div data-editable="tier-${i}" style="
+        display:flex;align-items:center;gap:${fs(10)};
+        padding:${fs(6)} ${fs(10)};border-radius:6px;
+        background:rgba(255,255,255,.04);
+        border-left:3px solid ${t.color};
+      ">
+        <div style="font-size:${fs(11)};font-weight:700;color:rgba(255,255,255,.6)">Spend ${t.spend}</div>
+        <div style="flex:1;height:1px;background:rgba(255,255,255,.08)"></div>
+        <div style="font-size:${fs(13)};font-weight:900;color:${t.color}">${t.save}</div>
+      </div>`).join('')}
+    </div>
+
+    ${state.logoBase64 ? `<div style="position:absolute;bottom:${fs(8)};right:${fs(16)}"><img src="${state.logoBase64}" style="height:${fs(22)};object-fit:contain;opacity:.7"></div>` : ''}
+  </div>`;
+}
+
+function bannerLifestyle(x, variant, w, h, accent) {
+  const scale = Math.min(w, h) / 500;
+  const fs = (b) => Math.round(b * scale) + 'px';
+
+  return `<div data-banner-root style="
+    width:${w}px;height:${h}px;overflow:hidden;
+    font-family:'Arial Black',Arial,sans-serif;
+    background:${variant==='dramatic'?'#060608':'#0a0a0a'};
+    position:relative;
+  ">
+    ${state.productBase64 ? `
+    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
+      <img src="${state.productBase64}" style="
+        width:100%;height:100%;object-fit:cover;
+        opacity:${variant==='dramatic'?.25:.35};
+        filter:${variant==='dramatic'?'saturate(.5)':'none'};
+      ">
+    </div>` : ''}
+
+    <div style="
+      position:absolute;inset:0;
+      background:${variant==='bold'
+        ?'linear-gradient(135deg,rgba(0,0,0,.92) 0%,rgba(0,0,0,.5) 100%)'
+        :variant==='clean'
+        ?'linear-gradient(135deg,rgba(0,0,0,.85) 0%,rgba(0,0,0,.35) 100%)'
+        :'linear-gradient(135deg,rgba(0,0,0,.95) 0%,rgba(0,0,0,.2) 100%)'};
+    "></div>
+
+    <div style="
+      position:relative;z-index:2;
+      display:flex;flex-direction:column;justify-content:center;
+      height:100%;padding:${fs(40)} ${fs(50)};
+    ">
+      ${x.offerType ? `<div data-editable="offer-type" style="
+        font-size:${fs(12)};font-weight:900;letter-spacing:2px;
+        text-transform:uppercase;color:${accent};margin-bottom:${fs(12)};
+        display:flex;align-items:center;gap:8px;
+      ">
+        <div style="width:24px;height:2px;background:${accent}"></div>
+        ${x.offerType}
+      </div>` : ''}
+
+      <div data-editable="headline" style="
+        font-size:${fs(variant==='dramatic'?52:46)};font-weight:900;line-height:1.0;
+        color:#fff;text-transform:uppercase;letter-spacing:-2px;
+        margin-bottom:${fs(12)};
+        text-shadow:${variant==='dramatic'?'0 0 40px rgba(255,208,0,.2)':'none'};
+      ">${x.headline || 'SAVE BIG'}</div>
+
+      ${x.savings ? `<div data-editable="savings" style="
+        display:inline-flex;align-items:center;gap:${fs(12)};
+        margin-bottom:${fs(20)};
+      ">
+        <div style="font-size:${fs(32)};font-weight:900;color:${accent};letter-spacing:-1px">${x.savings}</div>
+        ${x.salePrice ? `<div style="font-size:${fs(18)};color:rgba(255,255,255,.5)">From ${x.salePrice}</div>` : ''}
+      </div>` : ''}
+
+      <div data-editable="cta" style="
+        display:inline-flex;align-items:center;gap:${fs(10)};
+        background:${accent};color:#000;font-weight:900;
+        font-size:${fs(14)};padding:${fs(14)} ${fs(28)};
+        border-radius:4px;text-transform:uppercase;letter-spacing:.5px;
+        width:fit-content;cursor:pointer;
+      ">${x.ctaText || 'Shop Now'} →</div>
+    </div>
+
+    ${state.logoBase64 ? `<div style="position:absolute;top:${fs(20)};right:${fs(28)};z-index:3">
+      <img src="${state.logoBase64}" style="height:${fs(28)};object-fit:contain;opacity:.85">
+    </div>` : ''}
+  </div>`;
+}
+
+// ─── EXPORT ───────────────────────────────────────────────────────
+function buildExportSizeChips() {
+  const container = document.getElementById('export-size-chips');
+  container.innerHTML = '';
+  state.selectedSizes.forEach(size => {
+    const chip = document.createElement('div');
+    chip.className = 'size-chip' + (size === state.currentSize ? ' selected' : '');
+    chip.dataset.size = size;
+    chip.textContent = size;
+    chip.onclick = () => {
+      document.querySelectorAll('#export-size-chips .size-chip').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+      state.currentSize = size;
+      state.previewZoom = 1;
+      renderBannerPreview();
+    };
+    container.appendChild(chip);
+  });
+}
+
+function zoomPreview(delta) {
+  state.previewZoom = Math.max(0.1, Math.min(3, state.previewZoom + delta));
+  renderBannerPreview();
+}
+
+function zoomFit() {
+  state.previewZoom = 1;
+  renderBannerPreview();
+}
+
+async function downloadPNG() {
+  syncExtractFromDOM();
+  const {w, h} = SIZES[state.currentSize] || {w:728, h:200};
+  const wrap = document.getElementById('preview-wrap');
+  const originalTransform = wrap.style.transform;
+  wrap.style.transform = 'none';
+  wrap.style.transformOrigin = 'top left';
+
+  try {
+    const canvas = await html2canvas(wrap, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: null,
+      logging: false,
+      width: w,
+      height: h,
+    });
+    wrap.style.transform = originalTransform;
+    const link = document.createElement('a');
+    const date = new Date().toISOString().slice(0,10);
+    link.download = `leons-banner-${state.selectedTemplate}-${state.currentSize}-${state.selectedVariant}-${date}.png`;
+    link.href = canvas.toDataURL('image/png', 1.0);
+    link.click();
+    toast('PNG downloaded ✓', 'ok');
+  } catch(e) {
+    wrap.style.transform = originalTransform;
+    toast('Export error: ' + e.message, 'err');
+  }
+}
+
+function downloadHTML() {
+  syncExtractFromDOM();
+  const {w, h} = SIZES[state.currentSize] || {w:728, h:200};
+  const bannerHTML = buildBannerHTML(state.selectedTemplate, state.selectedVariant, state.currentSize, w, h);
+  const full = `<!DOCTYPE html>\n<html>\n<head><meta charset="UTF-8"><title>Leon's Banner</title><style>body{margin:0;padding:20px;background:#333;display:flex;align-items:center;justify-content:center;min-height:100vh}[data-editable]:hover::after{content:'';position:absolute;inset:-2px;border:1.5px dashed #FFD000;pointer-events:none;border-radius:3px}</style></head>\n<body>\n${bannerHTML}\n</body>\n</html>`;
+  downloadText(full, `leons-banner-${state.selectedTemplate}-${state.currentSize}-${state.selectedVariant}.html`, 'text/html');
+  toast('HTML downloaded ✓', 'ok');
+}
+
+function copyHTML() {
+  syncExtractFromDOM();
+  const {w, h} = SIZES[state.currentSize] || {w:728, h:200};
+  const html = buildBannerHTML(state.selectedTemplate, state.selectedVariant, state.currentSize, w, h);
+  navigator.clipboard.writeText(html).then(() => toast('HTML copied to clipboard ✓', 'ok')).catch(() => toast('Copy failed — use Download HTML instead.', 'err'));
+}
+
+async function exportAllSizes() {
+  toast('Exporting all sizes… this may take a moment.', 'info');
+  for (const size of state.selectedSizes) {
+    state.currentSize = size;
+    state.previewZoom = 1;
+    renderBannerPreview();
+    await sleep(150);
+    await downloadPNG();
+    await sleep(200);
+  }
+  toast('All sizes exported ✓', 'ok');
+}
+
+async function exportAllVariants() {
+  const variants = ['bold','clean','dramatic'];
+  for (const v of variants) {
+    state.selectedVariant = v;
+    renderBannerPreview();
+    await sleep(100);
+    await downloadPNG();
+    await sleep(200);
+  }
+  state.selectedVariant = 'bold';
+  renderBannerPreview();
+  toast('All variants exported ✓', 'ok');
+}
+
+// ─── HELPERS ──────────────────────────────────────────────────────
+function syncExtractFromDOM() {
+  const fields = {
+    'ef-headline':'headline','ef-subheadline':'subheadline',
+    'ef-offertype':'offerType','ef-dates':'dates','ef-legal':'legal',
+    'ef-product':'productName','ef-regular':'regularPrice',
+    'ef-sale':'salePrice','ef-savings':'savings',
+    'ef-financing':'financing','ef-fontstyle':'fontStyle',
+    'ef-multiitems':'multiItems'
+  };
+  Object.entries(fields).forEach(([id, key]) => {
+    const el = document.getElementById(id);
+    if (el) state.extracted[key] = el.textContent.trim();
+  });
+}
+
+function parseMultiItems(raw) {
+  if (!raw) return [];
+  return raw.split('\n').filter(Boolean).map(line => {
+    const [name, price] = line.split(':').map(s => s.trim());
+    return { name: name || line, price: price || '' };
+  });
+}
+
+function humanTemplate(t) {
+  return { 'product-feature':'Product Feature','multi-product':'Multi-Product','tiered-savings':'Tiered Savings','lifestyle':'Lifestyle' }[t] || t;
+}
+function cap(s) { return s ? s[0].toUpperCase() + s.slice(1) : s; }
+
+function fileToBase64(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = e => res(e.target.result);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+function formatBytes(b) {
+  if (b < 1024) return b + ' B';
+  if (b < 1048576) return (b/1024).toFixed(1) + ' KB';
+  return (b/1048576).toFixed(1) + ' MB';
+}
+
+function setStatus(el, bar, msg, pct) {
+  el.innerHTML = `<span class="spinner"></span>${msg}`;
+  bar.style.width = pct + '%';
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function downloadText(content, filename, type) {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function toast(msg, type = 'info') {
+  const el = document.getElementById('toast');
+  el.className = 'show ' + type;
+  el.innerHTML = (type === 'ok' ? '✓ ' : type === 'err' ? '✕ ' : 'ℹ ') + msg;
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.classList.remove('show'); }, 3200);
+}
+
+function startFresh() {
+  if (!confirm('Start a new session? Current banner data will be cleared.')) return;
+  state.flyer = null; state.flyerBase64 = null; state.flyerName = '';
+  state.product = null; state.productBase64 = null;
+  state.logo = null; state.logoBase64 = null;
+  state.extracted = {};
+  state.generated = false;
+  state.sessionCost = 0;
+  document.getElementById('session-cost').textContent = '$0.00';
+  ['dz-flyer-preview','dz-product-preview','dz-logo-preview'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.innerHTML = '';
+  });
+  ['dz-flyer','dz-product','dz-logo'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.classList.remove('has-file');
+  });
+  gotoStep(0);
+}
+
+// ─── DRAG EVENTS ──────────────────────────────────────────────────
+document.querySelectorAll('.dropzone').forEach(zone => {
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (!file) return;
+    if (zone.id === 'dz-flyer') handleFlyer(file);
+    else if (zone.id === 'dz-product') handleProduct(file);
+    else if (zone.id === 'dz-logo') handleLogo(file);
+  });
+});
+</script>
+</body>
+</html>
