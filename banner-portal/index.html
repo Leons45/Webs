@@ -311,6 +311,10 @@ textarea{resize:vertical;min-height:70px;line-height:1.5}
   </div>
   <span class="logo-text"><span>Leon's</span> Banner Studio</span>
   <div class="topbar-right">
+    <div id="sg-status-wrap" style="display:none;align-items:center;gap:6px;font-size:11px;color:var(--text3);background:var(--s2);border:1px solid var(--border);border-radius:99px;padding:3px 10px;transition:opacity .4s">
+      <span class="spinner" style="width:10px;height:10px;border-width:1.5px"></span>
+      <span id="sg-status">Loading style guide…</span>
+    </div>
     <span id="api-status-chip" class="chip-status off">No API Key</span>
     <button class="btn btn-secondary btn-sm" onclick="gotoStep(0)">⚙ Setup</button>
   </div>
@@ -396,9 +400,13 @@ textarea{resize:vertical;min-height:70px;line-height:1.5}
 
   <div class="card">
     <div class="card-title"><span class="dot"></span>Reference Banners <span class="badge badge-yellow" style="margin-left:8px">Boosts accuracy ~25%</span></div>
-    <p class="t-sm c-muted mb16">Upload 3–6 existing Leon's banner ads. Claude learns your exact visual style — colors, font sizes, layout rhythm — resulting in ~92% style accuracy vs ~70% without references.</p>
+    <p class="t-sm c-muted mb16">Reference banners live permanently in your GitHub repo — loaded automatically every session. To add more: upload JPG/PNG files to <code style="background:var(--s3);padding:1px 6px;border-radius:3px;font-size:11px">banner-portal/references/</code> in GitHub and add the filename to <code style="background:var(--s3);padding:1px 6px;border-radius:3px;font-size:11px">references/manifest.json</code>.</p>
     <div class="ref-grid" id="ref-grid"></div>
-    <div class="input-hint" style="margin-top:10px">JPG/PNG banners. The more varied the better (different templates &amp; sizes).</div>
+    <div id="ref-grid-hint" class="input-hint" style="margin-top:10px"></div>
+    <div style="margin-top:12px;padding:10px 12px;background:var(--s3);border:1px solid var(--border2);border-radius:var(--radius-sm)">
+      <div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:4px">How to add references permanently:</div>
+      <div style="font-size:11px;color:var(--text3);line-height:1.6">1. Go to <a href="https://github.com/Leons45/Webs/upload/main/banner-portal/references" target="_blank">github.com/Leons45/Webs → banner-portal/references/</a><br>2. Upload your banner JPG/PNG files<br>3. Edit <a href="https://github.com/Leons45/Webs/edit/main/banner-portal/references/manifest.json" target="_blank">manifest.json</a> and add the filenames to the array<br>4. Reload this portal — they load automatically every session</div>
+    </div>
   </div>
 
   <div class="flex gap8" style="justify-content:flex-end">
@@ -719,10 +727,15 @@ textarea{resize:vertical;min-height:70px;line-height:1.5}
      JAVASCRIPT
 ═══════════════════════════════════════════════════════════════════ -->
 <script>
+// ─── CONSTANTS ───────────────────────────────────────────────────
+const GITHUB_RAW = 'https://raw.githubusercontent.com/Leons45/Webs/main/banner-portal';
+
 // ─── STATE ───────────────────────────────────────────────────────
 const state = {
   apiKey: localStorage.getItem('leons_api_key') || '',
-  references: JSON.parse(localStorage.getItem('leons_refs') || '[]'),
+  references: [], // loaded from GitHub on startup
+  remoteRefsLoaded: false,
+  styleGuide: null, // loaded from GitHub on startup
   flyer: null, flyerBase64: null, flyerMediaType: 'image/png', flyerName: '',
   product: null, productBase64: null,
   logo: null, logoBase64: null,
@@ -745,7 +758,80 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   buildRefGrid();
   updateAnalyzeBtn();
+  loadStyleGuideAndRefs();
 });
+
+// ─── LOAD STYLE GUIDE + REFERENCES FROM GITHUB ───────────────────
+async function loadStyleGuideAndRefs() {
+  const statusEl = document.getElementById('sg-status');
+  const statusWrap = document.getElementById('sg-status-wrap');
+  if (statusWrap) statusWrap.style.display = 'flex';
+
+  try {
+    // 1. Load style guide
+    const sgRes = await fetch(`${GITHUB_RAW}/style-guide.json?cb=${Date.now()}`);
+    if (sgRes.ok) {
+      state.styleGuide = await sgRes.json();
+      if (statusEl) statusEl.textContent = 'Style guide loaded ✓';
+    }
+
+    // 2. Load reference manifest
+    const mfRes = await fetch(`${GITHUB_RAW}/references/manifest.json?cb=${Date.now()}`);
+    if (mfRes.ok) {
+      const manifest = await mfRes.json();
+      const filenames = manifest.references || [];
+
+      if (filenames.length === 0) {
+        if (statusEl) statusEl.textContent = `Style guide loaded ✓  ·  No reference images yet — add them to references/ in GitHub`;
+        state.remoteRefsLoaded = true;
+        buildRefGrid();
+        return;
+      }
+
+      // Fetch each reference image and convert to base64
+      const loaded = [];
+      for (const filename of filenames) {
+        try {
+          const imgRes = await fetch(`${GITHUB_RAW}/references/${filename}?cb=${Date.now()}`);
+          if (imgRes.ok) {
+            const blob = await imgRes.blob();
+            const b64 = await blobToBase64(blob);
+            loaded.push({ data: b64, name: filename, type: blob.type || 'image/jpeg' });
+          }
+        } catch(e) { console.warn('Could not load ref:', filename, e); }
+      }
+
+      state.references = loaded;
+      state.remoteRefsLoaded = true;
+      buildRefGrid();
+
+      if (statusEl) statusEl.textContent = `Style guide loaded ✓  ·  ${loaded.length} reference banner${loaded.length !== 1 ? 's' : ''} loaded from GitHub ✓`;
+    }
+  } catch(e) {
+    if (statusEl) statusEl.textContent = 'Could not reach GitHub — working offline';
+    console.warn('Style guide load failed:', e);
+  }
+
+  if (statusWrap) {
+    setTimeout(() => { statusWrap.style.opacity = '0'; setTimeout(() => { statusWrap.style.display = 'none'; }, 400); }, 4000);
+  }
+}
+
+function blobToBase64(blob) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = e => res(e.target.result);
+    r.onerror = rej;
+    r.readAsDataURL(blob);
+  });
+}
+
+function getSystemPrompt() {
+  if (state.styleGuide && state.styleGuide.systemPrompt) {
+    return state.styleGuide.systemPrompt;
+  }
+  return "You are a banner ad designer for Leon's Furniture. Use dark backgrounds (#0a0a0a), Leon's yellow (#FFD000) for accents, uppercase bold headlines, and always show price anchoring (regular price crossed out, sale price prominent).";
+}
 
 // ─── NAVIGATION ──────────────────────────────────────────────────
 function gotoStep(n) {
@@ -793,15 +879,30 @@ function updateApiChip(ok) {
 // ─── REFERENCE BANNERS ───────────────────────────────────────────
 function buildRefGrid() {
   const grid = document.getElementById('ref-grid');
+  if (!grid) return;
   grid.innerHTML = '';
-  for (let i = 0; i < 6; i++) {
-    const slot = document.createElement('div');
-    slot.className = 'ref-slot' + (state.references[i] ? ' filled' : '');
-    slot.innerHTML = state.references[i]
-      ? `<img src="${state.references[i].data}" alt="ref"><div class="slot-remove" onclick="removeRef(${i})">✕</div>`
-      : `<span class="slot-plus">＋</span><input type="file" accept="image/*" onchange="addRef(${i},this.files[0])">`;
-    grid.appendChild(slot);
+  const hint = document.getElementById('ref-grid-hint');
+
+  const loaded = state.references.filter(r => r && r.data);
+
+  if (loaded.length === 0) {
+    grid.innerHTML = `<div style="grid-column:1/-1;padding:20px;text-align:center;color:var(--text3);font-size:12px;border:1.5px dashed var(--border2);border-radius:var(--radius-sm)">
+      No reference banners loaded yet.<br>Add them to the GitHub repo using the instructions below.
+    </div>`;
+    if (hint) hint.textContent = '';
+    return;
   }
+
+  loaded.forEach((ref, i) => {
+    const slot = document.createElement('div');
+    slot.className = 'ref-slot filled';
+    slot.style.position = 'relative';
+    slot.innerHTML = `<img src="${ref.data}" alt="ref ${i+1}" title="${ref.name}">
+      <div style="position:absolute;bottom:3px;left:4px;right:4px;font-size:9px;color:rgba(255,255,255,.7);background:rgba(0,0,0,.6);padding:1px 4px;border-radius:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${ref.name}</div>`;
+    grid.appendChild(slot);
+  });
+
+  if (hint) hint.textContent = `${loaded.length} reference banner${loaded.length !== 1 ? 's' : ''} loaded from GitHub and ready for every session.`;
 }
 
 function addRef(idx, file) {
@@ -895,7 +996,10 @@ async function runAnalysis() {
     ? `I'm also providing ${refs.length} reference Leon's banner(s) below so you can understand the exact visual style, color palette, and layout conventions used in Leon's advertising.\n\n`
     : '';
 
-  const prompt = `${refIntro}Analyze this Leon's Furniture promotional flyer and extract ALL content as structured JSON.
+  // Build layout rules string from style guide if available
+  const layoutContext = state.styleGuide ? `\n\nADDITIONAL BRAND CONTEXT:\n${Object.values(state.styleGuide.copyRules || {}).join('\n')}` : '';
+
+  const prompt = `${refIntro}Analyze this Leon's Furniture promotional flyer and extract ALL content as structured JSON.${layoutContext}
 
 Return ONLY valid JSON with these exact keys:
 {
@@ -1058,6 +1162,18 @@ async function generateBanners() {
   // Build extra style guidance via Claude
   const stylePrompt = buildStylePrompt();
 
+  // Include reference images in the generation call too
+  const refs = state.references.filter(r => r && r.data);
+  const refImageParts = refs.slice(0, 6).map(r => ({
+    type: 'image',
+    source: { type: 'base64', media_type: r.type || 'image/jpeg', data: r.data.split(',')[1] }
+  }));
+
+  const genContent = [
+    ...refImageParts,
+    { type: 'text', text: stylePrompt }
+  ];
+
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -1070,7 +1186,7 @@ async function generateBanners() {
       body: JSON.stringify({
         model: 'claude-opus-4-5',
         max_tokens: 800,
-        messages: [{ role: 'user', content: stylePrompt }]
+        messages: [{ role: 'user', content: genContent }]
       })
     });
 
@@ -1103,19 +1219,37 @@ async function generateBanners() {
 function buildStylePrompt() {
   const x = state.extracted;
   const refs = state.references.filter(r => r && r.data);
-  const refLine = refs.length ? `I've trained on ${refs.length} reference Leon's banners.` : '';
-  return `You are helping generate Leon's Furniture digital banner ads.
-${refLine}
+  const refCount = refs.length;
 
-Extracted flyer data:
-- Headline: ${x.headline}
-- Offer type: ${x.offerType}
-- Sale: ${x.savings}
-- Dates: ${x.dates}
-- CTA: ${x.ctaText}
-- Colors: ${(x.colors||[]).join(', ')}
+  const systemInstructions = getSystemPrompt();
 
-For the "${state.selectedTemplate}" template, suggest CSS micro-adjustments (font-size, letter-spacing, padding, gradient direction) in 2-3 bullet points that would make this banner feel premium and on-brand for a major Canadian furniture retailer. Keep it concise.`;
+  const layoutRules = state.styleGuide?.layoutRules?.[
+    state.selectedTemplate.replace(/-([a-z])/g, (_,c) => c.toUpperCase())
+  ] || '';
+
+  const sizeGuideline = state.styleGuide?.sizeGuidelines?.[state.selectedSizes[0]] || '';
+
+  return `${systemInstructions}
+
+${refCount > 0 ? `You have been shown ${refCount} reference Leon's banner images. Use them as your primary visual reference for layout proportions, spacing, and style decisions.` : ''}
+
+CURRENT CAMPAIGN DATA:
+- Headline: ${x.headline || 'N/A'}
+- Offer type: ${x.offerType || 'N/A'}
+- Savings message: ${x.savings || 'N/A'}
+- Sale price: ${x.salePrice || 'N/A'}
+- Regular price: ${x.regularPrice || 'N/A'}
+- Dates/urgency: ${x.dates || 'N/A'}
+- CTA: ${x.ctaText || 'Shop Now'}
+- Detected colors: ${(x.colors||[]).join(', ')}
+- Product: ${x.productName || 'N/A'}
+- Financing: ${x.financing || 'N/A'}
+
+TEMPLATE: ${state.selectedTemplate}
+${layoutRules ? `Layout guidance: ${layoutRules}` : ''}
+${sizeGuideline ? `Size guidance (${state.selectedSizes[0]}): ${sizeGuideline}` : ''}
+
+For the "${state.selectedTemplate}" template at ${state.selectedSizes[0]}, provide 2-3 specific CSS property adjustments (font-size ratios, padding values, gradient stops, letter-spacing) that will make this exact banner feel most on-brand based on the reference banners you've seen. Be specific with values.`;
 }
 
 // ─── BANNER RENDER ─────────────────────────────────────────────────

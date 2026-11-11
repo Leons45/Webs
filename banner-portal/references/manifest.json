@@ -1,0 +1,5 @@
+{
+  "_comment": "List your reference banner filenames here. Add a JPG or PNG to the references/ folder in GitHub, then add its filename to this list. The portal loads all of them automatically on startup.",
+  "references": [],
+  "instructions": "To add a reference: 1) Upload your banner JPG/PNG to this references/ folder via GitHub. 2) Add the filename to the 'references' array above, e.g. ['black-friday-banner.jpg', 'sleep-sale-728.jpg']. 3) Save. The portal picks it up on next load — no code changes needed."
+}
