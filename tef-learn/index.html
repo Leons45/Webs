@@ -137,58 +137,67 @@ body{
   .card.exit-fwd,.card.exit-back,.card.enter-fwd,.card.enter-back{animation:none}
 }
 
-.card-top{height:5px; background:var(--tc,var(--accent)); flex-shrink:0}
-.card-scroll{flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:18px 20px 14px}
+.card-top{height:6px; background:var(--tc,var(--accent)); flex-shrink:0}
+.card-scroll{flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:20px 22px 18px}
 
-/* type badge */
+/* badge row — type badge + optional known chip, side by side, no overlap */
+.badge-row{display:flex; align-items:center; gap:8px; margin-bottom:16px; flex-wrap:wrap}
 .type-badge{
   display:inline-flex; align-items:center; gap:5px;
-  font-size:0.63rem; font-weight:700; letter-spacing:.07em; text-transform:uppercase;
-  padding:3px 9px; border-radius:5px; margin-bottom:12px;
+  font-size:0.65rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  padding:4px 10px; border-radius:6px; flex-shrink:0;
 }
-.badge-v{background:color-mix(in srgb,var(--tc,var(--accent)) 15%,transparent); color:var(--tc,var(--accent))}
+.badge-v{background:color-mix(in srgb,var(--tc,var(--accent)) 18%,transparent); color:var(--tc,var(--accent))}
 .badge-p{background:var(--sunk); color:var(--soft)}
 .wc{font-weight:400; opacity:.7; letter-spacing:.01em; text-transform:none}
+/* known chip — inline, no absolute positioning */
+.known-chip{
+  display:none; align-items:center; gap:4px;
+  font-size:0.65rem; font-weight:700; letter-spacing:.04em;
+  color:var(--vert); flex-shrink:0;
+}
+.known-chip.show{display:flex}
+.known-chip svg{width:12px;height:12px;fill:none;stroke:var(--vert);stroke-width:2.5}
 
-/* french — the star */
+/* french — the star: big, bold, optically weighted */
 .card-fr{
   font-family:var(--ff);
-  font-size:clamp(1.35rem,5vw,1.8rem);
-  font-weight:700; line-height:1.18; letter-spacing:-0.025em;
-  color:var(--ink); margin-bottom:10px;
+  font-size:clamp(1.65rem,6.5vw,2.1rem);
+  font-weight:800; line-height:1.15; letter-spacing:-0.03em;
+  font-variation-settings:'opsz' 72, 'wght' 800;
+  color:var(--ink); margin-bottom:14px;
 }
+
+/* english translation — always visible, medium weight, clear size */
 .card-en{
-  font-size:0.9rem; font-weight:500;
-  color:var(--soft); line-height:1.45;
+  font-size:1rem; font-weight:500; font-style:italic;
+  color:var(--soft); line-height:1.5; padding-left:2px;
 }
+
+/* divider between phrase and example */
+.card-divider{height:1.5px; background:var(--hair); margin:18px 0 0}
 
 /* example */
 .ex-toggle{
-  display:flex; align-items:center; gap:7px;
-  margin-top:14px; padding-top:14px;
-  border-top:1.5px solid var(--hair);
+  display:flex; align-items:center; gap:8px;
+  padding:14px 0 0;
   font-size:0.68rem; font-weight:700; letter-spacing:.07em; text-transform:uppercase;
   color:var(--tc,var(--accent)); cursor:pointer; user-select:none;
 }
-.ex-toggle svg{width:12px;height:12px;transition:transform .2s;flex-shrink:0}
+.ex-toggle svg{width:12px;height:12px;transition:transform .22s;flex-shrink:0}
 .ex-toggle.open svg{transform:rotate(180deg)}
-.ex-body{display:none; padding-top:10px}
+.ex-body{display:none; padding-top:12px; padding-bottom:4px}
 .ex-toggle.open + .ex-body{display:block}
 .ex-fr{
   font-family:var(--ff); font-style:italic;
-  font-size:0.93rem; line-height:1.6; color:var(--ink); margin-bottom:6px;
+  font-size:0.97rem; line-height:1.65; color:var(--ink); margin-bottom:8px;
 }
-.ex-en{font-size:0.8rem; color:var(--soft); line-height:1.5}
-
-/* known dot on card */
-.card-known{
-  position:absolute; top:12px; right:14px;
-  width:22px; height:22px; border-radius:50%;
-  background:var(--vert);
-  display:none; align-items:center; justify-content:center;
+/* english translation of example — clearly separated */
+.ex-en-label{
+  font-size:0.65rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--hair); margin-bottom:4px;
 }
-.card-known.show{display:flex}
-.card-known svg{width:11px;height:11px;fill:none;stroke:#fff;stroke-width:2.5}
+.ex-en{font-size:0.88rem; font-weight:400; color:var(--soft); line-height:1.55}
 
 /* ── BOTTOM NAV ──────────────────────────────── */
 .bottom-nav{
@@ -622,7 +631,7 @@ function renderCard(dir){
   document.getElementById('knowLabel').textContent=isKn?'Marked known':'Mark as known';
 
   const isV=item.t==='v';
-  const badge=isV
+  const typeBadge=isV
     ?`<div class="type-badge badge-v">Vocab${item.wc?` · <span class="wc">${item.wc}</span>`:''}</div>`
     :`<div class="type-badge badge-p">Phrase</div>`;
 
@@ -633,16 +642,23 @@ function renderCard(dir){
   card.innerHTML=`
     <div class="card-top"></div>
     <div class="card-scroll">
-      <div class="card-known${isKn?' show':''}"><svg viewBox="0 0 12 10"><polyline points="1,5 4.5,8.5 11,1"/></svg></div>
-      ${badge}
+      <div class="badge-row">
+        ${typeBadge}
+        <div class="known-chip${isKn?' show':''}">
+          <svg viewBox="0 0 12 10"><polyline points="1,5 4.5,8.5 11,1"/></svg>
+          Known
+        </div>
+      </div>
       <div class="card-fr">${item.fr}</div>
       <div class="card-en">${item.en}</div>
+      <div class="card-divider"></div>
       <div class="ex-toggle${expanded?' open':''}" id="${exId}" onclick="toggleEx(this)">
         <svg viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1,1 6,6 11,1"/></svg>
-        Exemple
+        Example
       </div>
       <div class="ex-body">
         <div class="ex-fr">${item.ex}</div>
+        <div class="ex-en-label">↳ in English</div>
         <div class="ex-en">${item.exEn}</div>
       </div>
     </div>`;
@@ -712,8 +728,8 @@ function toggleKnown(){
   const btn=document.getElementById('knowBtn');
   btn.className='know-btn'+(known[ki]?' on':'');
   document.getElementById('knowLabel').textContent=known[ki]?'Marked known':'Mark as known';
-  const badge=document.querySelector('.card-known');
-  if(badge){badge.className='card-known'+(known[ki]?' show':'')}
+  const chip=document.querySelector('.known-chip');
+  if(chip){chip.className='known-chip'+(known[ki]?' show':'')}
   if(known[ki]&&ci<f.length-1){setTimeout(()=>navigate(1),400)}
 }
 
