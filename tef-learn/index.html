@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Écrire — TEF Writing</title>
+<title>TEF — Écrire &amp; Parler</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..800;1,9..144,400..700&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600&display=swap" rel="stylesheet">
 <style>
 :root{
   --paper:#FFFCF4; --ink:#16121F; --soft:#6D6480; --hair:#E3DCCD; --sunk:#F0EAD9;
   --vert:#007A42; --rouge:#C4221C;
   --pop:3px 3px 0 var(--ink);
-  --ff:'Fraunces',Georgia,serif;
-  --ui:'DM Sans',system-ui,sans-serif;
+  --ff:'Poppins',sans-serif;
+  --ui:'Poppins',sans-serif;
   --accent:#7B5BD6;
   --bar: env(safe-area-inset-bottom, 0px);
 }
@@ -42,8 +42,13 @@ body{
   align-items:center;
   justify-content:space-between;
 }
-/* row 2: progress bar spans full width */
+/* row 2: Section A/B buttons full width */
 .topbar-r2{
+  display:flex;
+  align-items:center;
+}
+/* row 3: progress bar */
+.topbar-r3{
   display:flex;
   align-items:center;
   gap:8px;
@@ -70,6 +75,10 @@ body{
   transition:background .15s,color .15s; white-space:nowrap;
 }
 .seg button.on{background:var(--paper); color:var(--ink); box-shadow:0 1px 3px rgba(0,0,0,.1)}
+
+/* seg full-width in topbar-r2 */
+.topbar-r2 .seg{width:100%}
+.topbar-r2 .seg button{flex:1; text-align:center}
 
 /* ── TOPICS ─────────────────────────────────── */
 .topics-wrap{
@@ -177,7 +186,6 @@ body{
   font-family:var(--ff);
   font-size:clamp(1.65rem,6.5vw,2.1rem);
   font-weight:800; line-height:1.15; letter-spacing:-0.03em;
-  font-variation-settings:'opsz' 72, 'wght' 800;
   color:var(--ink); margin-bottom:14px;
 }
 
@@ -253,13 +261,19 @@ body{
 
 <div class="topbar">
   <div class="topbar-r1">
-    <div class="wordmark">Écrire<em>.</em></div>
+    <div class="wordmark">TEF<em>.</em></div>
+    <div class="seg">
+      <button id="btnEE" class="on" onclick="setExam('EE')">Écrit</button>
+      <button id="btnEO"           onclick="setExam('EO')">Oral</button>
+    </div>
+  </div>
+  <div class="topbar-r2">
     <div class="seg">
       <button id="btnA" class="on" onclick="setSection('A')">Section A</button>
       <button id="btnB"           onclick="setSection('B')">Section B</button>
     </div>
   </div>
-  <div class="topbar-r2">
+  <div class="topbar-r3">
     <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
     <div class="prog-label" id="progLabel">1 / 1</div>
   </div>
@@ -298,7 +312,8 @@ body{
    wc: word class label (vocab only)
    ═══════════════════════════════════════════════════════ */
 const D={
- A:[
+ EE:{
+  A:[
   {id:'structureA',fr:'Structurer',en:'Story structure',c:'#FF6B2C',l:false,items:[
     {t:'p',fr:'Tout a commencé quand…',en:'It all started when…',ex:'Tout a commencé quand le petit garçon est sorti seul dans la rue.',exE:'It all started when the little boy went out alone into the street.'},
     {t:'p',fr:'C\'est alors que…',en:'That\'s when… / Then suddenly…',ex:'C\'est alors que le chien s\'est mis à aboyer furieusement.',exE:'That\'s when the dog started barking furiously.'},
@@ -768,17 +783,257 @@ const D={
     {t:'v',fr:'lutter contre la discrimination',wc:'loc',en:'to fight against discrimination',ex:'Il est du devoir de chacun de lutter contre toute forme de discrimination.',exE:'It is everyone\'s duty to fight against any form of discrimination.'},
 ]},
  ]
+ },
+
+ EO:{
+  A:[
+   {id:'eoA_phrases',fr:'Demander infos',en:'Universal info-request phrases',c:'#FF6B2C',l:false,items:[
+    {t:'p',fr:'Je vous contacte afin d\'obtenir des renseignements sur…',en:'I\'m contacting you to get information about…',ex:'Je vous contacte afin d\'obtenir des renseignements sur votre programme de cours.',exE:'I\'m contacting you to get information about your course programme.'},
+    {t:'p',fr:'Pourriez-vous me préciser… ?',en:'Could you tell me more about… ?',ex:'Pourriez-vous me préciser les horaires d\'ouverture et les tarifs pratiqués ?',exE:'Could you tell me more about the opening hours and the prices?'},
+    {t:'p',fr:'J\'aimerais savoir si… / J\'aimerais savoir comment…',en:'I\'d like to know if… / I\'d like to know how…',ex:'J\'aimerais savoir si l\'inscription se fait en ligne ou en personne.',exE:'I\'d like to know if registration is done online or in person.'},
+    {t:'p',fr:'Est-ce que vous proposez… ?',en:'Do you offer… ?',ex:'Est-ce que vous proposez des formules pour les débutants complets ?',exE:'Do you offer packages for complete beginners?'},
+    {t:'p',fr:'Quelles sont les conditions requises pour… ?',en:'What are the requirements for… ?',ex:'Quelles sont les conditions requises pour participer à l\'activité ?',exE:'What are the requirements to take part in the activity?'},
+    {t:'p',fr:'Y a-t-il des restrictions concernant… ?',en:'Are there any restrictions regarding… ?',ex:'Y a-t-il des restrictions concernant l\'âge ou le niveau requis ?',exE:'Are there any restrictions regarding age or required level?'},
+    {t:'p',fr:'Dans quel délai peut-on… ?',en:'How quickly can one… ?',ex:'Dans quel délai peut-on obtenir une réponse à notre demande ?',exE:'How quickly can we get a response to our request?'},
+    {t:'p',fr:'Faut-il réserver à l\'avance ou est-ce possible de… ?',en:'Is advance booking required or is it possible to… ?',ex:'Faut-il réserver à l\'avance ou est-ce possible de venir directement sur place ?',exE:'Is advance booking required or is it possible to come directly on the spot?'},
+    {t:'p',fr:'Je souhaiterais avoir plus d\'informations sur les tarifs.',en:'I\'d like more information about the prices.',ex:'Je souhaiterais avoir plus d\'informations sur les tarifs et les modalités de paiement.',exE:'I\'d like more information about the prices and payment methods.'},
+    {t:'p',fr:'Pourriez-vous me dire ce qui est inclus dans… ?',en:'Could you tell me what is included in… ?',ex:'Pourriez-vous me dire ce qui est inclus dans le forfait de base ?',exE:'Could you tell me what is included in the basic package?'},
+    {t:'p',fr:'Dans l\'attente de votre réponse, je vous adresse mes cordiales salutations.',en:'Looking forward to your reply, I send you my kind regards.',ex:'Dans l\'attente de votre réponse, je vous adresse mes cordiales salutations.',exE:'Looking forward to your reply, I send you my kind regards.'},
+    {t:'v',fr:'des renseignements (nmpl)',wc:'nm',en:'information / details',ex:'Je cherche des renseignements sur vos offres pour les familles.',exE:'I\'m looking for information about your family offers.'},
+    {t:'v',fr:'les modalités (nfpl)',wc:'nf',en:'terms / conditions / procedures',ex:'Pourriez-vous m\'expliquer les modalités d\'inscription ?',exE:'Could you explain the registration procedure to me?'},
+    {t:'v',fr:'s\'inscrire (v)',wc:'v',en:'to register / sign up',ex:'Comment puis-je m\'inscrire à votre prochain atelier ?',exE:'How can I sign up for your next workshop?'},
+    {t:'v',fr:'un forfait (nm)',wc:'nm',en:'a package / flat rate',ex:'Proposez-vous un forfait tout compris pour les groupes ?',exE:'Do you offer an all-inclusive package for groups?'},
+    {t:'v',fr:'les disponibilités (nfpl)',wc:'nf',en:'availability',ex:'Quelles sont vos disponibilités pour le mois de mars ?',exE:'What is your availability for the month of March?'},
+    {t:'v',fr:'en personne / sur place',wc:'loc',en:'in person / on-site',ex:'Est-il possible de venir s\'inscrire directement en personne ?',exE:'Is it possible to come and register directly in person?'},
+    {t:'v',fr:'obligatoire / facultatif(ve)',wc:'adj',en:'compulsory / optional',ex:'La réservation est-elle obligatoire ou facultative ?',exE:'Is booking compulsory or optional?'},
+    {t:'v',fr:'adapté(e) à + public',wc:'adj',en:'suitable for / adapted to',ex:'Ces activités sont-elles adaptées aux enfants en bas âge ?',exE:'Are these activities suitable for young children?'},
+    {t:'v',fr:'avoir une question concernant',wc:'loc',en:'to have a question about',ex:'J\'ai une question concernant les délais de livraison.',exE:'I have a question about the delivery times.'},
+    {t:'p',fr:'Serait-il possible de… ?',en:'Would it be possible to… ?',ex:'Serait-il possible de bénéficier d\'un essai gratuit avant de s\'inscrire ?',exE:'Would it be possible to have a free trial before signing up?'},
+    {t:'p',fr:'Je serais également intéressé(e) de savoir…',en:'I would also be interested to know…',ex:'Je serais également intéressé de savoir si des réductions sont prévues pour les groupes.',exE:'I would also be interested to know if discounts are available for groups.'},
+   ]},
+
+   {id:'eoA_loisirs',fr:'Loisirs & sport',en:'Leisure, sports & activities',c:'#7B5BD6',l:false,items:[
+    {t:'p',fr:'Je souhaite louer… sans expérience préalable.',en:'I wish to rent… with no prior experience.',ex:'Je souhaite louer un bateau sans avoir d\'expérience préalable de navigation.',exE:'I wish to rent a boat with no prior sailing experience.'},
+    {t:'p',fr:'Proposez-vous des cours d\'initiation pour les débutants ?',en:'Do you offer beginner introduction courses?',ex:'Proposez-vous des cours d\'initiation pour les débutants absolus ?',exE:'Do you offer introduction courses for absolute beginners?'},
+    {t:'p',fr:'Faut-il posséder un équipement particulier ou est-il fourni ?',en:'Is specific equipment required, or is it provided?',ex:'Faut-il posséder un équipement particulier ou est-il fourni sur place ?',exE:'Is specific equipment required, or is it provided on-site?'},
+    {t:'p',fr:'Quelles sont les mesures de sécurité prévues pour… ?',en:'What safety measures are in place for… ?',ex:'Quelles sont les mesures de sécurité prévues pour le parachutisme en tandem ?',exE:'What safety measures are in place for tandem skydiving?'},
+    {t:'p',fr:'L\'activité est-elle praticable par tous les temps ?',en:'Can the activity be done in any weather?',ex:'L\'activité de ski-joëring est-elle praticable par tous les temps ?',exE:'Can ski-joering be done in any weather?'},
+    {t:'p',fr:'Y a-t-il un encadrement professionnel pendant toute la durée de… ?',en:'Is there professional supervision throughout… ?',ex:'Y a-t-il un encadrement professionnel pendant toute la durée de l\'activité ?',exE:'Is there professional supervision throughout the entire activity?'},
+    {t:'v',fr:'le permis de conduire / le permis bateau',wc:'nm',en:'driving / boating licence',ex:'Est-ce que le permis bateau est obligatoire pour louer une embarcation ?',exE:'Is a boating licence required to rent a vessel?'},
+    {t:'v',fr:'une embarcation (nf)',wc:'nf',en:'a vessel / watercraft / boat',ex:'Quelle taille d\'embarcation est adaptée pour quatre personnes ?',exE:'What size of vessel is suitable for four people?'},
+    {t:'v',fr:'le matériel de sécurité (nm)',wc:'nm',en:'safety equipment',ex:'Le matériel de sécurité comme les gilets de sauvetage est-il fourni ?',exE:'Is safety equipment such as life jackets provided?'},
+    {t:'v',fr:'une sortie accompagnée (nf)',wc:'nf',en:'a guided trip / supervised outing',ex:'Je préférerais commencer par une sortie accompagnée avec un moniteur.',exE:'I would prefer to start with a guided outing with an instructor.'},
+    {t:'v',fr:'le moniteur / la monitrice',wc:'nm',en:'instructor / coach',ex:'Un moniteur qualifié est-il présent durant toute la séance ?',exE:'Is a qualified instructor present throughout the entire session?'},
+    {t:'v',fr:'une séance (nf)',wc:'nf',en:'a session',ex:'La séance d\'initiation dure combien de temps en moyenne ?',exE:'How long does the introduction session last on average?'},
+    {t:'v',fr:'en tandem (loc)',wc:'loc',en:'in tandem / with an expert',ex:'Le saut en parachute se fait-il toujours en tandem avec un professionnel ?',exE:'Is skydiving always done in tandem with a professional?'},
+    {t:'v',fr:'s\'équiper (v)',wc:'v',en:'to gear up / get equipped',ex:'Dois-je m\'équiper moi-même ou tout est-il fourni sur place ?',exE:'Do I need to gear up myself or is everything provided on-site?'},
+    {t:'v',fr:'la caution / le dépôt',wc:'nf',en:'deposit / security payment',ex:'Faut-il verser une caution lors de la réservation ?',exE:'Is a deposit required when booking?'},
+    {t:'p',fr:'Dans quel cas peut-on annuler ou reporter la réservation ?',en:'In what circumstances can the booking be cancelled or rescheduled?',ex:'Dans quel cas peut-on annuler ou reporter la réservation sans frais ?',exE:'In what circumstances can the booking be cancelled or rescheduled free of charge?'},
+    {t:'p',fr:'Combien de temps dure… en moyenne ?',en:'How long does… last on average?',ex:'Combien de temps dure une sortie en bubble football en moyenne ?',exE:'How long does a bubble football session last on average?'},
+    {t:'p',fr:'Jusqu\'à quel âge peut-on pratiquer cette activité ?',en:'Up to what age can this activity be done?',ex:'Jusqu\'à quel âge peut-on pratiquer le parachutisme dans votre club ?',exE:'Up to what age can skydiving be done at your club?'},
+    {t:'v',fr:'débutant(e) / confirmé(e) / expert(e)',wc:'adj',en:'beginner / intermediate / expert',ex:'Des groupes séparés pour débutants et confirmés sont-ils prévus ?',exE:'Are separate groups for beginners and intermediate levels planned?'},
+    {t:'v',fr:'un créneau horaire (nm)',wc:'nm',en:'a time slot',ex:'Quels créneaux horaires sont disponibles le week-end ?',exE:'What time slots are available on weekends?'},
+   ]},
+
+   {id:'eoA_voyages',fr:'Voyages & séjours',en:'Travel & accommodation',c:'#00968F',l:false,items:[
+    {t:'p',fr:'Je souhaite organiser un séjour… pour un groupe de… personnes.',en:'I\'d like to organise a stay… for a group of… people.',ex:'Je souhaite organiser un séjour en train pour un groupe de six personnes.',exE:'I\'d like to organise a train journey for a group of six people.'},
+    {t:'p',fr:'Quelles destinations proposez-vous pour… ?',en:'What destinations do you offer for… ?',ex:'Quelles destinations proposez-vous pour un séjour de deux semaines en été ?',exE:'What destinations do you offer for a two-week stay in summer?'},
+    {t:'p',fr:'L\'hébergement et les repas sont-ils compris dans le prix ?',en:'Are accommodation and meals included in the price?',ex:'L\'hébergement et les repas sont-ils compris dans le forfait proposé ?',exE:'Are accommodation and meals included in the proposed package?'},
+    {t:'p',fr:'Quels sont les moyens de transport inclus dans le voyage ?',en:'What means of transport are included in the trip?',ex:'Quels sont les moyens de transport inclus entre les différentes étapes ?',exE:'What means of transport are included between the different stages?'},
+    {t:'p',fr:'Y a-t-il des visites guidées prévues au programme ?',en:'Are guided tours included in the programme?',ex:'Y a-t-il des visites guidées prévues au programme ou est-il libre ?',exE:'Are guided tours included in the programme or is it free-form?'},
+    {t:'v',fr:'un circuit (nm)',wc:'nm',en:'a tour / circuit',ex:'Proposez-vous un circuit culturel qui passe par plusieurs villes ?',exE:'Do you offer a cultural tour that passes through several cities?'},
+    {t:'v',fr:'les arrhes / l\'acompte (nm)',wc:'nm',en:'deposit / down payment',ex:'Quel montant d\'acompte faut-il verser pour confirmer la réservation ?',exE:'What deposit amount is required to confirm the booking?'},
+    {t:'v',fr:'une escale (nf)',wc:'nf',en:'a stopover',ex:'Le voyage prévoit-il des escales ou est-ce un trajet direct ?',exE:'Does the journey include stopovers or is it a direct route?'},
+    {t:'v',fr:'le programme (nm)',wc:'nm',en:'the itinerary / programme',ex:'Pouvez-vous m\'envoyer le programme détaillé du séjour ?',exE:'Could you send me the detailed itinerary for the stay?'},
+    {t:'v',fr:'personnalisé(e) / sur mesure',wc:'adj',en:'personalised / tailor-made',ex:'Proposez-vous des voyages sur mesure selon les préférences de chaque groupe ?',exE:'Do you offer tailor-made trips based on each group\'s preferences?'},
+    {t:'v',fr:'les frais supplémentaires (nmpl)',wc:'nm',en:'additional charges / extra costs',ex:'Y a-t-il des frais supplémentaires qui ne sont pas mentionnés dans le devis ?',exE:'Are there any additional charges not mentioned in the quote?'},
+    {t:'v',fr:'une roulotte (nf)',wc:'nf',en:'a horse-drawn caravan',ex:'Comment se passe exactement une location de roulotte pour les débutants ?',exE:'How does renting a horse-drawn caravan actually work for beginners?'},
+    {t:'p',fr:'Le guide parle-t-il d\'autres langues que le français ?',en:'Does the guide speak languages other than French?',ex:'Le guide parle-t-il d\'autres langues que le français pour les groupes internationaux ?',exE:'Does the guide speak languages other than French for international groups?'},
+    {t:'p',fr:'Quels documents sont nécessaires pour… ?',en:'What documents are needed for… ?',ex:'Quels documents sont nécessaires pour s\'inscrire à ce séjour linguistique ?',exE:'What documents are needed to sign up for this language stay?'},
+    {t:'p',fr:'Est-ce que les enfants en bas âge peuvent participer ?',en:'Can young children participate?',ex:'Est-ce que les enfants en bas âge peuvent participer à ce type de séjour ?',exE:'Can young children participate in this type of stay?'},
+    {t:'v',fr:'une étape (nf)',wc:'nf',en:'a stage / stop (on a journey)',ex:'Combien d\'étapes le circuit comprend-il au total ?',exE:'How many stages does the circuit include in total?'},
+    {t:'v',fr:'le départ / l\'arrivée',wc:'nm',en:'departure / arrival',ex:'La date de départ peut-elle être modifiée après la réservation ?',exE:'Can the departure date be changed after booking?'},
+    {t:'v',fr:'en demi-pension / en pension complète',wc:'loc',en:'half board / full board',ex:'Les repas sont-ils en demi-pension ou en pension complète ?',exE:'Are meals on a half-board or full-board basis?'},
+    {t:'p',fr:'Y a-t-il une assurance voyage incluse dans le forfait ?',en:'Is travel insurance included in the package?',ex:'Y a-t-il une assurance voyage incluse ou faut-il en souscrire une séparément ?',exE:'Is travel insurance included or does one need to take it out separately?'},
+    {t:'v',fr:'l\'itinéraire (nm)',wc:'nm',en:'the route / itinerary',ex:'L\'itinéraire peut-il être adapté en fonction des souhaits du groupe ?',exE:'Can the itinerary be adapted according to the group\'s wishes?'},
+   ]},
+
+   {id:'eoA_culture',fr:'Culture & spectacles',en:'Cultural events & shows',c:'#FF3D8B',l:false,items:[
+    {t:'p',fr:'Je voudrais réserver des places pour… Quelles sont les possibilités ?',en:'I\'d like to book tickets for… What options are available?',ex:'Je voudrais réserver des places pour votre prochain spectacle musical. Quelles sont les possibilités ?',exE:'I\'d like to book tickets for your upcoming musical show. What options are available?'},
+    {t:'p',fr:'Y a-t-il des tarifs réduits pour les groupes / les étudiants ?',en:'Are there reduced rates for groups / students?',ex:'Y a-t-il des tarifs réduits pour les groupes ou les familles nombreuses ?',exE:'Are there reduced rates for groups or large families?'},
+    {t:'p',fr:'Le spectacle convient-il à quel public ?',en:'What audience is the show suitable for?',ex:'Le spectacle convient-il à un public familial avec de jeunes enfants ?',exE:'Is the show suitable for a family audience with young children?'},
+    {t:'p',fr:'Combien de temps dure la représentation ?',en:'How long does the performance last?',ex:'Combien de temps dure la représentation et y a-t-il un entracte ?',exE:'How long does the performance last and is there an interval?'},
+    {t:'p',fr:'Est-il possible d\'assister à une répétition ou une séance de présentation ?',en:'Is it possible to attend a rehearsal or preview?',ex:'Est-il possible d\'assister à une répétition ou à une séance de présentation gratuite ?',exE:'Is it possible to attend a rehearsal or free preview session?'},
+    {t:'v',fr:'une représentation (nf)',wc:'nf',en:'a performance',ex:'La prochaine représentation a-t-elle lieu en semaine ou le week-end ?',exE:'Is the next performance on a weekday or at the weekend?'},
+    {t:'v',fr:'une séance (nf)',wc:'nf',en:'a screening / session',ex:'À quelle heure commence la première séance de la journée ?',exE:'What time does the first session of the day start?'},
+    {t:'v',fr:'le programme culturel (nm)',wc:'nm',en:'the cultural programme',ex:'Pouvez-vous m\'envoyer le programme culturel de la saison ?',exE:'Can you send me the cultural programme for the season?'},
+    {t:'v',fr:'en plein air / en salle',wc:'loc',en:'outdoors / indoors',ex:'Le festival a-t-il lieu en plein air ou dans des salles couvertes ?',exE:'Does the festival take place outdoors or in covered venues?'},
+    {t:'v',fr:'l\'entracte (nm)',wc:'nm',en:'the interval / intermission',ex:'Y a-t-il un entracte prévu pendant le spectacle ?',exE:'Is an interval planned during the show?'},
+    {t:'v',fr:'la billetterie (nf)',wc:'nf',en:'ticketing / ticket office',ex:'La billetterie en ligne est-elle disponible ou faut-il se déplacer ?',exE:'Is online ticketing available or is it necessary to come in person?'},
+    {t:'p',fr:'Dans quelle langue le spectacle est-il présenté ?',en:'In what language is the show presented?',ex:'Dans quelle langue le spectacle est-il présenté et y a-t-il des sous-titres ?',exE:'In what language is the show presented, and are there subtitles?'},
+    {t:'p',fr:'Faut-il s\'inscrire à l\'avance ou peut-on se présenter directement ?',en:'Is advance registration required or can one just show up?',ex:'Faut-il s\'inscrire à l\'avance pour l\'atelier ou peut-on se présenter directement ?',exE:'Is advance registration required for the workshop or can one just show up?'},
+    {t:'v',fr:'un atelier (nm)',wc:'nm',en:'a workshop',ex:'Des ateliers de pratique sont-ils prévus avant ou après le spectacle ?',exE:'Are practice workshops planned before or after the show?'},
+    {t:'v',fr:'interactif(ve) / participatif(ve)',wc:'adj',en:'interactive / participatory',ex:'Le spectacle est-il interactif ou les spectateurs sont-ils passifs ?',exE:'Is the show interactive or are spectators passive?'},
+    {t:'v',fr:'le lieu (nm)',wc:'nm',en:'the venue / location',ex:'Le lieu est-il facilement accessible en transports en commun ?',exE:'Is the venue easily accessible by public transport?'},
+    {t:'p',fr:'Est-ce que les places peuvent être remboursées en cas d\'annulation ?',en:'Can tickets be refunded in case of cancellation?',ex:'Est-ce que les places peuvent être remboursées si je dois annuler ma réservation ?',exE:'Can tickets be refunded if I have to cancel my booking?'},
+    {t:'v',fr:'une bibliothèque numérique (nf)',wc:'nf',en:'a digital library / e-library',ex:'Comment accède-t-on aux ressources d\'une bibliothèque numérique depuis chez soi ?',exE:'How does one access the resources of a digital library from home?'},
+    {t:'v',fr:'l\'adhésion (nf)',wc:'nf',en:'membership / subscription',ex:'Quel est le coût de l\'adhésion annuelle pour accéder à toutes les ressources ?',exE:'What is the cost of annual membership to access all the resources?'},
+    {t:'p',fr:'Quels sont les avantages d\'un abonnement par rapport à l\'achat à l\'unité ?',en:'What are the benefits of a subscription versus single purchases?',ex:'Quels sont les avantages d\'un abonnement par rapport à l\'achat de places à l\'unité ?',exE:'What are the benefits of a subscription versus buying individual tickets?'},
+   ]},
+
+   {id:'eoA_services',fr:'Services & assos',en:'Services & associations',c:'#007A42',l:false,items:[
+    {t:'p',fr:'Je me renseigne au sujet de vos services de… pour particuliers.',en:'I\'m enquiring about your services for individuals.',ex:'Je me renseigne au sujet de vos services de garde d\'animaux pour particuliers.',exE:'I\'m enquiring about your animal care services for private individuals.'},
+    {t:'p',fr:'Quelles sont les démarches pour devenir bénévole au sein de votre association ?',en:'What steps are needed to become a volunteer in your organisation?',ex:'Quelles sont les démarches pour devenir bénévole au sein de votre association ?',exE:'What steps are needed to become a volunteer in your organisation?'},
+    {t:'p',fr:'Votre association accepte-t-elle les dons en nature ou uniquement en argent ?',en:'Does your organisation accept donations in kind or only money?',ex:'Votre association accepte-t-elle les dons en nature, comme des vêtements ou des jouets ?',exE:'Does your organisation accept donations in kind, such as clothes or toys?'},
+    {t:'p',fr:'Dans quels délais peut-on obtenir… ?',en:'How quickly can one obtain… ?',ex:'Dans quels délais peut-on obtenir un rendez-vous avec l\'un de vos conseillers ?',exE:'How quickly can one get an appointment with one of your advisers?'},
+    {t:'p',fr:'Y a-t-il des frais d\'adhésion ou le service est-il gratuit ?',en:'Are there membership fees or is the service free?',ex:'Y a-t-il des frais d\'adhésion à l\'association ou le service est-il totalement gratuit ?',exE:'Are there membership fees for the association or is the service completely free?'},
+    {t:'v',fr:'une association (nf)',wc:'nf',en:'an organisation / association',ex:'Cette association est-elle reconnue d\'utilité publique ?',exE:'Is this organisation recognised as being of public benefit?'},
+    {t:'v',fr:'le bénévolat (nm)',wc:'nm',en:'volunteering',ex:'Le bénévolat nécessite-t-il une formation préalable obligatoire ?',exE:'Does volunteering require compulsory prior training?'},
+    {t:'v',fr:'un dépôt (nm)',wc:'nm',en:'a deposit / pawnshop transaction',ex:'Quels objets peut-on déposer au mont-de-piété et sous quelles conditions ?',exE:'What items can be deposited at the pawnshop and under what conditions?'},
+    {t:'v',fr:'un remboursement (nm)',wc:'nm',en:'a refund',ex:'Dans quel délai le remboursement est-il effectué en cas de retour ?',exE:'Within what timeframe is the refund processed in the event of a return?'},
+    {t:'v',fr:'en ligne / à distance',wc:'loc',en:'online / remotely',ex:'Les démarches peuvent-elles se faire entièrement en ligne ?',exE:'Can the procedures be completed entirely online?'},
+    {t:'v',fr:'un conseiller (nm)',wc:'nm',en:'an adviser / consultant',ex:'Un conseiller est-il disponible pour répondre aux questions des nouveaux membres ?',exE:'Is an adviser available to answer questions from new members?'},
+    {t:'p',fr:'Pouvez-vous m\'expliquer comment fonctionne exactement le service de… ?',en:'Could you explain exactly how the… service works?',ex:'Pouvez-vous m\'expliquer comment fonctionne exactement le service de livraison à domicile ?',exE:'Could you explain exactly how the home delivery service works?'},
+    {t:'p',fr:'Quels justificatifs faut-il fournir pour bénéficier de… ?',en:'What documents are required to benefit from… ?',ex:'Quels justificatifs faut-il fournir pour bénéficier de l\'aide aux devoirs ?',exE:'What documents are required to benefit from the homework help service?'},
+    {t:'v',fr:'un justificatif (nm)',wc:'nm',en:'supporting document / proof',ex:'Un justificatif de domicile est-il nécessaire pour s\'inscrire ?',exE:'Is proof of address necessary to register?'},
+    {t:'v',fr:'les horaires d\'ouverture (nmpl)',wc:'nm',en:'opening hours',ex:'Quels sont vos horaires d\'ouverture pendant les vacances scolaires ?',exE:'What are your opening hours during the school holidays?'},
+    {t:'v',fr:'livrer à domicile (v)',wc:'v',en:'to deliver to home',ex:'Livrez-vous à domicile dans toute la région ou seulement en ville ?',exE:'Do you deliver to homes across the whole region or only in town?'},
+    {t:'v',fr:'un créneau de rendez-vous (nm)',wc:'nm',en:'an appointment slot',ex:'Quels créneaux de rendez-vous sont disponibles cette semaine ?',exE:'What appointment slots are available this week?'},
+    {t:'p',fr:'Que se passe-t-il si je dois annuler ou reporter mon rendez-vous ?',en:'What happens if I need to cancel or reschedule my appointment?',ex:'Que se passe-t-il si je dois annuler ou reporter mon rendez-vous au dernier moment ?',exE:'What happens if I need to cancel or reschedule my appointment at the last minute?'},
+    {t:'v',fr:'le délai de livraison (nm)',wc:'nm',en:'delivery time',ex:'Quel est le délai de livraison habituel pour ce type de commande ?',exE:'What is the usual delivery time for this type of order?'},
+    {t:'p',fr:'Votre service est-il accessible aux personnes à mobilité réduite ?',en:'Is your service accessible to people with reduced mobility?',ex:'Vos locaux et votre service sont-ils accessibles aux personnes à mobilité réduite ?',exE:'Are your premises and service accessible to people with reduced mobility?'},
+   ]},
+  ],
+  B:[
+   {id:'eoB_persuasion',fr:'Convaincre',en:'Universal persuasion phrases',c:'#FF6B2C',l:false,items:[
+    {t:'p',fr:'Je voudrais te convaincre d\'essayer… avec moi.',en:'I\'d like to convince you to try… with me.',ex:'Je voudrais te convaincre d\'essayer les cours de danse avec moi ce samedi.',exE:'I\'d like to convince you to try dance classes with me this Saturday.'},
+    {t:'p',fr:'Tu ne regretteras pas d\'avoir essayé, je t\'assure.',en:'You won\'t regret trying it, I promise.',ex:'Tu ne regretteras pas d\'avoir essayé, je t\'assure — c\'est vraiment génial.',exE:'You won\'t regret trying it, I promise — it\'s really great.'},
+    {t:'p',fr:'Je comprends tes réticences, mais…',en:'I understand your reluctance, but…',ex:'Je comprends tes réticences, mais tu verras que c\'est bien moins effrayant que tu ne l\'imagines.',exE:'I understand your reluctance, but you\'ll see it\'s much less frightening than you imagine.'},
+    {t:'p',fr:'Imagine un peu… / Imagine-toi en train de…',en:'Just imagine… / Picture yourself…',ex:'Imagine-toi en train de sauter en parachute au-dessus des Alpes — quelle vue !',exE:'Picture yourself skydiving over the Alps — what a view!'},
+    {t:'p',fr:'C\'est une expérience unique / inoubliable.',en:'It\'s a unique / unforgettable experience.',ex:'C\'est une expérience vraiment unique qu\'on ne peut pas vivre ailleurs.',exE:'It\'s a truly unique experience you can\'t have anywhere else.'},
+    {t:'p',fr:'Tu n\'as rien à perdre à essayer.',en:'You have nothing to lose by trying.',ex:'Tu n\'as rien à perdre à essayer — si ça ne te plaît pas, on rentre à la maison.',exE:'You have nothing to lose by trying — if you don\'t like it, we go home.'},
+    {t:'p',fr:'Pense à tout ce que tu pourrais apprendre / découvrir.',en:'Think about everything you could learn / discover.',ex:'Pense à tout ce que tu pourrais découvrir sur toi-même en relevant ce défi.',exE:'Think about everything you could discover about yourself by taking on this challenge.'},
+    {t:'p',fr:'Ce serait l\'occasion idéale de…',en:'It would be the perfect opportunity to…',ex:'Ce serait l\'occasion idéale de sortir de ta zone de confort pour une fois.',exE:'It would be the perfect opportunity to step out of your comfort zone for once.'},
+    {t:'p',fr:'On pourrait y aller ensemble pour que tu te sentes plus à l\'aise.',en:'We could go together so you feel more comfortable.',ex:'On pourrait y aller ensemble pour que tu te sentes plus à l\'aise la première fois.',exE:'We could go together so you feel more comfortable the first time.'},
+    {t:'p',fr:'Ça ne coûte pas grand-chose et les bénéfices sont énormes.',en:'It doesn\'t cost much and the benefits are huge.',ex:'Ça ne coûte pas grand-chose et les bénéfices sur ta santé sont vraiment énormes.',exE:'It doesn\'t cost much and the health benefits are truly huge.'},
+    {t:'v',fr:'convaincre (v)',wc:'v',en:'to convince',ex:'J\'espère t\'avoir convaincu de participer à cet événement avec moi.',exE:'I hope to have convinced you to take part in this event with me.'},
+    {t:'v',fr:'persuader (v)',wc:'v',en:'to persuade',ex:'Je vais te persuader que c\'est exactement ce qu\'il te faut.',exE:'I\'m going to persuade you that it\'s exactly what you need.'},
+    {t:'v',fr:'les avantages vs les inconvénients',wc:'nm',en:'the pros vs the cons',ex:'Si on analyse les avantages et les inconvénients, les avantages l\'emportent largement.',exE:'If we weigh up the pros and cons, the pros clearly outweigh the cons.'},
+    {t:'v',fr:'sortir de sa zone de confort',wc:'loc',en:'to step out of one\'s comfort zone',ex:'Ce genre d\'activité te poussera à sortir de ta zone de confort de façon positive.',exE:'This kind of activity will push you to step outside your comfort zone in a positive way.'},
+    {t:'v',fr:'avoir peur de / craindre',wc:'v',en:'to be afraid of / to fear',ex:'Je sais que tu as peur, mais c\'est justement ce qui rend l\'expérience intéressante.',exE:'I know you\'re afraid, but that\'s exactly what makes the experience interesting.'},
+    {t:'v',fr:'ça vaut le coup / ça vaut la peine',wc:'loc',en:'it\'s worth it',ex:'Je te promets que ça vaut vraiment le coup de dépasser ses appréhensions.',exE:'I promise you it\'s truly worth overcoming your apprehensions.'},
+    {t:'p',fr:'Qu\'est-ce qui te retient vraiment ?',en:'What\'s really holding you back?',ex:'Qu\'est-ce qui te retient vraiment — ce n\'est quand même pas la peur de l\'échec ?',exE:'What\'s really holding you back — it\'s not fear of failure, is it?'},
+    {t:'p',fr:'Je suis sûr(e) que tu adoreras ça une fois que tu auras essayé.',en:'I\'m sure you\'ll love it once you\'ve tried it.',ex:'Je suis sûre que tu adoreras ça une fois que tu auras essayé la première fois.',exE:'I\'m sure you\'ll love it once you\'ve tried it the first time.'},
+    {t:'v',fr:'enthousiasmant(e) (adj)',wc:'adj',en:'exciting / thrilling',ex:'L\'idée de découvrir quelque chose de nouveau est toujours enthousiasmante.',exE:'The idea of discovering something new is always exciting.'},
+    {t:'p',fr:'Si ça ne te plaît pas, on ne recommence pas — promis.',en:'If you don\'t like it, we won\'t do it again — promise.',ex:'Si ça ne te plaît vraiment pas, on ne recommence pas — c\'est promis.',exE:'If you really don\'t like it, we won\'t do it again — that\'s a promise.'},
+    {t:'v',fr:'une appréhension (nf)',wc:'nf',en:'an apprehension / worry',ex:'Toutes tes appréhensions vont disparaître dès que tu commenceras.',exE:'All your apprehensions will disappear as soon as you start.'},
+    {t:'v',fr:'défi / relever un défi',wc:'nm',en:'challenge / to take on a challenge',ex:'Relever ce défi ensemble va renforcer notre amitié, j\'en suis convaincu.',exE:'Taking on this challenge together will strengthen our friendship, I\'m sure of it.'},
+   ]},
+
+   {id:'eoB_aventure',fr:'Aventure & sport',en:'Adventure & sports persuasion',c:'#7B5BD6',l:false,items:[
+    {t:'p',fr:'Ce type d\'activité va vraiment faire monter l\'adrénaline !',en:'This type of activity will really get the adrenaline pumping!',ex:'Ce saut en chute libre va vraiment faire monter l\'adrénaline, tu verras !',exE:'This freefall jump will really get the adrenaline pumping, you\'ll see!'},
+    {t:'p',fr:'C\'est encadré par des professionnels, donc tu seras en sécurité à tout moment.',en:'It\'s supervised by professionals, so you\'ll be safe at all times.',ex:'La descente est encadrée par des professionnels donc tu seras en sécurité à tout moment.',exE:'The descent is supervised by professionals so you\'ll be safe at all times.'},
+    {t:'p',fr:'Des milliers de personnes le font chaque année sans problème.',en:'Thousands of people do it every year without any problem.',ex:'Des milliers de personnes font de la chute libre chaque année sans aucun problème.',exE:'Thousands of people go skydiving every year without any problem.'},
+    {t:'p',fr:'Tu n\'as pas besoin d\'être sportif(ve) pour y participer.',en:'You don\'t need to be sporty to take part.',ex:'Tu n\'as pas besoin d\'être sportif pour faire du vélo en ville — c\'est à ta portée.',exE:'You don\'t need to be sporty to cycle in the city — it\'s well within your reach.'},
+    {t:'v',fr:'l\'adrénaline (nf)',wc:'nf',en:'adrenaline',ex:'La montée d\'adrénaline que tu ressentiras vaut largement la peur du départ.',exE:'The rush of adrenaline you\'ll feel is well worth the initial fear.'},
+    {t:'v',fr:'le dépassement de soi (nm)',wc:'nm',en:'self-surpassing / pushing one\'s limits',ex:'Ce marathon cycliste est une belle opportunité de dépassement de soi.',exE:'This cycling marathon is a great opportunity to push your personal limits.'},
+    {t:'v',fr:'en toute sécurité (loc)',wc:'loc',en:'in complete safety',ex:'Tu pourras pratiquer cette activité en toute sécurité avec des moniteurs qualifiés.',exE:'You\'ll be able to do this activity in complete safety with qualified instructors.'},
+    {t:'p',fr:'Pense à la fierté que tu ressentiras après avoir accompli ça !',en:'Think of the pride you\'ll feel after accomplishing this!',ex:'Pense à la fierté que tu ressentiras après avoir terminé le défi cycliste !',exE:'Think of the pride you\'ll feel after completing the cycling challenge!'},
+    {t:'v',fr:'un accompagnateur (nm)',wc:'nm',en:'a companion / leader (sports)',ex:'Un accompagnateur qualifié sera présent pour encadrer toute l\'activité.',exE:'A qualified group leader will be present to supervise the entire activity.'},
+    {t:'v',fr:'accessible à tous / pour tous les niveaux',wc:'loc',en:'accessible to everyone / for all levels',ex:'L\'activité est accessible à tous les niveaux, même aux grands débutants.',exE:'The activity is accessible to all levels, even complete beginners.'},
+    {t:'p',fr:'Tu verras que tu te sentiras beaucoup plus confiant(e) après.',en:'You\'ll see you\'ll feel much more confident afterwards.',ex:'Tu verras que tu te sentiras beaucoup plus confiant après cet entraînement.',exE:'You\'ll see that you\'ll feel much more confident after this training session.'},
+    {t:'v',fr:'brûler des calories (loc)',wc:'loc',en:'to burn calories',ex:'En plus du plaisir, on brûle énormément de calories lors de cette randonnée.',exE:'On top of the enjoyment, we burn a huge number of calories on this hike.'},
+    {t:'v',fr:'la randonnée (nf)',wc:'nf',en:'hiking / walking',ex:'La randonnée bénévole est un excellent moyen de combiner sport et solidarité.',exE:'Volunteer hiking is an excellent way to combine sport and solidarity.'},
+    {t:'p',fr:'L\'équipement est fourni donc tu n\'as rien à acheter.',en:'The equipment is provided so you don\'t need to buy anything.',ex:'L\'équipement de ski est entièrement fourni donc tu n\'as rien à acheter ou louer.',exE:'All the ski equipment is provided so you don\'t need to buy or rent anything.'},
+    {t:'v',fr:'incroyable / époustouflant(e)',wc:'adj',en:'incredible / breathtaking',ex:'La vue depuis le sommet est absolument époustouflante, tu ne le regretteras pas.',exE:'The view from the summit is absolutely breathtaking, you won\'t regret it.'},
+    {t:'v',fr:'le paysage (nm)',wc:'nm',en:'the landscape / scenery',ex:'Les paysages que tu vas découvrir pendant cette randonnée sont magnifiques.',exE:'The landscapes you\'ll discover during this hike are magnificent.'},
+    {t:'p',fr:'Ça te permettra de te dépasser et de découvrir tes propres limites.',en:'It will allow you to push yourself and discover your own limits.',ex:'Ce défi va te permettre de te dépasser et de découvrir tes vraies limites.',exE:'This challenge will allow you to push yourself and discover your true limits.'},
+    {t:'v',fr:'une sensation forte (nf)',wc:'nf',en:'a thrill / an intense sensation',ex:'Les sensations fortes de la chute libre sont inoubliables, je t\'assure.',exE:'The thrills of skydiving are unforgettable, I promise you.'},
+    {t:'p',fr:'On fait ça une seule fois dans sa vie — autant ne pas passer à côté.',en:'You only do this once in your life — might as well not miss out.',ex:'On fait de la chute libre une seule fois dans sa vie — autant ne pas passer à côté.',exE:'You only go skydiving once in your life — might as well not miss out.'},
+    {t:'v',fr:'s\'entraîner (v)',wc:'v',en:'to train / to work out',ex:'S\'entraîner pour ce défi va te maintenir en forme tout au long de l\'année.',exE:'Training for this challenge will keep you in shape throughout the year.'},
+   ]},
+
+   {id:'eoB_culture',fr:'Culture & créativité',en:'Culture & creativity persuasion',c:'#FF3D8B',l:false,items:[
+    {t:'p',fr:'Tu vas découvrir un univers que tu ne connaissais pas du tout.',en:'You\'re going to discover a world you didn\'t know at all.',ex:'En allant à l\'opéra, tu vas découvrir un univers que tu ne connaissais vraiment pas.',exE:'By going to the opera, you\'re going to discover a world you didn\'t know at all.'},
+    {t:'p',fr:'Ce n\'est pas aussi compliqué / ennuyeux que tu le crois.',en:'It\'s not as complicated / boring as you think.',ex:'Le théâtre d\'improvisation n\'est pas aussi compliqué que tu le crois — c\'est surtout drôle !',exE:'Improv theatre isn\'t as complicated as you think — it\'s mostly funny!'},
+    {t:'p',fr:'C\'est une excellente façon de stimuler ta créativité.',en:'It\'s an excellent way to stimulate your creativity.',ex:'Les ateliers de poterie sont une excellente façon de stimuler ta créativité.',exE:'Pottery workshops are an excellent way to stimulate your creativity.'},
+    {t:'p',fr:'Ça nous donnera quelque chose à faire ensemble et à partager.',en:'It\'ll give us something to do together and share.',ex:'Ça nous donnera quelque chose de concret à faire ensemble et à partager.',exE:'It\'ll give us something concrete to do together and to share.'},
+    {t:'v',fr:'s\'épanouir (v)',wc:'v',en:'to thrive / to blossom / to flourish',ex:'Ce genre d\'activité créative te permettra vraiment de t\'épanouir.',exE:'This kind of creative activity will truly allow you to flourish.'},
+    {t:'v',fr:'libérer sa créativité (loc)',wc:'loc',en:'to unleash one\'s creativity',ex:'Les ateliers d\'écriture poétique permettent vraiment de libérer sa créativité.',exE:'Poetry writing workshops truly allow you to unleash your creativity.'},
+    {t:'v',fr:'s\'exprimer (v)',wc:'v',en:'to express oneself',ex:'La danse est une façon merveilleuse de s\'exprimer sans utiliser les mots.',exE:'Dance is a wonderful way to express oneself without using words.'},
+    {t:'p',fr:'Tu n\'as pas besoin d\'être doué(e) pour apprécier / participer.',en:'You don\'t need to be talented to enjoy / participate.',ex:'Tu n\'as pas besoin d\'être doué en dessin pour apprécier un atelier de poterie.',exE:'You don\'t need to be talented at drawing to enjoy a pottery workshop.'},
+    {t:'v',fr:'une expérience enrichissante (nf)',wc:'nf',en:'an enriching experience',ex:'Assister à un opéra est une expérience culturelle vraiment enrichissante.',exE:'Attending an opera is a truly enriching cultural experience.'},
+    {t:'v',fr:'éveiller la curiosité (loc)',wc:'loc',en:'to awaken curiosity',ex:'Ce type de spectacle est fait pour éveiller la curiosité des spectateurs.',exE:'This type of show is designed to awaken the curiosity of the audience.'},
+    {t:'p',fr:'Au pire, si tu n\'aimes pas, tu auras au moins essayé.',en:'At worst, if you don\'t like it, you\'ll have at least tried.',ex:'Au pire, si tu n\'aimes pas le concours de conte, tu auras au moins essayé quelque chose de nouveau.',exE:'At worst, if you don\'t like the storytelling competition, you\'ll have at least tried something new.'},
+    {t:'v',fr:'s\'amuser (v)',wc:'v',en:'to have fun / enjoy oneself',ex:'Je suis sûre qu\'on va énormément s\'amuser au cours de danse.',exE:'I\'m sure we\'re going to have a great time at the dance class.'},
+    {t:'v',fr:'créatif(ve) / artistique',wc:'adj',en:'creative / artistic',ex:'Tu as un côté très créatif que ces ateliers te permettront d\'explorer.',exE:'You have a very creative side that these workshops will allow you to explore.'},
+    {t:'p',fr:'C\'est l\'occasion de te faire de nouveaux amis qui partagent les mêmes intérêts.',en:'It\'s a chance to make new friends who share the same interests.',ex:'C\'est l\'occasion parfaite de te faire de nouveaux amis qui partagent les mêmes intérêts.',exE:'It\'s the perfect chance to make new friends who share the same interests.'},
+    {t:'v',fr:'le partage (nm)',wc:'nm',en:'sharing',ex:'Le partage d\'une expérience culturelle renforce toujours les liens d\'amitié.',exE:'Sharing a cultural experience always strengthens bonds of friendship.'},
+    {t:'p',fr:'Tu risques d\'y prendre goût et de vouloir y retourner !',en:'You might develop a taste for it and want to go back!',ex:'Tu risques d\'y prendre goût au théâtre et de vouloir y retourner chaque semaine !',exE:'You might develop a taste for theatre and want to go back every week!'},
+    {t:'v',fr:'y prendre goût (loc)',wc:'loc',en:'to develop a taste for it / get into it',ex:'Une fois qu\'on y a goûté, on y prend goût et on ne peut plus s\'en passer.',exE:'Once you\'ve tried it, you develop a taste for it and can\'t do without it.'},
+    {t:'v',fr:'cultiver sa passion (loc)',wc:'loc',en:'to nurture one\'s passion',ex:'Ces ateliers sont parfaits pour cultiver ta passion pour l\'écriture créative.',exE:'These workshops are perfect for nurturing your passion for creative writing.'},
+    {t:'p',fr:'On peut y aller une seule fois juste pour voir si ça nous plaît.',en:'We can go just once to see if we like it.',ex:'On peut y aller une seule fois juste pour voir si ça nous plaît — sans engagement.',exE:'We can go just once to see if we like it — with no commitment.'},
+    {t:'v',fr:'une découverte (nf)',wc:'nf',en:'a discovery',ex:'Chaque nouvelle activité artistique est une découverte sur soi-même.',exE:'Every new artistic activity is a discovery about yourself.'},
+   ]},
+
+   {id:'eoB_benevole',fr:'Bénévolat & causes',en:'Volunteering & social causes',c:'#007A42',l:false,items:[
+    {t:'p',fr:'C\'est une façon concrète d\'aider les autres tout en te sentant utile.',en:'It\'s a concrete way to help others while feeling useful.',ex:'Le bénévolat est une façon concrète d\'aider les autres tout en te sentant utile.',exE:'Volunteering is a concrete way to help others while feeling useful.'},
+    {t:'p',fr:'Tu vas tisser des liens forts avec les autres bénévoles.',en:'You\'ll forge strong bonds with the other volunteers.',ex:'Tu vas tisser des liens forts avec les autres bénévoles et créer de vraies amitiés.',exE:'You\'ll forge strong bonds with the other volunteers and create real friendships.'},
+    {t:'p',fr:'Ça enrichit ton CV et démontre ton engagement.',en:'It boosts your CV and demonstrates your commitment.',ex:'Ce bénévolat va vraiment enrichir ton CV et démontrer ton engagement social.',exE:'This volunteering will really boost your CV and demonstrate your social commitment.'},
+    {t:'p',fr:'Tu verras à quel point ça donne du sens à sa vie.',en:'You\'ll see how much meaning it gives to your life.',ex:'Tu verras à quel point faire du bénévolat donne du sens à sa vie quotidienne.',exE:'You\'ll see how much volunteering gives meaning to your everyday life.'},
+    {t:'v',fr:'s\'engager (v)',wc:'v',en:'to commit / get involved',ex:'S\'engager dans une cause, même ponctuellement, a un impact réel sur la communauté.',exE:'Committing to a cause, even occasionally, has a real impact on the community.'},
+    {t:'v',fr:'la solidarité (nf)',wc:'nf',en:'solidarity',ex:'Participer à cet événement, c\'est un beau geste de solidarité envers les autres.',exE:'Taking part in this event is a beautiful gesture of solidarity towards others.'},
+    {t:'v',fr:'avoir un impact positif (loc)',wc:'loc',en:'to have a positive impact',ex:'Chaque heure de bénévolat a un impact positif réel sur ceux qui en bénéficient.',exE:'Every hour of volunteering has a real positive impact on those who benefit.'},
+    {t:'v',fr:'épanouissant(e) (adj)',wc:'adj',en:'fulfilling / rewarding',ex:'Les témoignages de bénévoles montrent que c\'est une activité très épanouissante.',exE:'Volunteer testimonials show that it\'s a very fulfilling activity.'},
+    {t:'p',fr:'Tu n\'as pas besoin de beaucoup de temps — même quelques heures suffisent.',en:'You don\'t need a lot of time — even a few hours are enough.',ex:'Tu n\'as pas besoin de beaucoup de temps — même quelques heures par mois suffisent.',exE:'You don\'t need a lot of time — even a few hours per month are enough.'},
+    {t:'v',fr:'une cause (nf)',wc:'nf',en:'a cause',ex:'C\'est l\'occasion de soutenir une cause qui correspond à tes valeurs.',exE:'It\'s an opportunity to support a cause that matches your values.'},
+    {t:'p',fr:'Tu vas rencontrer des gens extraordinaires qui partagent tes valeurs.',en:'You\'ll meet extraordinary people who share your values.',ex:'Tu vas rencontrer des gens extraordinaires qui partagent les mêmes valeurs que toi.',exE:'You\'ll meet extraordinary people who share the same values as you.'},
+    {t:'v',fr:'le don de soi (nm)',wc:'nm',en:'self-giving / selflessness',ex:'Le don de soi est l\'une des choses les plus valorisantes qui soit.',exE:'Selflessness is one of the most rewarding things there is.'},
+    {t:'v',fr:'contribuer à (v)',wc:'v',en:'to contribute to',ex:'Ce voyage bénévole te permettra de contribuer à quelque chose de vraiment important.',exE:'This volunteer trip will allow you to contribute to something truly important.'},
+    {t:'p',fr:'Ça ne t\'engage à rien — tu peux essayer une seule fois pour voir.',en:'It doesn\'t commit you to anything — you can try it just once to see.',ex:'Ça ne t\'engage à rien pour l\'avenir — tu peux essayer une seule fois pour voir.',exE:'It doesn\'t commit you to anything for the future — you can try it just once to see.'},
+    {t:'v',fr:'valorisant(e) (adj)',wc:'adj',en:'rewarding / gratifying',ex:'Aider les enfants dans leurs devoirs est une expérience vraiment valorisante.',exE:'Helping children with their homework is a truly gratifying experience.'},
+    {t:'p',fr:'C\'est une belle manière de donner en retour à la société.',en:'It\'s a beautiful way to give back to society.',ex:'C\'est une belle manière de donner en retour à la société tout ce qu\'elle t\'a apporté.',exE:'It\'s a beautiful way to give back to society everything it has given you.'},
+    {t:'v',fr:'l\'altruisme (nm)',wc:'nm',en:'altruism',ex:'L\'altruisme est une valeur que peu de gens pratiquent vraiment au quotidien.',exE:'Altruism is a value that few people truly practise in their daily lives.'},
+    {t:'p',fr:'L\'expérience sera encore plus belle parce qu\'on la vivra ensemble.',en:'The experience will be even more beautiful because we\'ll live it together.',ex:'L\'expérience bénévole sera encore plus belle parce qu\'on la vivra ensemble.',exE:'The volunteer experience will be even more beautiful because we\'ll live it together.'},
+    {t:'v',fr:'l\'impact social (nm)',wc:'nm',en:'social impact',ex:'L\'impact social de ce projet dépasse largement le simple geste individuel.',exE:'The social impact of this project far exceeds a simple individual gesture.'},
+    {t:'v',fr:'concilier + deux noms (v)',wc:'v',en:'to combine / reconcile (two things)',ex:'Ce projet permet de concilier voyage et bénévolat de façon très enrichissante.',exE:'This project allows you to combine travel and volunteering in a very enriching way.'},
+   ]},
+
+   {id:'eoB_lifestyle',fr:'Style de vie & gastronomie',en:'Lifestyle & food persuasion',c:'#FFC400',l:true,items:[
+    {t:'p',fr:'Tu vas épater tes amis avec ce que tu vas apprendre !',en:'You\'re going to impress your friends with what you\'ll learn!',ex:'Tu vas épater tous tes amis avec les plats que tu vas apprendre à cuisiner.',exE:'You\'re going to impress all your friends with the dishes you\'ll learn to cook.'},
+    {t:'p',fr:'C\'est une compétence qui te servira toute ta vie.',en:'It\'s a skill that will serve you for life.',ex:'Apprendre à cuisiner des plats sains est une compétence qui te servira toute ta vie.',exE:'Learning to cook healthy meals is a skill that will serve you for life.'},
+    {t:'p',fr:'Tu risques de faire de belles découvertes gustatives.',en:'You might make some wonderful taste discoveries.',ex:'Dans ce restaurant insolite, tu risques de faire de belles découvertes gustatives.',exE:'In this unusual restaurant, you\'re likely to make some wonderful taste discoveries.'},
+    {t:'p',fr:'Ça nous permettra de faire quelque chose d\'original ensemble.',en:'It\'ll let us do something original together.',ex:'Faire de la cuisine communautaire nous permettra de faire quelque chose d\'original ensemble.',exE:'Community cooking will let us do something original together.'},
+    {t:'v',fr:'culinaire (adj)',wc:'adj',en:'culinary',ex:'Ce cours culinaire va transformer ta façon de voir la nourriture.',exE:'This cookery course will transform the way you see food.'},
+    {t:'v',fr:'les papilles gustatives (nfpl)',wc:'nf',en:'taste buds',ex:'Ce restaurant d\'insectes va éveiller tes papilles gustatives comme jamais !',exE:'This insect restaurant will awaken your taste buds like never before!'},
+    {t:'v',fr:'éco-responsable (adj)',wc:'adj',en:'eco-responsible / environmentally friendly',ex:'Les repas à base d\'insectes sont très éco-responsables et nutritifs.',exE:'Insect-based meals are very eco-responsible and nutritious.'},
+    {t:'p',fr:'L\'expérience est bien plus agréable qu\'on ne le pense.',en:'The experience is much more pleasant than one would think.',ex:'Manger des insectes est bien plus agréable qu\'on ne le pense, vraiment.',exE:'Eating insects is much more pleasant than one would think, honestly.'},
+    {t:'v',fr:'adopter un animal (loc)',wc:'loc',en:'to adopt a pet',ex:'Adopter un chat, c\'est l\'une des décisions les plus gratifiantes qui soit.',exE:'Adopting a cat is one of the most rewarding decisions there is.'},
+    {t:'v',fr:'la compagnie (nf)',wc:'nf',en:'company / companionship',ex:'Un animal de compagnie te donnera une compagnie incomparable au quotidien.',exE:'A pet will give you incomparable companionship in daily life.'},
+    {t:'p',fr:'Ça réduit le stress et améliore le bien-être en général.',en:'It reduces stress and improves general wellbeing.',ex:'Avoir un chat réduit vraiment le stress et améliore le bien-être en général.',exE:'Having a cat really does reduce stress and improve general wellbeing.'},
+    {t:'v',fr:'le bien-être (nm)',wc:'nm',en:'wellbeing',ex:'Ce type d\'activité contribue énormément à notre bien-être mental et physique.',exE:'This type of activity contributes enormously to our mental and physical wellbeing.'},
+    {t:'p',fr:'Tu prendras du plaisir à progresser et à voir les résultats.',en:'You\'ll enjoy progressing and seeing the results.',ex:'Tu prendras vraiment du plaisir à progresser en danse et à voir tes résultats.',exE:'You\'ll truly enjoy progressing in dance and seeing your results.'},
+    {t:'v',fr:'l\'autonomie (nf)',wc:'nf',en:'autonomy / independence',ex:'Apprendre à cuisiner t\'apportera une vraie autonomie dans ta vie quotidienne.',exE:'Learning to cook will give you real autonomy in your daily life.'},
+    {t:'p',fr:'On se sentira tellement mieux dans sa peau après.',en:'We\'ll feel so much better about ourselves afterwards.',ex:'On se sentira tellement mieux dans sa peau après ces cours de danse, je t\'assure.',exE:'We\'ll feel so much better about ourselves after these dance classes, I promise.'},
+    {t:'v',fr:'une croisière (nf)',wc:'nf',en:'a cruise',ex:'Une croisière fluviale, c\'est une façon très relaxante de voyager en famille.',exE:'A river cruise is a very relaxing way to travel as a family.'},
+    {t:'v',fr:'insolite / original(e)',wc:'adj',en:'unusual / original',ex:'Ce restaurant d\'insectes est vraiment insolite et ça mérite d\'être essayé.',exE:'This insect restaurant is truly unusual and it\'s worth trying.'},
+    {t:'p',fr:'L\'important c\'est de sortir de sa routine et de se faire plaisir.',en:'The important thing is to break out of one\'s routine and treat oneself.',ex:'L\'important, c\'est de sortir de notre routine habituelle et de nous faire plaisir.',exE:'The important thing is to break out of our usual routine and treat ourselves.'},
+    {t:'v',fr:'se faire plaisir (loc)',wc:'loc',en:'to treat oneself / indulge',ex:'On travaille suffisamment — on mérite de se faire plaisir de temps en temps.',exE:'We work hard enough — we deserve to treat ourselves from time to time.'},
+    {t:'v',fr:'mémorable (adj)',wc:'adj',en:'memorable',ex:'Ce voyage en croisière sera un souvenir mémorable pour toute la famille.',exE:'This cruise will be a memorable memory for the whole family.'},
+   ]},
+  ],
+ },
 };
 
 /* ═══════════════════════════════════════════════
    STATE
    ═══════════════════════════════════════════════ */
-let sec='A', ti=0, ci=0, filt='all', expanded=false;
+let exam='EE', sec='A', ti=0, ci=0, filt='all', expanded=false;
 let known={};
 try{known=JSON.parse(localStorage.getItem('ecrire_k')||'{}')}catch(e){}
 const save=()=>{try{localStorage.setItem('ecrire_k',JSON.stringify(known))}catch(e){}};
 
-const topics=()=>D[sec];
+const topics=()=>D[exam][sec];
 const topic=()=>topics()[ti];
 const all=()=>topic().items;
 const filtered=()=>{
@@ -868,6 +1123,7 @@ function updateChrome(cur,tot,knCnt){
   document.getElementById('progLabel').textContent=tot?`${cur} / ${tot}`:'— / —';
   document.getElementById('knownRow').textContent=knCnt>0?`${knCnt} ✓`:'';
   ['A','B'].forEach(s=>document.getElementById('btn'+s).className=(sec===s?'on':''));
+  ['EE','EO'].forEach(e=>document.getElementById('btn'+e).className=(exam===e?'on':''));
   ['All','Vocab','Phrase'].forEach(id=>{
     const f2=id.toLowerCase();
     document.getElementById('f'+id).className='filt-tab'+(filt===f2?'':filt==='all'&&f2==='all'?'':'')+((filt===f2||(f2==='all'&&filt==='all'))?'on':' on'.replace(' on',''));
@@ -883,12 +1139,14 @@ function render(dir){
   renderCard(dir);
   document.documentElement.style.setProperty('--accent',topic().c);
   ['A','B'].forEach(s=>document.getElementById('btn'+s).className=(sec===s?'on':''));
+  ['EE','EO'].forEach(e=>document.getElementById('btn'+e).className=(exam===e?'on':''));
 }
 
 /* ═══════════════════════════════════════════════
    ACTIONS
    ═══════════════════════════════════════════════ */
 function setSection(s){sec=s;ti=0;ci=0;expanded=false;render()}
+function setExam(e){exam=e;sec='A';ti=0;ci=0;expanded=false;render()}
 function setFilter(f){
   filt=f; ci=0; expanded=false;
   document.getElementById('fAll').className='filt-tab'+(f==='all'?' on':'');
