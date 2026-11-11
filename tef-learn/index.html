@@ -195,7 +195,7 @@ body{
 /* english translation of example — clearly separated */
 .ex-en-label{
   font-size:0.65rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
-  color:var(--hair); margin-bottom:4px;
+  color:var(--soft); opacity:.5; margin-bottom:4px;
 }
 .ex-en{font-size:0.88rem; font-weight:400; color:var(--soft); line-height:1.55}
 
@@ -659,7 +659,7 @@ function renderCard(dir){
       <div class="ex-body">
         <div class="ex-fr">${item.ex}</div>
         <div class="ex-en-label">↳ in English</div>
-        <div class="ex-en">${item.exEn}</div>
+        <div class="ex-en">${item.exE}</div>
       </div>
     </div>`;
   area.innerHTML='';
