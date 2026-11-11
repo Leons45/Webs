@@ -60,6 +60,16 @@ production that separate A2 from B2.
 still owe against the days remaining and tells you plainly whether the
 current rate gets you there.
 
+**Sujets prepares the real Expression Écrite prompts, not generic essays.**
+Candidates' reported exam prompts (Section A narratives, Section B opinion
+letters) are grouped into the handful of themes they keep recurring from —
+children & heroics, police & mystery, technology & screens, school,
+environment, and so on. Each theme carries its own vocabulary chunks with a
+full example sentence, tracked through the same spaced repetition as
+Phrases and Vocabulaire, plus a checklist of the actual prompts so you can
+mark which ones you've rehearsed and watch the count climb toward the full
+list.
+
 ## Running it
 
 A static site. Any HTTP server will do:
@@ -92,7 +102,7 @@ js/srs.js           spaced repetition over any item
 js/i18n.js          English assistance
 js/speech.js        synthesis, recognition, recording
 js/views/*.js       one file per screen
-js/data/*.js        phrases, grammar, vocabulary, speaking, writing
+js/data/*.js        phrases, grammar, vocabulary, speaking, writing, sujets
 sw.js               offline cache
 ```
 

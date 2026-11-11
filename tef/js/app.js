@@ -11,6 +11,7 @@ import grammaire from './views/grammaire.js';
 import vocab     from './views/vocab.js';
 import ecrire    from './views/ecrire.js';
 import chunks    from './views/chunks.js';
+import sujets    from './views/sujets.js';
 import progres   from './views/progres.js';
 import reglages  from './views/reglages.js';
 
@@ -22,6 +23,7 @@ const ROUTES = {
   '/vocab':     { view: vocab,     title: 'Vocabulaire' },
   '/ecrire':    { view: ecrire,    title: 'Écrire' },
   '/chunks':    { view: chunks,    title: 'Formules' },
+  '/sujets':    { view: sujets,    title: 'Sujets' },
   '/progres':   { view: progres,   title: 'Progrès' },
   '/reglages':  { view: reglages,  title: 'Réglages' },
 };
@@ -40,6 +42,7 @@ const NAV = [
   { href: '#/vocab',     fr: 'Vocabulaire',  en: 'Vocabulary' },
   { href: '#/ecrire',    fr: 'Écrire',       en: 'Writing' },
   { href: '#/chunks',    fr: 'Formules',     en: 'Writing chunks' },
+  { href: '#/sujets',    fr: 'Sujets',       en: 'Writing topics' },
   { group: '' },
   { href: '#/progres',   fr: 'Progrès',      en: 'Progress' },
 ];
@@ -47,7 +50,8 @@ const NAV = [
 const SECTION_OF = {
   '/': 'home', '/parler': 'parler', '/phrases': 'phrases',
   '/grammaire': 'grammaire', '/vocab': 'vocab', '/ecrire': 'ecrire',
-  '/chunks': 'ecrire', '/progres': 'progres', '/reglages': 'progres',
+  '/chunks': 'ecrire', '/sujets': 'sujets',
+  '/progres': 'progres', '/reglages': 'progres',
 };
 
 const TABS = [

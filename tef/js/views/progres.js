@@ -10,6 +10,7 @@ import { WEEKS, currentWeek } from '../plan.js';
 import { GRAMMAR } from '../data/grammar.js';
 import { PHRASES } from '../data/phrases.js';
 import { VOCAB } from '../data/vocab.js';
+import { TOPICS, CHUNKS as SUJET_CHUNKS, PHRASES as SUJET_PHRASES } from '../data/sujets.js';
 import * as srs from '../srs.js';
 
 export default function progres(el, { go }) {
@@ -182,6 +183,10 @@ export default function progres(el, { go }) {
       <div class="read read--tight">
         <span class="read__n u-num">${week.n} / ${WEEKS.length}</span>
         <span class="read__l">semaine du programme${days != null && days > 0 ? ` · examen dans ${days} j` : ''}</span>
+      </div>
+      <div class="read read--tight">
+        <span class="read__n u-num">${TOPICS.filter(x => store.topicPrepared(x.id)).length} / ${TOPICS.length}</span>
+        <span class="read__l">sujets d’écrit préparés${srs.counts([...SUJET_CHUNKS, ...SUJET_PHRASES]).learned ? ` · ${srs.counts([...SUJET_CHUNKS, ...SUJET_PHRASES]).learned} blocs consolidés` : ''}</span>
       </div>
     </div>
 

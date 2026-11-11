@@ -29,6 +29,7 @@ const blank = () => ({
   lessons: {},           // grammar lesson id -> { done, score, at }
   speaking: [],          // every spoken task logged
   drafts: {},
+  topics: {},            // sujet id -> true, once rehearsed aloud
   streak: { current: 0, best: 0, last: '' },
 });
 
@@ -170,6 +171,15 @@ export function saveLesson(id, score, total) {
   touchStreak();
   save();
 }
+
+export const topicPrepared = (id) => !!state.topics[id];
+export function toggleTopicPrep(id) {
+  state.topics[id] = !state.topics[id];
+  if (!state.topics[id]) delete state.topics[id];
+  save();
+  return !!state.topics[id];
+}
+export const topicsPreparedCount = () => Object.keys(state.topics).length;
 
 export function saveDraft(id, patch) {
   state.drafts[id] = { ...(state.drafts[id] || {}), ...patch, at: new Date().toISOString() };

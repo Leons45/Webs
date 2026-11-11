@@ -18,6 +18,7 @@
   --vert:   #007A42;
   --violet: #7B5BD6;
   --rouge:  #C4231C;
+  --sarcelle:#00968F;
 
   /* paper and ink */
   --paper:      #FFFCF4;
@@ -77,6 +78,7 @@
 [data-section='grammaire'] { --accent: var(--bleu);   --accent-wash: #DCE9FF; --on-accent: var(--hard-paper); }
 [data-section='vocab']     { --accent: var(--vert);   --accent-wash: #D7F5E5; }
 [data-section='ecrire']    { --accent: var(--violet); --accent-wash: #E9E2FB; --on-accent: var(--hard-paper); }
+[data-section='sujets']    { --accent: var(--sarcelle); --accent-wash: #D7F0EF; --on-accent: var(--hard-paper); }
 [data-section='progres']   { --accent: var(--hard-ink); --accent-wash: #EDE9F5; --on-accent: var(--hard-paper); }
 
 [data-theme='dark'] {
@@ -99,6 +101,7 @@
 [data-theme='dark'][data-section='grammaire'] { --accent-wash: #11234A; }
 [data-theme='dark'][data-section='vocab']     { --accent-wash: #0E3326; }
 [data-theme='dark'][data-section='ecrire']    { --accent-wash: #241C44; }
+[data-theme='dark'][data-section='sujets']    { --accent-wash: #0E2E2C; }
 [data-theme='dark'][data-section='progres']   { --accent: var(--hard-paper); --accent-wash: #2A2438; --on-accent: var(--hard-ink); }
 
 /* ───────────────────────────── reset ───────────────────────────── */
