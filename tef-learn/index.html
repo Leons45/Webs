@@ -24,7 +24,6 @@
   --ff-display: 'Fraunces', Georgia, serif;
   --ff-ui: 'DM Sans', system-ui, sans-serif;
   --accent: var(--violet);
-  --accent-wash: #E9E2FB;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { -webkit-text-size-adjust: 100%; }
@@ -39,7 +38,7 @@ body {
 
 /* ── header ─────────────────────────────────── */
 .header {
-  padding: 18px 20px 14px;
+  padding: 16px 20px 12px;
   border-bottom: 1.5px solid var(--hair);
   display: flex;
   align-items: center;
@@ -52,10 +51,11 @@ body {
 }
 .wordmark {
   font-family: var(--ff-display);
-  font-size: 1.35rem;
+  font-size: 1.3rem;
   font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1;
+  flex-shrink: 0;
 }
 .wordmark span { color: var(--accent); }
 
@@ -71,7 +71,6 @@ body {
   font-family: var(--ff-ui);
   font-size: 0.75rem;
   font-weight: 600;
-  letter-spacing: 0.01em;
   border: none;
   background: transparent;
   color: var(--soft);
@@ -88,42 +87,29 @@ body {
 }
 
 /* ── progress bar ─────────────────────────────── */
-.progress-bar {
-  height: 3px;
-  background: var(--hair);
-  position: relative;
-}
-.progress-fill {
-  height: 100%;
-  background: var(--accent);
-  transition: width .3s ease;
-}
+.progress-bar { height: 3px; background: var(--hair); }
+.progress-fill { height: 100%; background: var(--accent); transition: width .3s ease; }
 
 /* ── topic pills ─────────────────────────────── */
 .topics-scroller {
-  padding: 14px 20px;
+  padding: 12px 20px;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   border-bottom: 1.5px solid var(--hair);
 }
 .topics-scroller::-webkit-scrollbar { display: none; }
-.topics-row {
-  display: flex;
-  gap: 7px;
-  width: max-content;
-}
+.topics-row { display: flex; gap: 7px; width: max-content; }
 .topic-pill {
   font-family: var(--ff-ui);
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 600;
-  border: 2px solid transparent;
+  border: 2px solid var(--hair);
   padding: 5px 13px;
   border-radius: 100px;
   cursor: pointer;
   background: transparent;
   color: var(--ink);
-  border-color: var(--hair);
   transition: border-color .15s, background .15s, color .15s, box-shadow .12s;
   white-space: nowrap;
 }
@@ -136,24 +122,41 @@ body {
 }
 .topic-pill.active.light { color: var(--ink); }
 
-/* ── counter ─────────────────────────────────── */
-.counter-row {
+/* ── type filter bar ─────────────────────────── */
+.filter-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 10px 20px 0;
+  gap: 12px;
 }
-.counter-label {
-  font-size: 0.75rem;
-  color: var(--soft);
-  font-weight: 500;
-  letter-spacing: 0.02em;
+.type-tabs {
+  display: flex;
+  gap: 3px;
+  background: var(--hair);
+  border-radius: 8px;
+  padding: 3px;
 }
-.known-count {
-  font-size: 0.75rem;
+.type-tab {
+  font-family: var(--ff-ui);
+  font-size: 0.72rem;
   font-weight: 600;
-  color: var(--vert);
+  border: none;
+  background: transparent;
+  color: var(--soft);
+  padding: 4px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+  white-space: nowrap;
 }
+.type-tab.active {
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 0 1px 3px rgba(0,0,0,.1);
+}
+.counter-label { font-size: 0.74rem; color: var(--soft); font-weight: 500; }
+.known-count { font-size: 0.74rem; font-weight: 600; color: var(--vert); }
 
 /* ── card area ───────────────────────────────── */
 .card-area {
@@ -161,7 +164,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 16px 20px 20px;
+  padding: 14px 20px 20px;
   gap: 14px;
 }
 
@@ -175,90 +178,106 @@ body {
   overflow: hidden;
   cursor: pointer;
   user-select: none;
-  transition: transform .12s var(--spring, ease), box-shadow .12s;
-  --spring: cubic-bezier(.2,1.5,.35,1);
+  transition: transform .12s, box-shadow .12s;
   position: relative;
 }
 .card:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
 
-.card-accent {
-  height: 5px;
-  background: var(--topic-color, var(--accent));
+.card-accent { height: 5px; background: var(--topic-color, var(--accent)); }
+
+/* type badge on card */
+.card-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin-bottom: 10px;
 }
-.card-body {
-  padding: 24px 24px 20px;
+.badge-vocab {
+  background: color-mix(in srgb, var(--topic-color, var(--accent)) 15%, transparent);
+  color: var(--topic-color, var(--accent));
+}
+.badge-phrase {
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
+  color: var(--soft);
 }
 
-/* French phrase — the star */
+.card-body { padding: 20px 22px 18px; }
+
 .card-fr {
   font-family: var(--ff-display);
-  font-size: clamp(1.3rem, 4vw, 1.75rem);
+  font-size: clamp(1.2rem, 4vw, 1.65rem);
   font-weight: 600;
   line-height: 1.2;
   letter-spacing: -0.02em;
   color: var(--ink);
-  margin-bottom: 10px;
+  margin-bottom: 8px;
+}
+/* vocab: show word type hint */
+.card-fr .word-class {
+  font-family: var(--ff-display);
+  font-style: italic;
+  font-size: 0.75em;
+  font-weight: 400;
+  color: var(--soft);
+  margin-left: 6px;
 }
 
-/* English always visible */
 .card-en {
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 500;
   color: var(--soft);
   line-height: 1.4;
-  margin-bottom: 0;
 }
 
-/* Example — tap to reveal */
 .card-example {
-  margin-top: 16px;
-  padding-top: 16px;
+  margin-top: 14px;
+  padding-top: 14px;
   border-top: 1.5px solid var(--hair);
   display: none;
 }
 .card-example.open { display: block; }
-
 .example-label {
-  font-size: 0.65rem;
+  font-size: 0.62rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   color: var(--topic-color, var(--accent));
   text-transform: uppercase;
-  margin-bottom: 7px;
+  margin-bottom: 6px;
 }
 .example-fr {
   font-family: var(--ff-display);
   font-style: italic;
-  font-size: 0.95rem;
+  font-size: 0.93rem;
   line-height: 1.55;
   color: var(--ink);
-  margin-bottom: 6px;
+  margin-bottom: 5px;
 }
-.example-en {
-  font-size: 0.82rem;
-  color: var(--soft);
-  line-height: 1.5;
-}
+.example-en { font-size: 0.8rem; color: var(--soft); line-height: 1.5; }
 
-/* Tap hint */
 .tap-hint {
   position: absolute;
-  bottom: 10px;
-  right: 14px;
-  font-size: 0.65rem;
+  bottom: 9px;
+  right: 13px;
+  font-size: 0.63rem;
   color: var(--hair);
   font-weight: 500;
   transition: color .2s;
 }
 .card:hover .tap-hint { color: var(--soft); }
 
-/* ── known badge ─────────────────────────────── */
+/* known badge */
 .known-badge {
   position: absolute;
-  top: 12px;
-  right: 14px;
-  width: 22px;
-  height: 22px;
+  top: 11px;
+  right: 13px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background: var(--vert);
   display: none;
@@ -266,19 +285,19 @@ body {
   justify-content: center;
 }
 .known-badge.show { display: flex; }
-.known-badge svg { width: 12px; height: 12px; fill: none; stroke: white; stroke-width: 2.5; }
+.known-badge svg { width: 11px; height: 11px; fill: none; stroke: white; stroke-width: 2.5; }
 
 /* ── nav controls ────────────────────────────── */
 .nav-controls {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   width: 100%;
   max-width: 520px;
 }
 .nav-btn {
-  width: 44px;
-  height: 44px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   border: 2px solid var(--ink);
   background: var(--paper);
@@ -292,33 +311,29 @@ body {
 }
 .nav-btn:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 var(--ink); }
 .nav-btn:disabled { opacity: .3; cursor: default; box-shadow: none; }
-.nav-btn svg { width: 16px; height: 16px; }
+.nav-btn svg { width: 15px; height: 15px; }
 
 .know-btn {
   flex: 1;
-  height: 44px;
+  height: 42px;
   border-radius: 100px;
   border: 2px solid var(--ink);
   font-family: var(--ff-ui);
-  font-size: 0.85rem;
+  font-size: 0.83rem;
   font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 7px;
+  gap: 6px;
   box-shadow: var(--pop);
   transition: transform .1s, box-shadow .1s, background .15s, color .15s;
   background: var(--paper);
   color: var(--ink);
 }
-.know-btn.known {
-  background: var(--vert);
-  color: white;
-  border-color: var(--vert);
-}
+.know-btn.known { background: var(--vert); color: white; border-color: var(--vert); }
 .know-btn:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 var(--ink); }
-.know-btn svg { width: 14px; height: 14px; }
+.know-btn svg { width: 13px; height: 13px; }
 
 /* ── dot nav ─────────────────────────────────── */
 .dot-nav {
@@ -340,45 +355,34 @@ body {
 .dot.current { background: var(--ink); transform: scale(1.3); }
 .dot.known-dot { background: var(--vert); }
 
-/* ── empty state ─────────────────────────────── */
+/* ── empty ────────────────────────────────────── */
 .empty {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
   color: var(--soft);
   font-size: 0.9rem;
   text-align: center;
   padding: 40px 20px;
+  gap: 8px;
 }
-.empty .big { font-size: 2.5rem; }
 
-/* ── keyboard shortcut hint ──────────────────── */
+/* ── shortcuts ────────────────────────────────── */
 .shortcuts {
   text-align: center;
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   color: var(--hair);
-  padding: 0 20px 16px;
-  letter-spacing: 0.01em;
+  padding: 0 20px 14px;
 }
 
-/* ── animate card in ─────────────────────────── */
-@keyframes slideIn {
-  from { opacity: 0; transform: translateX(28px); }
-  to   { opacity: 1; transform: translateX(0); }
-}
-@keyframes slideInBack {
-  from { opacity: 0; transform: translateX(-28px); }
-  to   { opacity: 1; transform: translateX(0); }
-}
-.card.anim-in       { animation: slideIn .22s ease forwards; }
-.card.anim-in-back  { animation: slideInBack .22s ease forwards; }
-
-@media (prefers-reduced-motion: reduce) {
-  .card.anim-in, .card.anim-in-back { animation: none; }
-}
+/* ── animations ───────────────────────────────── */
+@keyframes slideIn     { from { opacity:0; transform:translateX(28px)  } to { opacity:1; transform:none } }
+@keyframes slideInBack { from { opacity:0; transform:translateX(-28px) } to { opacity:1; transform:none } }
+.card.anim-fwd  { animation: slideIn .2s ease forwards; }
+.card.anim-back { animation: slideInBack .2s ease forwards; }
+@media (prefers-reduced-motion:reduce) { .card.anim-fwd,.card.anim-back { animation:none } }
 </style>
 </head>
 <body>
@@ -390,318 +394,248 @@ body {
     <button id="btnB" onclick="setSection('B')">Section B</button>
   </div>
 </header>
-
 <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-
 <div class="topics-scroller"><div class="topics-row" id="topicsRow"></div></div>
-
-<div class="counter-row">
-  <span class="counter-label" id="counterLabel">1 / 1</span>
-  <span class="known-count" id="knownCount"></span>
+<div class="filter-bar">
+  <div class="type-tabs">
+    <button class="type-tab active" id="tabAll"    onclick="setFilter('all')">All</button>
+    <button class="type-tab"        id="tabVocab"  onclick="setFilter('vocab')">Vocab</button>
+    <button class="type-tab"        id="tabPhrase" onclick="setFilter('phrase')">Phrases</button>
+  </div>
+  <div style="display:flex;gap:10px;align-items:center">
+    <span class="counter-label" id="counterLabel">1 / 1</span>
+    <span class="known-count"   id="knownCount"></span>
+  </div>
 </div>
-
 <div class="card-area" id="cardArea"></div>
-
-<p class="shortcuts" id="shortcuts">← → to navigate &nbsp;·&nbsp; space to mark known &nbsp;·&nbsp; tap card for example</p>
+<p class="shortcuts">← → navigate &nbsp;·&nbsp; space = mark known &nbsp;·&nbsp; tap card for example</p>
 
 <script>
-/* ═══════════════════════════════════════════════════════
-   DATA — vocab + phrases per topic, both sections
-   ═══════════════════════════════════════════════════════ */
-
+/* ═══════════════════════════════════════════
+   DATA  (type: 'vocab' | 'phrase')
+   ═══════════════════════════════════════════ */
 const TOPICS = {
-  A: [
-    {
-      id: 'structureA',
-      fr: 'Structurer',
-      en: 'Story structure',
-      color: '#FF6B2C',
-      light: false,
-      items: [
-        { fr:'Tout a commencé quand…', en:'It all started when…', ex:'Tout a commencé quand le petit garçon est sorti seul dans la rue.', exEn:'It all started when the little boy went out alone into the street.' },
-        { fr:'C\'est alors que…', en:'That\'s when… / Then suddenly…', ex:'C\'est alors que le chien s\'est mis à aboyer furieusement.', exEn:'That\'s when the dog started barking furiously.' },
-        { fr:'Personne n\'aurait pu imaginer que…', en:'No one could have imagined that…', ex:'Personne n\'aurait pu imaginer que cela allait déclencher une telle enquête.', exEn:'No one could have imagined this would trigger such an investigation.' },
-        { fr:'Ce qui s\'est passé ensuite a surpris tout le monde.', en:'What happened next surprised everyone.', ex:'Ce qui s\'est passé ensuite a surpris tout le monde, même la police.', exEn:'What happened next surprised everyone, even the police.' },
-        { fr:'Quelques minutes plus tard,…', en:'A few minutes later,…', ex:'Quelques minutes plus tard, les secours sont arrivés sur place.', exEn:'A few minutes later, the emergency services arrived on the scene.' },
-        { fr:'Sans que personne ne s\'y attende,…', en:'Without anyone expecting it,…', ex:'Sans que personne ne s\'y attende, la situation a pris une tournure inattendue.', exEn:'Without anyone expecting it, the situation took an unexpected turn.' },
-        { fr:'Finalement, tout s\'est bien terminé.', en:'In the end, everything turned out fine.', ex:'Finalement, tout s\'est bien terminé grâce à l\'intervention rapide des pompiers.', exEn:'In the end, everything turned out fine thanks to the quick intervention of the firefighters.' },
-        { fr:'On n\'a jamais vraiment su pourquoi…', en:'No one ever really knew why…', ex:'On n\'a jamais vraiment su pourquoi il avait agi de cette façon.', exEn:'No one ever really knew why he had acted in this way.' },
-        { fr:'Au moment où…', en:'At the moment when…', ex:'Au moment où il allait partir, quelque chose d\'étrange s\'est produit.', exEn:'At the moment when he was about to leave, something strange happened.' },
-        { fr:'Heureusement / Malheureusement,…', en:'Fortunately / Unfortunately,…', ex:'Malheureusement, il était trop tard pour intervenir.', exEn:'Unfortunately, it was too late to intervene.' },
-        { fr:'sain et sauf', en:'safe and sound', ex:'L\'enfant a été retrouvé sain et sauf une heure plus tard.', exEn:'The child was found safe and sound an hour later.' },
-        { fr:'prendre les choses en main', en:'to take charge / take control', ex:'Walid a pris les choses en main quand le chauffeur s\'est senti mal.', exEn:'Walid took charge when the driver felt unwell.' },
-        { fr:'déclencher quelque chose', en:'to set off / trigger something', ex:'Ce petit geste a déclenché une enquête inattendue.', exEn:'That small gesture triggered an unexpected investigation.' },
-        { fr:'avoir eu plus de peur que de mal', en:'to be more scared than hurt', ex:'Finalement, il a eu plus de peur que de mal.', exEn:'In the end he was more scared than hurt.' },
-        { fr:'contre toute attente', en:'against all expectations', ex:'Contre toute attente, le coupable était quelqu\'un de bien connu.', exEn:'Against all expectations, the culprit was someone well known.' },
-      ]
-    },
-    {
-      id: 'enfants',
-      fr: 'Enfants',
-      en: 'Children & young heroes',
-      color: '#FF3D8B',
-      light: false,
-      items: [
-        { fr:'s\'échapper de quelque part', en:'to escape / run off from somewhere', ex:'Le petit garçon s\'est échappé du jardin d\'enfants pendant la récréation.', exEn:'The little boy ran off from daycare during playtime.' },
-        { fr:'le jardin d\'enfants', en:'daycare / nursery school', ex:'Il n\'avait que deux ans quand il a quitté le jardin d\'enfants.', exEn:'He was only two years old when he left the daycare.' },
-        { fr:'creuser dans le jardin', en:'to dig in the garden', ex:'Les deux écoliers se sont mis à creuser dans le jardin du voisin.', exEn:'The two schoolchildren started digging in the neighbour\'s garden.' },
-        { fr:'quelque chose d\'inattendu', en:'something unexpected', ex:'Ils ont trouvé quelque chose d\'inattendu sous la terre.', exEn:'They found something unexpected underground.' },
-        { fr:'composer le numéro d\'urgence', en:'to dial the emergency number', ex:'L\'enfant a composé le numéro d\'urgence pour se plaindre de ses cadeaux.', exEn:'The child dialled the emergency number to complain about his presents.' },
-        { fr:'les autorités ont décidé de lui rendre visite', en:'the authorities decided to visit him', ex:'Surprises, les autorités ont décidé de lui rendre visite chez lui.', exEn:'Surprised, the authorities decided to visit him at home.' },
-        { fr:'sauver ses camarades', en:'to save his classmates', ex:'Walid a sauvé ses camarades en remplaçant le chauffeur du bus.', exEn:'Walid saved his classmates by taking over from the bus driver.' },
-        { fr:'en remplaçant quelqu\'un', en:'by taking over from someone', ex:'Il a conduit le bus en remplaçant le chauffeur évanoui.', exEn:'He drove the bus by replacing the unconscious driver.' },
-        { fr:'tomber à l\'eau', en:'to fall into the water', ex:'Le petit garçon est tombé à l\'eau sans que personne ne le voie.', exEn:'The little boy fell into the water without anyone seeing.' },
-        { fr:'se faire remarquer', en:'to attract attention / get noticed', ex:'L\'enfant s\'est fait remarquer par son courage exceptionnel.', exEn:'The child got noticed for his exceptional courage.' },
-        { fr:'appeler au secours', en:'to call for help', ex:'Il a appelé au secours en voyant le chauffeur tomber.', exEn:'He called for help when he saw the driver fall.' },
-        { fr:'faire une bêtise', en:'to get up to mischief', ex:'Les écoliers ont fait une bêtise en creusant dans le jardin du voisin.', exEn:'The schoolchildren got up to mischief digging in the neighbour\'s garden.' },
-      ]
-    },
-    {
-      id: 'famille',
-      fr: 'Famille',
-      en: 'Family & couples',
-      color: '#FFC400',
-      light: true,
-      items: [
-        { fr:'une grande complicité', en:'a close, easy bond', ex:'La grand-mère et sa petite-fille vivaient dans une grande complicité.', exEn:'The grandmother and granddaughter lived in a close, easy bond.' },
-        { fr:'prendre sa liberté', en:'to claim one\'s independence', ex:'Un jour, la grand-mère de 80 ans a décidé de prendre sa liberté.', exEn:'One day, the 80-year-old grandmother decided to claim her independence.' },
-        { fr:'très protectrice', en:'very protective', ex:'La petite-fille était très protectrice envers sa grand-mère.', exEn:'The granddaughter was very protective of her grandmother.' },
-        { fr:'fêter leur anniversaire de mariage', en:'to celebrate their wedding anniversary', ex:'Ils fêtaient leur vingtième anniversaire de mariage au bord de la mer.', exEn:'They were celebrating their twentieth wedding anniversary by the sea.' },
-        { fr:'la météo devient capricieuse', en:'the weather turns unpredictable', ex:'La météo est devenue capricieuse en plein après-midi.', exEn:'The weather turned unpredictable in the middle of the afternoon.' },
-        { fr:'cacher une vérité à quelqu\'un', en:'to hide a truth from someone', ex:'Elle a découvert que son mari lui cachait une vérité depuis des années.', exEn:'She discovered her husband had been hiding a truth from her for years.' },
-        { fr:'se venger', en:'to take revenge', ex:'Elle a décidé de se venger discrètement.', exEn:'She decided to take quiet revenge.' },
-        { fr:'garder un secret', en:'to keep a secret', ex:'Le couple avait gardé un secret pendant soixante ans.', exEn:'The couple had kept a secret for sixty years.' },
-        { fr:'contre toute attente', en:'against all expectations', ex:'Contre toute attente, elle a choisi de tout pardonner.', exEn:'Against all expectations, she chose to forgive everything.' },
-        { fr:'malgré les apparences', en:'despite appearances', ex:'Malgré les apparences, leur relation était plus compliquée que prévu.', exEn:'Despite appearances, their relationship was more complicated than expected.' },
-        { fr:'prendre une décision inattendue', en:'to make an unexpected decision', ex:'Ce jour-là, elle a pris une décision inattendue qui a tout changé.', exEn:'That day, she made an unexpected decision that changed everything.' },
-      ]
-    },
-    {
-      id: 'police',
-      fr: 'Police',
-      en: 'Police & mystery',
-      color: '#0A6CF0',
-      light: false,
-      items: [
-        { fr:'ouvrir une enquête', en:'to open an investigation', ex:'Une enquête a été ouverte après la découverte des 24 000 lettres.', exEn:'An investigation was opened after the discovery of the 24,000 letters.' },
-        { fr:'être retrouvé coincé', en:'to be found trapped / stuck', ex:'L\'homme a été retrouvé coincé à l\'intérieur du magasin fermé.', exEn:'The man was found trapped inside the closed shop.' },
-        { fr:'interpeller un suspect', en:'to apprehend a suspect', ex:'La police a fini par interpeller le coupable.', exEn:'The police eventually apprehended the culprit.' },
-        { fr:'rouler à toute vitesse', en:'to drive at full speed', ex:'Le motard roulait à 210 km/h, une seule main sur le guidon.', exEn:'The biker was riding at 210 km/h with one hand on the handlebars.' },
-        { fr:'tenir quelque chose dans la main', en:'to hold something in one\'s hand', ex:'Dans l\'autre main, il tenait quelque chose de surprenant.', exEn:'In his other hand, he was holding something surprising.' },
-        { fr:'un témoin', en:'a witness', ex:'Un témoin a reconnu le vélo volé dès le lendemain matin.', exEn:'A witness recognised the stolen bike the very next morning.' },
-        { fr:'remettre quelque chose à l\'eau', en:'to put something back in the water', ex:'Les filles ont remis la bouteille à l\'eau sans se douter de rien.', exEn:'The girls put the bottle back in the water, suspecting nothing.' },
-        { fr:'sans se douter que…', en:'without suspecting that…', ex:'Elle est partie sans se douter que quelqu\'un l\'avait vue.', exEn:'She left without suspecting that someone had seen her.' },
-        { fr:'volé / dérober', en:'stolen / to steal', ex:'Son vélo avait été volé devant la bibliothèque.', exEn:'His bicycle had been stolen in front of the library.' },
-        { fr:'quelle surprise !', en:'what a surprise!', ex:'Quelle surprise quand la police a finalement découvert le coupable !', exEn:'What a surprise when the police finally discovered the culprit!' },
-        { fr:'une découverte inattendue', en:'an unexpected discovery', ex:'Ce matin-là, il a fait une découverte inattendue dans son domicile.', exEn:'That morning, he made an unexpected discovery in his home.' },
-        { fr:'déclencher une enquête', en:'to trigger an investigation', ex:'Ce petit geste inattendu a déclenché une enquête internationale.', exEn:'This small unexpected gesture triggered an international investigation.' },
-        { fr:'mener une enquête', en:'to conduct an investigation', ex:'La police a mené une enquête discrète pendant plusieurs semaines.', exEn:'The police conducted a discreet investigation for several weeks.' },
-      ]
-    },
-    {
-      id: 'voyage',
-      fr: 'Voyages',
-      en: 'Travel & places',
-      color: '#00968F',
-      light: false,
-      items: [
-        { fr:'se rendre quelque part pour la première fois', en:'to go somewhere for the first time', ex:'L\'homme de 80 ans se rendait en ville pour la première fois de sa vie.', exEn:'The 80-year-old man was going into the city for the first time in his life.' },
-        { fr:'faire demi-tour', en:'to turn back', ex:'L\'avion a fait demi-tour en plein vol à cause d\'une passagère malade.', exEn:'The plane turned back mid-flight because of a sick passenger.' },
-        { fr:'se sentir mal', en:'to feel unwell', ex:'Une passagère s\'est sentie mal juste après le décollage.', exEn:'A passenger felt unwell right after take-off.' },
-        { fr:'les autorités municipales', en:'the local / municipal authorities', ex:'Les autorités municipales sont intervenues sans prévenir le propriétaire.', exEn:'The municipal authorities stepped in without warning the owner.' },
-        { fr:'un village magnifique / pittoresque', en:'a beautiful / picturesque village', ex:'L\'architecte a choisi de construire sa maison dans un village pittoresque.', exEn:'The architect chose to build her house in a picturesque village.' },
-        { fr:'ne pas s\'attendre à quelque chose', en:'to not expect something', ex:'Les voisins ne s\'attendaient pas à une maison aussi moderne.', exEn:'The neighbours didn\'t expect such a modern house.' },
-        { fr:'être intervenu(e) soudainement', en:'to have intervened suddenly', ex:'Les autorités sont soudainement intervenues pour interrompre la séance photo.', exEn:'The authorities suddenly intervened to interrupt the photo session.' },
-        { fr:'avoir l\'habitude de faire quelque chose', en:'to be in the habit of doing something', ex:'Il avait l\'habitude de photographier tous les monuments historiques.', exEn:'He was in the habit of photographing all historical monuments.' },
-        { fr:'photographier des sites touristiques', en:'to photograph tourist sites', ex:'Elle adorait photographier des sites touristiques lors de ses voyages.', exEn:'She loved photographing tourist sites on her travels.' },
-        { fr:'prendre la fuite', en:'to flee / make a run for it', ex:'L\'homme a pris la fuite quand la police est arrivée.', exEn:'The man fled when the police arrived.' },
-      ]
-    },
-    {
-      id: 'animaux',
-      fr: 'Animaux',
-      en: 'Animal stories',
-      color: '#7B5BD6',
-      light: false,
-      items: [
-        { fr:'adopter / accueillir un animal', en:'to take in / adopt an animal', ex:'Le zoo a accueilli cinq perroquets abandonnés par leur propriétaire.', exEn:'The zoo took in five parrots abandoned by their owner.' },
-        { fr:'se mettre à faire quelque chose', en:'to suddenly start doing something', ex:'Les perroquets se sont mis à insulter les visiteurs pendant le spectacle.', exEn:'The parrots suddenly started insulting the visitors during the show.' },
-        { fr:'un animal de compagnie', en:'a pet', ex:'Les pompiers ont découvert un animal de compagnie un peu ordinaire.', exEn:'The firefighters found a rather ordinary pet.' },
-        { fr:'provoquer un fou rire', en:'to cause fits of laughter', ex:'La scène a provoqué un fou rire général dans le public.', exEn:'The scene caused general fits of laughter in the audience.' },
-        { fr:'être dressé / apprivoisé', en:'to be trained / tamed', ex:'Personne ne savait que les perroquets avaient été dressés à parler ainsi.', exEn:'No one knew the parrots had been trained to talk like that.' },
-        { fr:'un spectacle inattendu', en:'an unexpected show / spectacle', ex:'Ce que les visiteurs ont vu était un spectacle vraiment inattendu.', exEn:'What the visitors saw was a truly unexpected spectacle.' },
-        { fr:'avoir un accident', en:'to have an accident', ex:'Le peintre célèbre a eu un accident dans l\'enclos des animaux.', exEn:'The famous painter had an accident in the animal enclosure.' },
-        { fr:'être surpris de voir', en:'to be surprised to see', ex:'Les pompiers étaient très surpris de voir un tel animal dans cet endroit.', exEn:'The firefighters were very surprised to see such an animal in that place.' },
-      ]
-    },
-    {
-      id: 'exploits',
-      fr: 'Exploits',
-      en: 'Records & achievements',
-      color: '#007A42',
-      light: false,
-      items: [
-        { fr:'se mettre au sport sur le tard', en:'to take up sport late in life', ex:'Elle s\'est mise au sport sur le tard, à l\'âge de cinquante-neuf ans.', exEn:'She took up sport late in life, at the age of fifty-nine.' },
-        { fr:'malgré (que)…', en:'despite (the fact that)…', ex:'Elle est devenue athlète malgré qu\'elle n\'ait jamais fait de sport avant.', exEn:'She became an athlete despite never having done sport before.' },
-        { fr:'battre un record', en:'to break a record', ex:'Le couple a battu le record du monde de longévité conjugale.', exEn:'The couple broke the world record for the longest marriage.' },
-        { fr:'entrer dans le livre des records', en:'to make it into the record books', ex:'Ils sont entrés dans le livre des records à cent cinq et cent six ans.', exEn:'They made it into the record books at a hundred and five and a hundred and six.' },
-        { fr:'révéler un secret', en:'to reveal a secret', ex:'Ce jour-là, ils ont enfin révélé le secret qu\'ils gardaient depuis soixante ans.', exEn:'That day, they finally revealed the secret they had kept for sixty years.' },
-        { fr:'jusqu\'à l\'âge de…', en:'until the age of…', ex:'Elle n\'avait jamais fait de sport jusqu\'à l\'âge de cinquante-neuf ans.', exEn:'She had never done any sport until the age of fifty-nine.' },
-        { fr:'contre toute attente', en:'against all expectations', ex:'Contre toute attente, la femme de 79 ans a terminé sa première course.', exEn:'Against all expectations, the 79-year-old woman finished her first race.' },
-        { fr:'prouver que…', en:'to prove that…', ex:'Elle a prouvé qu\'il n\'est jamais trop tard pour commencer.', exEn:'She proved that it is never too late to start.' },
-      ]
-    }
-  ],
+ A:[
+  { id:'structureA', fr:'Structurer', en:'Story structure', color:'#FF6B2C', light:false, items:[
+    { type:'phrase', fr:'Tout a commencé quand…', en:'It all started when…', ex:'Tout a commencé quand le petit garçon est sorti seul dans la rue.', exEn:'It all started when the little boy went out alone into the street.' },
+    { type:'phrase', fr:'C\'est alors que…', en:'That\'s when… / Then suddenly…', ex:'C\'est alors que le chien s\'est mis à aboyer furieusement.', exEn:'That\'s when the dog started barking furiously.' },
+    { type:'phrase', fr:'Quelques minutes plus tard,…', en:'A few minutes later,…', ex:'Quelques minutes plus tard, les secours sont arrivés sur place.', exEn:'A few minutes later, the emergency services arrived on the scene.' },
+    { type:'phrase', fr:'Sans que personne ne s\'y attende,…', en:'Without anyone expecting it,…', ex:'Sans que personne ne s\'y attende, la situation a pris une tournure inattendue.', exEn:'Without anyone expecting it, the situation took an unexpected turn.' },
+    { type:'phrase', fr:'Au moment où…', en:'At the moment when…', ex:'Au moment où il allait partir, quelque chose d\'étrange s\'est produit.', exEn:'At the moment when he was about to leave, something strange happened.' },
+    { type:'phrase', fr:'Finalement, tout s\'est bien terminé.', en:'In the end, everything turned out fine.', ex:'Finalement, tout s\'est bien terminé grâce à l\'intervention rapide des pompiers.', exEn:'In the end, everything turned out fine thanks to the firefighters.' },
+    { type:'phrase', fr:'Heureusement / Malheureusement,…', en:'Fortunately / Unfortunately,…', ex:'Malheureusement, il était trop tard pour intervenir.', exEn:'Unfortunately, it was too late to intervene.' },
+    { type:'phrase', fr:'Contre toute attente,…', en:'Against all expectations,…', ex:'Contre toute attente, le coupable était quelqu\'un de bien connu.', exEn:'Against all expectations, the culprit was someone well known.' },
+    { type:'phrase', fr:'Ce qui s\'est passé ensuite a surpris tout le monde.', en:'What happened next surprised everyone.', ex:'Ce qui s\'est passé ensuite a surpris tout le monde, même la police.', exEn:'What happened next surprised everyone, even the police.' },
+    { type:'vocab', fr:'une tournure inattendue', wc:'nf', en:'an unexpected turn of events', ex:'La situation a pris une tournure inattendue après l\'arrivée de la police.', exEn:'The situation took an unexpected turn after the police arrived.' },
+    { type:'vocab', fr:'déclencher', wc:'v', en:'to trigger / set off', ex:'Ce petit geste a déclenché une enquête internationale.', exEn:'This small gesture triggered an international investigation.' },
+    { type:'vocab', fr:'sain et sauf', wc:'adj', en:'safe and sound', ex:'L\'enfant a été retrouvé sain et sauf une heure plus tard.', exEn:'The child was found safe and sound an hour later.' },
+    { type:'vocab', fr:'contre toute attente', wc:'loc', en:'against all expectations', ex:'Contre toute attente, elle a choisi de tout pardonner.', exEn:'Against all expectations, she chose to forgive everything.' },
+    { type:'vocab', fr:'prendre les choses en main', wc:'loc', en:'to take charge / take control', ex:'Walid a pris les choses en main quand le chauffeur s\'est senti mal.', exEn:'Walid took charge when the driver felt unwell.' },
+    { type:'vocab', fr:'avoir eu plus de peur que de mal', wc:'loc', en:'more scared than hurt', ex:'Finalement, il a eu plus de peur que de mal.', exEn:'In the end he was more scared than hurt.' },
+  ]},
 
-  B: [
-    {
-      id: 'structureB',
-      fr: 'Structurer',
-      en: 'Argument structure',
-      color: '#FF6B2C',
-      light: false,
-      items: [
-        { fr:'Ce sujet mérite qu\'on y réfléchisse sérieusement.', en:'This topic deserves serious thought.', ex:'Ce sujet mérite qu\'on y réfléchisse sérieusement avant de prendre position.', exEn:'This topic deserves serious thought before taking a position.' },
-        { fr:'Je suis tout à fait convaincu(e) que…', en:'I am fully convinced that…', ex:'Je suis tout à fait convaincu qu\'une telle mesure serait bénéfique.', exEn:'I am fully convinced that such a measure would be beneficial.' },
-        { fr:'Certes, on peut comprendre que…', en:'Admittedly, one can understand that…', ex:'Certes, on peut comprendre que cette décision soit difficile à accepter.', exEn:'Admittedly, one can understand that this decision is hard to accept.' },
-        { fr:'Cependant, il faut bien admettre que…', en:'However, one must acknowledge that…', ex:'Cependant, il faut bien admettre que les conséquences seraient trop importantes.', exEn:'However, one must acknowledge that the consequences would be too significant.' },
-        { fr:'En outre,…', en:'Furthermore,…', ex:'En outre, cette mesure aurait un impact positif sur l\'environnement.', exEn:'Furthermore, this measure would have a positive impact on the environment.' },
-        { fr:'Par conséquent,…', en:'As a result / Therefore,…', ex:'Par conséquent, il serait urgent d\'agir dès maintenant.', exEn:'As a result, it would be urgent to act right now.' },
-        { fr:'En conclusion, il apparaît clairement que…', en:'In conclusion, it is clear that…', ex:'En conclusion, il apparaît clairement que cette proposition mérite d\'être soutenue.', exEn:'In conclusion, it is clear that this proposal deserves support.' },
-        { fr:'il est vrai que…, mais…', en:'it is true that…, but…', ex:'Il est vrai que cela représente un coût, mais les bénéfices l\'emportent largement.', exEn:'It is true that this represents a cost, but the benefits far outweigh it.' },
-        { fr:'d\'un côté… de l\'autre…', en:'on one hand… on the other…', ex:'D\'un côté, cela favorise l\'autonomie ; de l\'autre, cela crée de l\'isolement.', exEn:'On one hand, it promotes autonomy; on the other, it creates isolation.' },
-        { fr:'je tiens à souligner que…', en:'I would like to emphasize that…', ex:'Je tiens à souligner que cette question touche directement nos enfants.', exEn:'I would like to emphasize that this question directly affects our children.' },
-        { fr:'selon moi / à mon avis', en:'in my opinion / to my mind', ex:'À mon avis, l\'interdiction totale serait une mesure trop radicale.', exEn:'In my opinion, a total ban would be too radical a measure.' },
-        { fr:'il serait préférable de…', en:'it would be preferable to…', ex:'Il serait préférable de limiter plutôt qu\'interdire complètement.', exEn:'It would be preferable to limit rather than ban completely.' },
-      ]
-    },
-    {
-      id: 'techno',
-      fr: 'Technologie',
-      en: 'Technology & screens',
-      color: '#0A6CF0',
-      light: false,
-      items: [
-        { fr:'être accro à son téléphone', en:'to be hooked on / addicted to one\'s phone', ex:'De plus en plus de jeunes sont accros à leur téléphone portable.', exEn:'More and more young people are addicted to their mobile phones.' },
-        { fr:'une dépendance aux écrans', en:'a screen addiction', ex:'La dépendance aux écrans touche désormais toutes les générations.', exEn:'Screen addiction now affects every generation.' },
-        { fr:'faire défiler les réseaux sociaux', en:'to scroll through social media', ex:'On passe des heures à faire défiler les réseaux sociaux sans vraiment s\'en rendre compte.', exEn:'We spend hours scrolling through social media without even realising it.' },
-        { fr:'nuire à la concentration', en:'to harm concentration', ex:'Les écrans nuisent à la concentration des enfants en classe.', exEn:'Screens harm children\'s concentration in class.' },
-        { fr:'limiter le temps d\'écran', en:'to limit screen time', ex:'Il faudrait limiter le temps d\'écran dès le plus jeune âge.', exEn:'Screen time should be limited from a very young age.' },
-        { fr:'une publicité ciblée', en:'targeted advertising', ex:'La publicité ciblée s\'adresse même aux enfants de moins de dix ans.', exEn:'Targeted advertising even targets children under ten years old.' },
-        { fr:'nous sommes devenus des marchandises', en:'we have become commodities', ex:'Avec Internet, nos données personnelles font de nous des marchandises.', exEn:'With the Internet, our personal data has made us into commodities.' },
-        { fr:'les réseaux sociaux / les médias sociaux', en:'social media / social networks', ex:'Il faudrait limiter l\'usage des réseaux sociaux à une heure par jour.', exEn:'Social media use should be limited to one hour a day.' },
-        { fr:'rendre quelqu\'un paresseux', en:'to make someone lazy', ex:'Certains pensent que les téléphones nous ont rendus paresseux.', exEn:'Some think that phones have made us lazy.' },
-        { fr:'supprimer la publicité', en:'to ban / remove advertising', ex:'Il faudrait supprimer la publicité sur les chaînes de télévision pour enfants.', exEn:'Advertising should be banned on children\'s television channels.' },
-        { fr:'dans un monde d\'écrans', en:'in a world of screens', ex:'Dans un monde d\'écrans, les jeunes ne savent plus vraiment lire en profondeur.', exEn:'In a world of screens, young people can no longer truly read in depth.' },
-        { fr:'les nouvelles technologies', en:'new technologies', ex:'Les nouvelles technologies ont profondément modifié nos habitudes de communication.', exEn:'New technologies have profoundly changed our communication habits.' },
-      ]
-    },
-    {
-      id: 'education',
-      fr: 'Éducation',
-      en: 'School & education',
-      color: '#FF3D8B',
-      light: false,
-      items: [
-        { fr:'supprimer les notes', en:'to abolish grades', ex:'Certains pédagogues proposent de supprimer les notes à l\'école primaire.', exEn:'Some educators propose abolishing grades in primary school.' },
-        { fr:'un système scolaire trop compétitif', en:'an overly competitive school system', ex:'Le système scolaire est devenu trop compétitif pour les jeunes enfants.', exEn:'The school system has become too competitive for young children.' },
-        { fr:'la formation à distance', en:'distance learning', ex:'La formation à distance ne remplace pas le contact humain en classe.', exEn:'Distance learning doesn\'t replace human contact in the classroom.' },
-        { fr:'s\'épanouir à l\'école', en:'to thrive at school', ex:'Un enfant doit pouvoir s\'épanouir à l\'école, pas seulement réussir ses examens.', exEn:'A child should be able to thrive at school, not just pass exams.' },
-        { fr:'la pression scolaire', en:'academic / school pressure', ex:'La pression scolaire pèse de plus en plus sur les jeunes élèves.', exEn:'Academic pressure weighs more and more heavily on young students.' },
-        { fr:'un repas équilibré / végétarien', en:'a balanced / vegetarian meal', ex:'Les cantines scolaires pourraient proposer davantage de repas végétariens.', exEn:'School canteens could offer more vegetarian meals.' },
-        { fr:'la discipline s\'apprend à la maison', en:'discipline is learned at home', ex:'Selon certains, la discipline s\'apprend à la maison, pas à l\'école.', exEn:'According to some, discipline is learned at home, not at school.' },
-        { fr:'tuer la motivation des élèves', en:'to kill students\' motivation', ex:'Une école trop compétitive risque de tuer la motivation des élèves.', exEn:'An overly competitive school risks killing students\' motivation.' },
-        { fr:'passer beaucoup trop de temps à l\'école', en:'to spend far too much time at school', ex:'Certains parents pensent que les enfants passent beaucoup trop de temps à l\'école.', exEn:'Some parents think children spend far too much time at school.' },
-        { fr:'utiliser les smartphones en classe', en:'to use smartphones in class', ex:'Des professeurs proposent d\'utiliser les smartphones en classe pour rendre les cours plus interactifs.', exEn:'Some teachers propose using smartphones in class to make lessons more interactive.' },
-        { fr:'l\'enseignement obligatoire', en:'compulsory education', ex:'L\'enseignement obligatoire jusqu\'à seize ans est une conquête sociale importante.', exEn:'Compulsory education until sixteen is an important social achievement.' },
-        { fr:'encourager l\'esprit critique', en:'to encourage critical thinking', ex:'L\'école devrait encourager l\'esprit critique plutôt que la mémorisation.', exEn:'School should encourage critical thinking rather than memorisation.' },
-      ]
-    },
-    {
-      id: 'environnement',
-      fr: 'Environnement',
-      en: 'Environment & consumption',
-      color: '#007A42',
-      light: false,
-      items: [
-        { fr:'réduire sa consommation', en:'to cut down on consumption', ex:'Il faudrait réduire sa consommation de vêtements neufs pour protéger la planète.', exEn:'We should cut down on buying new clothes to protect the planet.' },
-        { fr:'les emballages plastiques', en:'plastic packaging', ex:'Les industries devraient urgemment supprimer les emballages plastiques inutiles.', exEn:'Industries should urgently eliminate unnecessary plastic packaging.' },
-        { fr:'lutter contre la pollution', en:'to fight pollution', ex:'Les gouvernements doivent prendre des mesures concrètes pour lutter contre la pollution.', exEn:'Governments must take concrete measures to fight pollution.' },
-        { fr:'augmenter son empreinte carbone', en:'to increase one\'s carbon footprint', ex:'Prendre l\'avion régulièrement augmente fortement son empreinte carbone.', exEn:'Flying regularly greatly increases one\'s carbon footprint.' },
-        { fr:'la mode éphémère / fast fashion', en:'fast fashion / disposable fashion', ex:'La mode éphémère pousse les consommateurs à acheter sans réfléchir.', exEn:'Fast fashion pushes consumers to buy without thinking.' },
-        { fr:'interdire les avions', en:'to ban planes', ex:'Certains militants écologistes veulent interdire les avions sur les vols courts.', exEn:'Some environmental activists want to ban planes on short-haul flights.' },
-        { fr:'prendre des mesures', en:'to take measures', ex:'Les gouvernements devraient prendre des mesures urgentes contre le réchauffement climatique.', exEn:'Governments should take urgent measures against climate change.' },
-        { fr:'irresponsable / inconscient', en:'irresponsible / reckless', ex:'Acheter trop de vêtements de nos jours est devenu irresponsable.', exEn:'Buying too many clothes nowadays has become irresponsible.' },
-        { fr:'le développement durable', en:'sustainable development', ex:'Le développement durable doit devenir une priorité pour toutes les entreprises.', exEn:'Sustainable development must become a priority for all companies.' },
-        { fr:'nuire à l\'environnement', en:'to harm the environment', ex:'L\'industrie textile nuit gravement à l\'environnement et aux ressources en eau.', exEn:'The textile industry seriously harms the environment and water resources.' },
-      ]
-    },
-    {
-      id: 'sante',
-      fr: 'Santé',
-      en: 'Health & lifestyle',
-      color: '#FF6B2C',
-      light: false,
-      items: [
-        { fr:'une alimentation malsaine', en:'an unhealthy diet', ex:'Beaucoup de gens ont une alimentation malsaine par manque de temps et d\'argent.', exEn:'Many people have an unhealthy diet due to lack of time and money.' },
-        { fr:'adopter un régime végétarien', en:'to adopt a vegetarian diet', ex:'Adopter un régime végétarien n\'est pas obligatoire pour être en bonne santé.', exEn:'Adopting a vegetarian diet is not required to be healthy.' },
-        { fr:'une perte de temps', en:'a waste of time', ex:'Apprendre à cuisiner n\'est jamais une perte de temps, au contraire.', exEn:'Learning to cook is never a waste of time, quite the opposite.' },
-        { fr:'prendre soin de sa santé', en:'to take care of one\'s health', ex:'Cuisiner soi-même aide à mieux prendre soin de sa santé.', exEn:'Cooking for yourself helps you better take care of your health.' },
-        { fr:'manger sainement', en:'to eat healthily', ex:'Il est possible de manger sainement sans forcément devenir végétarien.', exEn:'It is possible to eat healthily without necessarily becoming vegetarian.' },
-        { fr:'les gens ne mangent que…', en:'people eat nothing but…', ex:'De nos jours, beaucoup de gens ne mangent que de l\'alimentation industrielle.', exEn:'Nowadays, many people eat nothing but processed food.' },
-        { fr:'être en bonne santé', en:'to be in good health', ex:'Pour être en bonne santé, il ne suffit pas d\'éviter la viande.', exEn:'To be in good health, it is not enough to avoid meat.' },
-        { fr:'les habitudes alimentaires', en:'eating habits / dietary habits', ex:'Les habitudes alimentaires se forment dès l\'enfance et sont difficiles à changer.', exEn:'Eating habits are formed in childhood and are hard to change.' },
-      ]
-    },
-    {
-      id: 'societe',
-      fr: 'Société',
-      en: 'Society & values',
-      color: '#7B5BD6',
-      light: false,
-      items: [
-        { fr:'vivre en autonomie', en:'to live independently', ex:'Vivre seul ne prouve pas nécessairement qu\'on est devenu un adulte responsable.', exEn:'Living alone does not necessarily prove that one has become a responsible adult.' },
-        { fr:'être livré à soi-même', en:'to be left to one\'s own devices', ex:'Les personnes âgées ne devraient pas être livrées à elles-mêmes devant la télévision.', exEn:'Older people should not be left to their own devices in front of the TV.' },
-        { fr:'une caméra de surveillance', en:'a surveillance camera', ex:'Installer des caméras de surveillance dans les rues pose la question de la vie privée.', exEn:'Installing surveillance cameras in the streets raises the question of privacy.' },
-        { fr:'la vie privée', en:'privacy', ex:'La vie privée est un droit fondamental qu\'il faut protéger.', exEn:'Privacy is a fundamental right that must be protected.' },
-        { fr:'s\'entourer de gens différents', en:'to surround oneself with different people', ex:'S\'entourer de gens différents nous aide à nous remettre en question.', exEn:'Surrounding ourselves with different people helps us question ourselves.' },
-        { fr:'réussir sans talent', en:'to succeed without talent', ex:'De nos jours, on peut devenir une star sur les réseaux sans avoir de réel talent.', exEn:'Nowadays, you can become a star on social media without any real talent.' },
-        { fr:'avoir de la valeur', en:'to have value / worth', ex:'L\'art n\'a pas besoin d\'être utile pour avoir de la valeur dans une société.', exEn:'Art does not need to be useful to have value in a society.' },
-        { fr:'ne s\'intéresser qu\'à son image', en:'to only care about one\'s image', ex:'Les jeunes d\'aujourd\'hui ne s\'intéressent-ils vraiment qu\'à leur image ?', exEn:'Do today\'s young people really only care about their image?' },
-        { fr:'pour être heureux, il faut…', en:'to be happy, one must…', ex:'Certains pensent que pour être heureux, il faut s\'entourer de gens qui nous ressemblent.', exEn:'Some think that to be happy, one must surround oneself with like-minded people.' },
-        { fr:'il faudrait installer / interdire…', en:'one should install / ban…', ex:'Il faudrait installer des caméras de surveillance dans tous les lieux publics.', exEn:'Surveillance cameras should be installed in all public places.' },
-        { fr:'mener une vie solitaire', en:'to lead a solitary life', ex:'Mener une vie solitaire ne signifie pas qu\'on est épanoui et responsable.', exEn:'Leading a solitary life does not mean that one is fulfilled and responsible.' },
-        { fr:'les personnes âgées / les seniors', en:'older people / seniors', ex:'Les personnes âgées méritent une attention particulière dans notre société.', exEn:'Older people deserve special attention in our society.' },
-      ]
-    }
-  ]
+  { id:'enfants', fr:'Enfants', en:'Children & young heroes', color:'#FF3D8B', light:false, items:[
+    { type:'phrase', fr:'s\'échapper de quelque part', en:'to escape / run off from somewhere', ex:'Le petit garçon s\'est échappé du jardin d\'enfants pendant la récréation.', exEn:'The little boy ran off from daycare during playtime.' },
+    { type:'phrase', fr:'appeler au secours', en:'to call for help', ex:'Il a appelé au secours en voyant le chauffeur tomber.', exEn:'He called for help when he saw the driver fall.' },
+    { type:'phrase', fr:'en remplaçant quelqu\'un', en:'by taking over from someone', ex:'Il a conduit le bus en remplaçant le chauffeur évanoui.', exEn:'He drove the bus by replacing the unconscious driver.' },
+    { type:'phrase', fr:'sauver ses camarades', en:'to save his classmates', ex:'Walid a sauvé ses camarades en remplaçant le chauffeur du bus.', exEn:'Walid saved his classmates by taking over from the bus driver.' },
+    { type:'phrase', fr:'se faire remarquer pour son courage', en:'to be noticed for one\'s courage', ex:'L\'enfant s\'est fait remarquer par son courage exceptionnel.', exEn:'The child got noticed for his exceptional courage.' },
+    { type:'phrase', fr:'composer le numéro d\'urgence', en:'to dial the emergency number', ex:'L\'enfant a composé le numéro d\'urgence pour se plaindre de ses cadeaux.', exEn:'The child dialled the emergency number to complain about his presents.' },
+    { type:'vocab', fr:'le jardin d\'enfants', wc:'nm', en:'daycare / nursery school', ex:'Il n\'avait que deux ans quand il a quitté le jardin d\'enfants.', exEn:'He was only two years old when he left the daycare.' },
+    { type:'vocab', fr:'évanouir (s\')', wc:'v', en:'to faint / pass out', ex:'Le chauffeur s\'est évanoui au volant du bus scolaire.', exEn:'The driver passed out at the wheel of the school bus.' },
+    { type:'vocab', fr:'courageux / courageuse', wc:'adj', en:'courageous / brave', ex:'La fillette courageuse a guidé tout le groupe vers la sortie.', exEn:'The courageous little girl guided the whole group to the exit.' },
+    { type:'vocab', fr:'creuser', wc:'v', en:'to dig', ex:'Les deux écoliers se sont mis à creuser dans le jardin du voisin.', exEn:'The two schoolchildren started digging in the neighbour\'s garden.' },
+    { type:'vocab', fr:'tomber à l\'eau', wc:'loc', en:'to fall into the water', ex:'Le petit garçon est tombé à l\'eau sans que personne ne le voie.', exEn:'The little boy fell into the water without anyone seeing.' },
+    { type:'vocab', fr:'faire une bêtise', wc:'loc', en:'to get up to mischief', ex:'Les écoliers ont fait une bêtise en creusant dans le jardin du voisin.', exEn:'The schoolchildren got up to mischief digging in the neighbour\'s garden.' },
+    { type:'vocab', fr:'inattendu(e)', wc:'adj', en:'unexpected', ex:'Il a fait une découverte inattendue sous la terre.', exEn:'He made an unexpected discovery underground.' },
+  ]},
+
+  { id:'famille', fr:'Famille', en:'Family & couples', color:'#FFC400', light:true, items:[
+    { type:'phrase', fr:'cacher une vérité à quelqu\'un', en:'to hide a truth from someone', ex:'Elle a découvert que son mari lui cachait une vérité depuis des années.', exEn:'She discovered her husband had been hiding a truth from her for years.' },
+    { type:'phrase', fr:'prendre une décision inattendue', en:'to make an unexpected decision', ex:'Ce jour-là, elle a pris une décision inattendue qui a tout changé.', exEn:'That day, she made an unexpected decision that changed everything.' },
+    { type:'phrase', fr:'malgré les apparences,…', en:'despite appearances,…', ex:'Malgré les apparences, leur relation était plus compliquée que prévu.', exEn:'Despite appearances, their relationship was more complicated than expected.' },
+    { type:'phrase', fr:'fêter leur anniversaire de mariage', en:'to celebrate their wedding anniversary', ex:'Ils fêtaient leur vingtième anniversaire de mariage au bord de la mer.', exEn:'They were celebrating their twentieth wedding anniversary by the sea.' },
+    { type:'phrase', fr:'garder un secret', en:'to keep a secret', ex:'Le couple avait gardé un secret pendant soixante ans.', exEn:'The couple had kept a secret for sixty years.' },
+    { type:'vocab', fr:'une grande complicité', wc:'nf', en:'a close, easy bond', ex:'La grand-mère et sa petite-fille vivaient dans une grande complicité.', exEn:'The grandmother and granddaughter lived in a close, easy bond.' },
+    { type:'vocab', fr:'protecteur / protectrice', wc:'adj', en:'protective', ex:'La petite-fille était très protectrice envers sa grand-mère.', exEn:'The granddaughter was very protective of her grandmother.' },
+    { type:'vocab', fr:'se venger', wc:'v', en:'to take revenge', ex:'Elle a décidé de se venger discrètement.', exEn:'She decided to take quiet revenge.' },
+    { type:'vocab', fr:'capricieux / capricieuse', wc:'adj', en:'unpredictable / capricious', ex:'La météo est devenue capricieuse en plein après-midi.', exEn:'The weather turned unpredictable in the middle of the afternoon.' },
+    { type:'vocab', fr:'prendre sa liberté', wc:'loc', en:'to claim one\'s independence', ex:'Un jour, la grand-mère de 80 ans a décidé de prendre sa liberté.', exEn:'One day, the 80-year-old grandmother decided to claim her independence.' },
+    { type:'vocab', fr:'révéler un secret', wc:'loc', en:'to reveal a secret', ex:'Ce jour-là, ils ont enfin révélé le secret qu\'ils gardaient depuis soixante ans.', exEn:'That day, they finally revealed the secret they had kept for sixty years.' },
+  ]},
+
+  { id:'police', fr:'Police', en:'Police & mystery', color:'#0A6CF0', light:false, items:[
+    { type:'phrase', fr:'ouvrir une enquête', en:'to open an investigation', ex:'Une enquête a été ouverte après la découverte des 24 000 lettres.', exEn:'An investigation was opened after the discovery of the 24,000 letters.' },
+    { type:'phrase', fr:'mener une enquête', en:'to conduct an investigation', ex:'La police a mené une enquête discrète pendant plusieurs semaines.', exEn:'The police conducted a discreet investigation for several weeks.' },
+    { type:'phrase', fr:'sans se douter que…', en:'without suspecting that…', ex:'Elle est partie sans se douter que quelqu\'un l\'avait vue.', exEn:'She left without suspecting that someone had seen her.' },
+    { type:'phrase', fr:'être retrouvé coincé', en:'to be found trapped / stuck', ex:'L\'homme a été retrouvé coincé à l\'intérieur du magasin fermé.', exEn:'The man was found trapped inside the closed shop.' },
+    { type:'phrase', fr:'rouler à toute vitesse', en:'to drive at full speed', ex:'Le motard roulait à 210 km/h, une seule main sur le guidon.', exEn:'The biker was riding at 210 km/h with one hand on the handlebars.' },
+    { type:'phrase', fr:'quelle surprise !', en:'what a surprise!', ex:'Quelle surprise quand la police a finalement découvert le coupable !', exEn:'What a surprise when the police finally discovered the culprit!' },
+    { type:'vocab', fr:'interpeller', wc:'v', en:'to apprehend / detain a suspect', ex:'La police a fini par interpeller le coupable.', exEn:'The police eventually apprehended the culprit.' },
+    { type:'vocab', fr:'un témoin', wc:'nm', en:'a witness', ex:'Un témoin a reconnu le vélo volé dès le lendemain matin.', exEn:'A witness recognised the stolen bike the very next morning.' },
+    { type:'vocab', fr:'dérober / voler', wc:'v', en:'to steal / rob', ex:'Son vélo avait été dérobé devant la bibliothèque.', exEn:'His bicycle had been stolen in front of the library.' },
+    { type:'vocab', fr:'une découverte inattendue', wc:'nf', en:'an unexpected discovery', ex:'Ce matin-là, il a fait une découverte inattendue dans son domicile.', exEn:'That morning, he made an unexpected discovery in his home.' },
+    { type:'vocab', fr:'suspect(e)', wc:'nm/nf', en:'suspect', ex:'La police cherchait toujours le principal suspect.', exEn:'The police were still looking for the main suspect.' },
+    { type:'vocab', fr:'le guidon', wc:'nm', en:'the handlebars (bike/motorbike)', ex:'Il tenait une tasse de café dans une main et son guidon de l\'autre.', exEn:'He held a coffee cup in one hand and his handlebars in the other.' },
+  ]},
+
+  { id:'voyage', fr:'Voyages', en:'Travel & places', color:'#00968F', light:false, items:[
+    { type:'phrase', fr:'se rendre quelque part pour la première fois', en:'to go somewhere for the first time', ex:'L\'homme de 80 ans se rendait en ville pour la première fois de sa vie.', exEn:'The 80-year-old man was going into the city for the first time in his life.' },
+    { type:'phrase', fr:'faire demi-tour', en:'to turn back / make a U-turn', ex:'L\'avion a fait demi-tour en plein vol à cause d\'une passagère malade.', exEn:'The plane turned back mid-flight because of a sick passenger.' },
+    { type:'phrase', fr:'ne pas s\'attendre à quelque chose', en:'to not expect something', ex:'Les voisins ne s\'attendaient pas à une maison aussi moderne.', exEn:'The neighbours didn\'t expect such a modern house.' },
+    { type:'phrase', fr:'avoir l\'habitude de faire quelque chose', en:'to be in the habit of doing something', ex:'Il avait l\'habitude de photographier tous les monuments historiques.', exEn:'He was in the habit of photographing all historical monuments.' },
+    { type:'phrase', fr:'prendre la fuite', en:'to flee / make a run for it', ex:'L\'homme a pris la fuite quand la police est arrivée.', exEn:'The man fled when the police arrived.' },
+    { type:'vocab', fr:'pittoresque', wc:'adj', en:'picturesque', ex:'L\'architecte a choisi de construire sa maison dans un village pittoresque.', exEn:'The architect chose to build her house in a picturesque village.' },
+    { type:'vocab', fr:'les autorités municipales', wc:'nfpl', en:'the local / municipal authorities', ex:'Les autorités municipales sont intervenues sans prévenir le propriétaire.', exEn:'The municipal authorities stepped in without warning the owner.' },
+    { type:'vocab', fr:'se sentir mal', wc:'loc', en:'to feel unwell', ex:'Une passagère s\'est sentie mal juste après le décollage.', exEn:'A passenger felt unwell right after take-off.' },
+    { type:'vocab', fr:'le décollage', wc:'nm', en:'take-off (aircraft)', ex:'L\'avion a eu un problème moteur juste après le décollage.', exEn:'The plane had an engine problem right after take-off.' },
+    { type:'vocab', fr:'intervenir', wc:'v', en:'to intervene / step in', ex:'Les autorités sont soudainement intervenues pour interrompre la séance photo.', exEn:'The authorities suddenly intervened to interrupt the photo session.' },
+    { type:'vocab', fr:'interrompre', wc:'v', en:'to interrupt / stop', ex:'La police a interrompu la séance photo devant le monument.', exEn:'The police interrupted the photo session in front of the monument.' },
+  ]},
+
+  { id:'animaux', fr:'Animaux', en:'Animal stories', color:'#7B5BD6', light:false, items:[
+    { type:'phrase', fr:'adopter / accueillir un animal', en:'to take in / adopt an animal', ex:'Le zoo a accueilli cinq perroquets abandonnés par leur propriétaire.', exEn:'The zoo took in five parrots abandoned by their owner.' },
+    { type:'phrase', fr:'se mettre à faire quelque chose', en:'to suddenly start doing something', ex:'Les perroquets se sont mis à insulter les visiteurs pendant le spectacle.', exEn:'The parrots suddenly started insulting the visitors during the show.' },
+    { type:'phrase', fr:'provoquer un fou rire', en:'to cause fits of laughter', ex:'La scène a provoqué un fou rire général dans le public.', exEn:'The scene caused general fits of laughter in the audience.' },
+    { type:'phrase', fr:'être surpris de voir', en:'to be surprised to see', ex:'Les pompiers étaient très surpris de voir un tel animal dans cet endroit.', exEn:'The firefighters were very surprised to see such an animal in that place.' },
+    { type:'vocab', fr:'dresser / apprivoiser', wc:'v', en:'to train / tame (an animal)', ex:'Personne ne savait que les perroquets avaient été dressés à parler ainsi.', exEn:'No one knew the parrots had been trained to talk like that.' },
+    { type:'vocab', fr:'un perroquet', wc:'nm', en:'a parrot', ex:'Les cinq perroquets ont été abandonnés par leur propriétaire.', exEn:'The five parrots were abandoned by their owner.' },
+    { type:'vocab', fr:'un enclos', wc:'nm', en:'an enclosure / pen', ex:'Le peintre célèbre a eu un accident dans l\'enclos des animaux.', exEn:'The famous painter had an accident in the animal enclosure.' },
+    { type:'vocab', fr:'un animal de compagnie', wc:'nm', en:'a pet', ex:'Les pompiers ont découvert un animal de compagnie un peu ordinaire.', exEn:'The firefighters found a rather unusual pet.' },
+    { type:'vocab', fr:'inattendu(e)', wc:'adj', en:'unexpected', ex:'Ce que les visiteurs ont vu était un spectacle vraiment inattendu.', exEn:'What the visitors saw was a truly unexpected spectacle.' },
+    { type:'vocab', fr:'abandonner', wc:'v', en:'to abandon / give up', ex:'Le propriétaire avait abandonné ses perroquets sans explication.', exEn:'The owner had abandoned his parrots without explanation.' },
+  ]},
+
+  { id:'exploits', fr:'Exploits', en:'Records & achievements', color:'#007A42', light:false, items:[
+    { type:'phrase', fr:'se mettre au sport sur le tard', en:'to take up sport late in life', ex:'Elle s\'est mise au sport sur le tard, à l\'âge de cinquante-neuf ans.', exEn:'She took up sport late in life, at the age of fifty-nine.' },
+    { type:'phrase', fr:'battre un record', en:'to break a record', ex:'Le couple a battu le record du monde de longévité conjugale.', exEn:'The couple broke the world record for the longest marriage.' },
+    { type:'phrase', fr:'entrer dans le livre des records', en:'to make it into the record books', ex:'Ils sont entrés dans le livre des records à cent cinq et cent six ans.', exEn:'They made it into the record books at a hundred and five and a hundred and six.' },
+    { type:'phrase', fr:'prouver que…', en:'to prove that…', ex:'Elle a prouvé qu\'il n\'est jamais trop tard pour commencer.', exEn:'She proved that it is never too late to start.' },
+    { type:'phrase', fr:'contre toute attente,…', en:'against all expectations,…', ex:'Contre toute attente, la femme de 79 ans a terminé sa première course.', exEn:'Against all expectations, the 79-year-old woman finished her first race.' },
+    { type:'vocab', fr:'malgré', wc:'prép', en:'despite / in spite of', ex:'Elle est devenue athlète malgré qu\'elle n\'ait jamais fait de sport avant.', exEn:'She became an athlete despite never having done sport before.' },
+    { type:'vocab', fr:'jusqu\'à l\'âge de…', wc:'loc', en:'until the age of…', ex:'Elle n\'avait jamais fait de sport jusqu\'à l\'âge de cinquante-neuf ans.', exEn:'She had never done any sport until the age of fifty-nine.' },
+    { type:'vocab', fr:'révéler', wc:'v', en:'to reveal / disclose', ex:'Ce jour-là, ils ont enfin révélé le secret qu\'ils gardaient depuis soixante ans.', exEn:'That day, they finally revealed the secret they had kept for sixty years.' },
+    { type:'vocab', fr:'exceptionnel(le)', wc:'adj', en:'exceptional / outstanding', ex:'Son exploit était vraiment exceptionnel pour une femme de son âge.', exEn:'Her feat was truly exceptional for a woman of her age.' },
+    { type:'vocab', fr:'la longévité', wc:'nf', en:'longevity / long life', ex:'Ce couple est célèbre pour sa longévité conjugale record.', exEn:'This couple is famous for their record conjugal longevity.' },
+  ]},
+ ],
+
+ B:[
+  { id:'structureB', fr:'Structurer', en:'Argument structure', color:'#FF6B2C', light:false, items:[
+    { type:'phrase', fr:'Je suis tout à fait convaincu(e) que…', en:'I am fully convinced that…', ex:'Je suis tout à fait convaincu qu\'une telle mesure serait bénéfique.', exEn:'I am fully convinced that such a measure would be beneficial.' },
+    { type:'phrase', fr:'Certes, on peut comprendre que…', en:'Admittedly, one can understand that…', ex:'Certes, on peut comprendre que cette décision soit difficile à accepter.', exEn:'Admittedly, one can understand that this decision is hard to accept.' },
+    { type:'phrase', fr:'Cependant, il faut bien admettre que…', en:'However, one must acknowledge that…', ex:'Cependant, il faut bien admettre que les conséquences seraient trop importantes.', exEn:'However, one must acknowledge that the consequences would be too significant.' },
+    { type:'phrase', fr:'En outre,…', en:'Furthermore,…', ex:'En outre, cette mesure aurait un impact positif sur l\'environnement.', exEn:'Furthermore, this measure would have a positive impact on the environment.' },
+    { type:'phrase', fr:'Par conséquent,…', en:'As a result / Therefore,…', ex:'Par conséquent, il serait urgent d\'agir dès maintenant.', exEn:'As a result, it would be urgent to act right now.' },
+    { type:'phrase', fr:'En conclusion, il apparaît clairement que…', en:'In conclusion, it is clear that…', ex:'En conclusion, il apparaît clairement que cette proposition mérite d\'être soutenue.', exEn:'In conclusion, it is clear that this proposal deserves support.' },
+    { type:'phrase', fr:'d\'un côté… de l\'autre…', en:'on one hand… on the other…', ex:'D\'un côté, cela favorise l\'autonomie ; de l\'autre, cela crée de l\'isolement.', exEn:'On one hand, it promotes autonomy; on the other, it creates isolation.' },
+    { type:'phrase', fr:'je tiens à souligner que…', en:'I would like to emphasize that…', ex:'Je tiens à souligner que cette question touche directement nos enfants.', exEn:'I would like to emphasize that this question directly affects our children.' },
+    { type:'phrase', fr:'il serait préférable de…', en:'it would be preferable to…', ex:'Il serait préférable de limiter plutôt qu\'interdire complètement.', exEn:'It would be preferable to limit rather than ban completely.' },
+    { type:'vocab', fr:'convaincant(e)', wc:'adj', en:'convincing / persuasive', ex:'Son argument était convaincant et bien structuré.', exEn:'His argument was convincing and well structured.' },
+    { type:'vocab', fr:'nuancé(e)', wc:'adj', en:'nuanced / balanced', ex:'Il faut adopter une position nuancée sur ce sujet complexe.', exEn:'One must adopt a nuanced position on this complex topic.' },
+    { type:'vocab', fr:'souligner', wc:'v', en:'to underline / stress / emphasize', ex:'Je tiens à souligner l\'importance de cette décision pour l\'avenir.', exEn:'I would like to stress the importance of this decision for the future.' },
+    { type:'vocab', fr:'admettre', wc:'v', en:'to admit / acknowledge', ex:'Il faut admettre que les arguments des deux côtés sont valables.', exEn:'One must admit that the arguments on both sides are valid.' },
+  ]},
+
+  { id:'techno', fr:'Technologie', en:'Technology & screens', color:'#0A6CF0', light:false, items:[
+    { type:'phrase', fr:'être accro à son téléphone', en:'to be addicted to one\'s phone', ex:'De plus en plus de jeunes sont accros à leur téléphone portable.', exEn:'More and more young people are addicted to their mobile phones.' },
+    { type:'phrase', fr:'faire défiler les réseaux sociaux', en:'to scroll through social media', ex:'On passe des heures à faire défiler les réseaux sociaux sans vraiment s\'en rendre compte.', exEn:'We spend hours scrolling through social media without even realising it.' },
+    { type:'phrase', fr:'limiter le temps d\'écran', en:'to limit screen time', ex:'Il faudrait limiter le temps d\'écran dès le plus jeune âge.', exEn:'Screen time should be limited from a very young age.' },
+    { type:'phrase', fr:'nous sommes devenus des marchandises', en:'we have become commodities', ex:'Avec Internet, nos données personnelles font de nous des marchandises.', exEn:'With the Internet, our personal data has made us into commodities.' },
+    { type:'phrase', fr:'supprimer la publicité', en:'to ban / remove advertising', ex:'Il faudrait supprimer la publicité sur les chaînes de télévision pour enfants.', exEn:'Advertising should be banned on children\'s television channels.' },
+    { type:'vocab', fr:'une dépendance', wc:'nf', en:'an addiction / dependency', ex:'La dépendance aux écrans touche désormais toutes les générations.', exEn:'Screen addiction now affects every generation.' },
+    { type:'vocab', fr:'nuire à', wc:'v', en:'to harm / damage', ex:'Les écrans nuisent à la concentration des enfants en classe.', exEn:'Screens harm children\'s concentration in class.' },
+    { type:'vocab', fr:'une publicité ciblée', wc:'nf', en:'targeted advertising', ex:'La publicité ciblée s\'adresse même aux enfants de moins de dix ans.', exEn:'Targeted advertising even targets children under ten years old.' },
+    { type:'vocab', fr:'les données personnelles', wc:'nfpl', en:'personal data', ex:'Nos données personnelles sont vendues à des entreprises sans notre accord.', exEn:'Our personal data is sold to companies without our consent.' },
+    { type:'vocab', fr:'rendre quelqu\'un paresseux', wc:'loc', en:'to make someone lazy', ex:'Certains pensent que les téléphones nous ont rendus paresseux.', exEn:'Some think that phones have made us lazy.' },
+    { type:'vocab', fr:'les réseaux sociaux', wc:'nmpl', en:'social media / social networks', ex:'Il faudrait limiter l\'usage des réseaux sociaux à une heure par jour.', exEn:'Social media use should be limited to one hour a day.' },
+    { type:'vocab', fr:'s\'en rendre compte', wc:'loc', en:'to realise it / be aware of it', ex:'On passe trop de temps en ligne sans vraiment s\'en rendre compte.', exEn:'We spend too much time online without really realising it.' },
+  ]},
+
+  { id:'education', fr:'Éducation', en:'School & education', color:'#FF3D8B', light:false, items:[
+    { type:'phrase', fr:'supprimer les notes', en:'to abolish grades', ex:'Certains pédagogues proposent de supprimer les notes à l\'école primaire.', exEn:'Some educators propose abolishing grades in primary school.' },
+    { type:'phrase', fr:'s\'épanouir à l\'école', en:'to thrive at school', ex:'Un enfant doit pouvoir s\'épanouir à l\'école, pas seulement réussir ses examens.', exEn:'A child should be able to thrive at school, not just pass exams.' },
+    { type:'phrase', fr:'tuer la motivation des élèves', en:'to kill students\' motivation', ex:'Une école trop compétitive risque de tuer la motivation des élèves.', exEn:'An overly competitive school risks killing students\' motivation.' },
+    { type:'phrase', fr:'encourager l\'esprit critique', en:'to encourage critical thinking', ex:'L\'école devrait encourager l\'esprit critique plutôt que la mémorisation.', exEn:'School should encourage critical thinking rather than memorisation.' },
+    { type:'phrase', fr:'passer beaucoup trop de temps à l\'école', en:'to spend far too much time at school', ex:'Certains parents pensent que les enfants passent beaucoup trop de temps à l\'école.', exEn:'Some parents think children spend far too much time at school.' },
+    { type:'vocab', fr:'la pression scolaire', wc:'nf', en:'academic pressure', ex:'La pression scolaire pèse de plus en plus sur les jeunes élèves.', exEn:'Academic pressure weighs more and more heavily on young students.' },
+    { type:'vocab', fr:'compétitif / compétitive', wc:'adj', en:'competitive', ex:'Le système scolaire est devenu trop compétitif pour les jeunes enfants.', exEn:'The school system has become too competitive for young children.' },
+    { type:'vocab', fr:'s\'épanouir', wc:'v', en:'to flourish / thrive / blossom', ex:'Il est important que les enfants puissent s\'épanouir à l\'école.', exEn:'It is important that children can flourish at school.' },
+    { type:'vocab', fr:'la formation à distance', wc:'nf', en:'distance learning', ex:'La formation à distance ne remplace pas le contact humain en classe.', exEn:'Distance learning doesn\'t replace human contact in the classroom.' },
+    { type:'vocab', fr:'la mémorisation', wc:'nf', en:'memorisation / rote learning', ex:'L\'école ne devrait pas se limiter à la mémorisation de faits.', exEn:'School should not be limited to the memorisation of facts.' },
+    { type:'vocab', fr:'l\'enseignement obligatoire', wc:'nm', en:'compulsory education', ex:'L\'enseignement obligatoire jusqu\'à seize ans est une conquête sociale.', exEn:'Compulsory education until sixteen is an important social achievement.' },
+  ]},
+
+  { id:'environnement', fr:'Environnement', en:'Environment & consumption', color:'#007A42', light:false, items:[
+    { type:'phrase', fr:'réduire sa consommation', en:'to cut down on consumption', ex:'Il faudrait réduire sa consommation de vêtements neufs pour protéger la planète.', exEn:'We should cut down on buying new clothes to protect the planet.' },
+    { type:'phrase', fr:'lutter contre la pollution', en:'to fight pollution', ex:'Les gouvernements doivent prendre des mesures concrètes pour lutter contre la pollution.', exEn:'Governments must take concrete measures to fight pollution.' },
+    { type:'phrase', fr:'prendre des mesures', en:'to take measures / steps', ex:'Les gouvernements devraient prendre des mesures urgentes contre le réchauffement climatique.', exEn:'Governments should take urgent measures against climate change.' },
+    { type:'phrase', fr:'irresponsable / inconscient', en:'irresponsible / reckless', ex:'Acheter trop de vêtements de nos jours est devenu irresponsable.', exEn:'Buying too many clothes nowadays has become irresponsible.' },
+    { type:'phrase', fr:'nuire à l\'environnement', en:'to harm the environment', ex:'L\'industrie textile nuit gravement à l\'environnement et aux ressources en eau.', exEn:'The textile industry seriously harms the environment and water resources.' },
+    { type:'vocab', fr:'les emballages plastiques', wc:'nmpl', en:'plastic packaging', ex:'Les industries devraient urgemment supprimer les emballages plastiques inutiles.', exEn:'Industries should urgently eliminate unnecessary plastic packaging.' },
+    { type:'vocab', fr:'l\'empreinte carbone', wc:'nf', en:'carbon footprint', ex:'Prendre l\'avion régulièrement augmente fortement son empreinte carbone.', exEn:'Flying regularly greatly increases one\'s carbon footprint.' },
+    { type:'vocab', fr:'la mode éphémère / fast fashion', wc:'nf', en:'fast fashion / disposable fashion', ex:'La mode éphémère pousse les consommateurs à acheter sans réfléchir.', exEn:'Fast fashion pushes consumers to buy without thinking.' },
+    { type:'vocab', fr:'le développement durable', wc:'nm', en:'sustainable development', ex:'Le développement durable doit devenir une priorité pour toutes les entreprises.', exEn:'Sustainable development must become a priority for all companies.' },
+    { type:'vocab', fr:'le réchauffement climatique', wc:'nm', en:'global warming / climate change', ex:'Le réchauffement climatique menace des millions d\'espèces animales.', exEn:'Global warming threatens millions of animal species.' },
+    { type:'vocab', fr:'interdire', wc:'v', en:'to ban / forbid', ex:'Certains militants veulent interdire les avions sur les vols courts.', exEn:'Some activists want to ban planes on short-haul flights.' },
+  ]},
+
+  { id:'sante', fr:'Santé', en:'Health & lifestyle', color:'#FF6B2C', light:false, items:[
+    { type:'phrase', fr:'manger sainement', en:'to eat healthily', ex:'Il est possible de manger sainement sans forcément devenir végétarien.', exEn:'It is possible to eat healthily without necessarily becoming vegetarian.' },
+    { type:'phrase', fr:'adopter un régime végétarien', en:'to adopt a vegetarian diet', ex:'Adopter un régime végétarien n\'est pas obligatoire pour être en bonne santé.', exEn:'Adopting a vegetarian diet is not required to be healthy.' },
+    { type:'phrase', fr:'prendre soin de sa santé', en:'to take care of one\'s health', ex:'Cuisiner soi-même aide à mieux prendre soin de sa santé.', exEn:'Cooking for yourself helps you better take care of your health.' },
+    { type:'phrase', fr:'les gens ne mangent que…', en:'people eat nothing but…', ex:'De nos jours, beaucoup de gens ne mangent que de l\'alimentation industrielle.', exEn:'Nowadays, many people eat nothing but processed food.' },
+    { type:'vocab', fr:'une alimentation malsaine', wc:'nf', en:'an unhealthy diet', ex:'Beaucoup de gens ont une alimentation malsaine par manque de temps.', exEn:'Many people have an unhealthy diet due to lack of time.' },
+    { type:'vocab', fr:'l\'alimentation industrielle', wc:'nf', en:'processed / industrial food', ex:'L\'alimentation industrielle est souvent trop riche en sucres et en graisses.', exEn:'Processed food is often too high in sugars and fats.' },
+    { type:'vocab', fr:'végétarien(ne)', wc:'adj/n', en:'vegetarian', ex:'Elle est devenue végétarienne après un documentaire sur l\'élevage intensif.', exEn:'She became vegetarian after a documentary about intensive farming.' },
+    { type:'vocab', fr:'les habitudes alimentaires', wc:'nfpl', en:'eating habits / dietary habits', ex:'Les habitudes alimentaires se forment dès l\'enfance et sont difficiles à changer.', exEn:'Eating habits are formed in childhood and are hard to change.' },
+    { type:'vocab', fr:'être en bonne santé', wc:'loc', en:'to be in good health', ex:'Pour être en bonne santé, il ne suffit pas d\'éviter la viande.', exEn:'To be in good health, it is not enough to avoid meat.' },
+    { type:'vocab', fr:'une perte de temps', wc:'nf', en:'a waste of time', ex:'Apprendre à cuisiner n\'est jamais une perte de temps, au contraire.', exEn:'Learning to cook is never a waste of time, quite the opposite.' },
+  ]},
+
+  { id:'societe', fr:'Société', en:'Society & values', color:'#7B5BD6', light:false, items:[
+    { type:'phrase', fr:'être livré à soi-même', en:'to be left to one\'s own devices', ex:'Les personnes âgées ne devraient pas être livrées à elles-mêmes devant la télévision.', exEn:'Older people should not be left to their own devices in front of the TV.' },
+    { type:'phrase', fr:'s\'entourer de gens différents', en:'to surround oneself with different people', ex:'S\'entourer de gens différents nous aide à nous remettre en question.', exEn:'Surrounding ourselves with different people helps us question ourselves.' },
+    { type:'phrase', fr:'ne s\'intéresser qu\'à son image', en:'to only care about one\'s image', ex:'Les jeunes d\'aujourd\'hui ne s\'intéressent-ils vraiment qu\'à leur image ?', exEn:'Do today\'s young people really only care about their image?' },
+    { type:'phrase', fr:'il faudrait installer / interdire…', en:'one should install / ban…', ex:'Il faudrait installer des caméras de surveillance dans tous les lieux publics.', exEn:'Surveillance cameras should be installed in all public places.' },
+    { type:'phrase', fr:'pour être heureux, il faut…', en:'to be happy, one must…', ex:'Certains pensent que pour être heureux, il faut s\'entourer de gens qui nous ressemblent.', exEn:'Some think that to be happy, one must surround oneself with like-minded people.' },
+    { type:'vocab', fr:'la vie privée', wc:'nf', en:'privacy', ex:'La vie privée est un droit fondamental qu\'il faut protéger.', exEn:'Privacy is a fundamental right that must be protected.' },
+    { type:'vocab', fr:'une caméra de surveillance', wc:'nf', en:'a surveillance camera / CCTV', ex:'Installer des caméras de surveillance dans les rues pose la question de la vie privée.', exEn:'Installing surveillance cameras raises the question of privacy.' },
+    { type:'vocab', fr:'l\'autonomie', wc:'nf', en:'autonomy / independence', ex:'Vivre seul ne prouve pas nécessairement qu\'on a acquis une vraie autonomie.', exEn:'Living alone doesn\'t necessarily prove that one has gained true autonomy.' },
+    { type:'vocab', fr:'une valeur', wc:'nf', en:'a value (moral/social)', ex:'L\'art n\'a pas besoin d\'être utile pour avoir de la valeur dans une société.', exEn:'Art does not need to be useful to have value in a society.' },
+    { type:'vocab', fr:'se remettre en question', wc:'loc', en:'to question oneself / rethink one\'s views', ex:'S\'entourer de gens différents nous aide à nous remettre en question.', exEn:'Surrounding ourselves with different people helps us question ourselves.' },
+    { type:'vocab', fr:'épanoui(e)', wc:'adj', en:'fulfilled / happy in oneself', ex:'Mener une vie solitaire ne signifie pas qu\'on est épanoui et responsable.', exEn:'Leading a solitary life does not mean that one is fulfilled and responsible.' },
+    { type:'vocab', fr:'les personnes âgées / les seniors', wc:'npl', en:'older people / seniors', ex:'Les personnes âgées méritent une attention particulière dans notre société.', exEn:'Older people deserve special attention in our society.' },
+  ]},
+ ]
 };
 
-/* ═══════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════
    STATE
-   ═══════════════════════════════════════════════════════ */
-let section = 'A';
+   ═══════════════════════════════════════════ */
+let section  = 'A';
 let topicIdx = 0;
 let cardIdx  = 0;
-let known    = {}; // key = `${topicId}_${itemIdx}` → true
+let filter   = 'all'; // 'all' | 'vocab' | 'phrase'
 let expanded = false;
-
+let known    = {};
 try { known = JSON.parse(localStorage.getItem('ecrire_known') || '{}'); } catch(e){}
-
-function saveKnown() {
-  try { localStorage.setItem('ecrire_known', JSON.stringify(known)); } catch(e){}
-}
+function saveKnown() { try { localStorage.setItem('ecrire_known', JSON.stringify(known)); } catch(e){} }
 
 function currentTopics() { return TOPICS[section]; }
 function currentTopic()  { return currentTopics()[topicIdx]; }
-function currentItems()  { return currentTopic().items; }
-function currentItem()   { return currentItems()[cardIdx]; }
-function knownKey(ti, ci) { return `${currentTopics()[ti].id}_${ci}`; }
-function isKnown(ti, ci) { return !!known[knownKey(ti, ci)]; }
+function allItems()      { return currentTopic().items; }
+function filteredItems() {
+  const all = allItems();
+  if (filter === 'all') return all.map((item, i) => ({ item, origIdx: i }));
+  return all.map((item, i) => ({ item, origIdx: i })).filter(({ item }) => item.type === filter);
+}
+function currentEntry()  { return filteredItems()[cardIdx]; }
+function knownKey(topicId, origIdx) { return `${topicId}_${origIdx}`; }
 
-/* ═══════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════
    RENDER
-   ═══════════════════════════════════════════════════════ */
+   ═══════════════════════════════════════════ */
 function renderTopics() {
   const row = document.getElementById('topicsRow');
   row.innerHTML = '';
@@ -716,22 +650,34 @@ function renderTopics() {
 }
 
 function renderCard(direction) {
-  const area = document.getElementById('cardArea');
-  const item = currentItem();
+  const area  = document.getElementById('cardArea');
   const topic = currentTopic();
-  const items = currentItems();
-  const ki = knownKey(topicIdx, cardIdx);
-  const isKn = !!known[ki];
+  const filt  = filteredItems();
 
-  // progress fill
-  const knownInTopic = items.filter((_, ci) => isKnown(topicIdx, ci)).length;
-  document.getElementById('progressFill').style.width = (knownInTopic / items.length * 100) + '%';
-  document.getElementById('counterLabel').textContent = `${cardIdx + 1} / ${items.length}`;
-  const kc = document.getElementById('knownCount');
-  kc.textContent = knownInTopic > 0 ? `${knownInTopic} known ✓` : '';
+  if (!filt.length) {
+    area.innerHTML = `<div class="empty"><div style="font-size:2rem">🤷</div><div>No ${filter} items for this topic</div></div>`;
+    document.getElementById('counterLabel').textContent = '0 / 0';
+    document.getElementById('knownCount').textContent = '';
+    document.getElementById('progressFill').style.width = '0%';
+    return;
+  }
+
+  const { item, origIdx } = filt[cardIdx];
+  const ki  = knownKey(topic.id, origIdx);
+  const isKn = !!known[ki];
+  const knownCount = filt.filter(({ origIdx: oi }) => !!known[knownKey(topic.id, oi)]).length;
+
+  document.getElementById('progressFill').style.width = (knownCount / filt.length * 100) + '%';
+  document.getElementById('counterLabel').textContent = `${cardIdx + 1} / ${filt.length}`;
+  document.getElementById('knownCount').textContent = knownCount > 0 ? `${knownCount} known ✓` : '';
+
+  const isVocab = item.type === 'vocab';
+  const badgeHtml = isVocab
+    ? `<span class="card-type-badge badge-vocab">Vocab${item.wc ? ` · <em style="font-style:normal;opacity:.75">${item.wc}</em>` : ''}</span>`
+    : `<span class="card-type-badge badge-phrase">Phrase</span>`;
 
   area.innerHTML = `
-    <div class="card${direction ? ' anim-in' + (direction === 'back' ? '-back' : '') : ''}"
+    <div class="card${direction ? ` anim-${direction}` : ''}"
          style="--topic-color:${topic.color}"
          onclick="toggleExpand()">
       <div class="card-accent"></div>
@@ -739,6 +685,7 @@ function renderCard(direction) {
         <div class="known-badge${isKn ? ' show' : ''}">
           <svg viewBox="0 0 12 10"><polyline points="1,5 4.5,8.5 11,1"/></svg>
         </div>
+        ${badgeHtml}
         <div class="card-fr">${item.fr}</div>
         <div class="card-en">${item.en}</div>
         <div class="card-example${expanded ? ' open' : ''}">
@@ -747,29 +694,26 @@ function renderCard(direction) {
           <div class="example-en">${item.exEn}</div>
         </div>
       </div>
-      <div class="tap-hint">${expanded ? '▲ tap to close' : '▼ tap for example'}</div>
+      <div class="tap-hint">${expanded ? '▲ close' : '▼ example'}</div>
     </div>
 
     <div class="nav-controls" style="--topic-color:${topic.color}">
-      <button class="nav-btn" onclick="navigate(-1)" ${cardIdx === 0 ? 'disabled' : ''} aria-label="Previous">
+      <button class="nav-btn" onclick="navigate(-1)" ${cardIdx === 0 ? 'disabled' : ''}>
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="10,3 5,8 10,13"/></svg>
       </button>
       <button class="know-btn${isKn ? ' known' : ''}" onclick="toggleKnown()">
-        <svg viewBox="0 0 14 12" fill="none" stroke="currentColor" stroke-width="2.2">
-          <polyline points="1,6 5,10 13,2"/>
-        </svg>
+        <svg viewBox="0 0 14 12" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="1,6 5,10 13,2"/></svg>
         ${isKn ? 'Marked known' : 'Mark as known'}
       </button>
-      <button class="nav-btn" onclick="navigate(1)" ${cardIdx === items.length - 1 ? 'disabled' : ''} aria-label="Next">
+      <button class="nav-btn" onclick="navigate(1)" ${cardIdx === filt.length - 1 ? 'disabled' : ''}>
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,3 11,8 6,13"/></svg>
       </button>
     </div>
 
     <div class="dot-nav">
-      ${items.map((_, i) => {
-        const kn = isKnown(topicIdx, i);
-        return `<div class="dot${i === cardIdx ? ' current' : ''}${kn ? ' known-dot' : ''}"
-                     onclick="jumpTo(${i})"></div>`;
+      ${filt.map(({ origIdx: oi }, i) => {
+        const kn = !!known[knownKey(topic.id, oi)];
+        return `<div class="dot${i === cardIdx ? ' current' : ''}${kn ? ' known-dot' : ''}" onclick="jumpTo(${i})"></div>`;
       }).join('')}
     </div>
   `;
@@ -778,72 +722,54 @@ function renderCard(direction) {
 function renderAll(direction) {
   renderTopics();
   renderCard(direction);
-  // accent color on header
   document.documentElement.style.setProperty('--accent', currentTopic().color);
-  // section buttons
   document.getElementById('btnA').classList.toggle('active', section === 'A');
   document.getElementById('btnB').classList.toggle('active', section === 'B');
+  ['All','Vocab','Phrase'].forEach(t => {
+    document.getElementById('tab'+t).classList.toggle('active', filter === t.toLowerCase());
+  });
 }
 
-/* ═══════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════
    ACTIONS
-   ═══════════════════════════════════════════════════════ */
-function setSection(s) {
-  section = s; topicIdx = 0; cardIdx = 0; expanded = false;
-  renderAll();
-}
+   ═══════════════════════════════════════════ */
+function setSection(s) { section = s; topicIdx = 0; cardIdx = 0; expanded = false; renderAll(); }
+function setFilter(f)  { filter = f; cardIdx = 0; expanded = false; renderAll(); }
 
 function navigate(dir) {
-  const items = currentItems();
+  const len = filteredItems().length;
   const next = cardIdx + dir;
-  if (next < 0 || next >= items.length) return;
-  cardIdx = next;
-  expanded = false;
+  if (next < 0 || next >= len) return;
+  cardIdx = next; expanded = false;
   renderAll(dir === 1 ? 'fwd' : 'back');
 }
-
-function jumpTo(i) {
-  cardIdx = i; expanded = false;
-  renderAll();
-}
+function jumpTo(i) { cardIdx = i; expanded = false; renderAll(); }
 
 function toggleKnown() {
-  const ki = knownKey(topicIdx, cardIdx);
+  const { origIdx } = currentEntry();
+  const ki = knownKey(currentTopic().id, origIdx);
   if (known[ki]) { delete known[ki]; } else { known[ki] = true; }
   saveKnown();
   renderCard();
-  // auto-advance if marking known and not at end
-  if (known[ki] && cardIdx < currentItems().length - 1) {
-    setTimeout(() => { cardIdx++; expanded = false; renderAll('fwd'); }, 400);
+  if (known[ki] && cardIdx < filteredItems().length - 1) {
+    setTimeout(() => { cardIdx++; expanded = false; renderAll('fwd'); }, 380);
   }
 }
+function toggleExpand() { expanded = !expanded; renderCard(); }
 
-function toggleExpand() {
-  expanded = !expanded;
-  renderCard();
-}
-
-/* ═══════════════════════════════════════════════════════
-   KEYBOARD
-   ═══════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════
+   KEYBOARD + SWIPE
+   ═══════════════════════════════════════════ */
 document.addEventListener('keydown', e => {
   if (e.key === 'ArrowRight') navigate(1);
   if (e.key === 'ArrowLeft')  navigate(-1);
   if (e.key === ' ')          { e.preventDefault(); toggleKnown(); }
   if (e.key === 'e' || e.key === 'E') toggleExpand();
 });
+let tx = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive:true });
+document.addEventListener('touchend',   e => { const dx = e.changedTouches[0].clientX - tx; if (Math.abs(dx) > 50) navigate(dx < 0 ? 1 : -1); }, { passive:true });
 
-/* ═══════════════════════════════════════════════════════
-   TOUCH SWIPE
-   ═══════════════════════════════════════════════════════ */
-let touchStartX = 0;
-document.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
-document.addEventListener('touchend', e => {
-  const dx = e.changedTouches[0].clientX - touchStartX;
-  if (Math.abs(dx) > 50) navigate(dx < 0 ? 1 : -1);
-}, { passive: true });
-
-/* ── boot ── */
 renderAll();
 </script>
 </body>
