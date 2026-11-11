@@ -28,35 +28,41 @@ body{
 
 /* ── TOP CHROME ─────────────────────────────── */
 .topbar{
-  display:flex; align-items:center; justify-content:space-between;
-  padding:12px 16px 10px;
+  display:grid;
+  grid-template-columns: auto 1fr auto;
+  align-items:center;
+  gap:10px;
+  padding:10px 16px 8px;
   border-bottom:1.5px solid var(--hair);
   background:var(--paper);
-  flex-shrink:0; gap:10px;
+  flex-shrink:0;
 }
 .wordmark{
-  font-family:var(--ff); font-size:1.2rem; font-weight:700;
-  letter-spacing:-0.03em; line-height:1; flex-shrink:0;
+  font-family:var(--ff); font-size:1.15rem; font-weight:700;
+  letter-spacing:-0.03em; line-height:1;
+  white-space:nowrap;
 }
 .wordmark em{color:var(--accent); font-style:normal}
 
+/* progress bar lives in the middle column of the topbar */
+.prog-inline{
+  display:flex; align-items:center; gap:7px; min-width:0;
+}
+.prog-track{flex:1; height:4px; background:var(--hair); border-radius:2px; overflow:hidden; min-width:0}
+.prog-fill{height:100%; background:var(--accent); border-radius:2px; transition:width .3s}
+.prog-label{font-size:0.7rem; font-weight:600; color:var(--soft); white-space:nowrap}
+
 .seg{
   display:flex; gap:3px; background:var(--hair);
-  border-radius:8px; padding:3px; flex-shrink:0;
+  border-radius:8px; padding:3px;
 }
 .seg button{
-  font-family:var(--ui); font-size:0.73rem; font-weight:600;
+  font-family:var(--ui); font-size:0.72rem; font-weight:600;
   border:none; background:transparent; color:var(--soft);
-  padding:5px 11px; border-radius:5px; cursor:pointer;
+  padding:5px 10px; border-radius:5px; cursor:pointer;
   transition:background .15s,color .15s; white-space:nowrap;
 }
 .seg button.on{background:var(--paper); color:var(--ink); box-shadow:0 1px 3px rgba(0,0,0,.1)}
-
-/* ── PROGRESS ───────────────────────────────── */
-.prog-row{display:flex; align-items:center; gap:10px; padding:8px 16px 0; flex-shrink:0}
-.prog-track{flex:1; height:5px; background:var(--hair); border-radius:3px; overflow:hidden}
-.prog-fill{height:100%; background:var(--accent); border-radius:3px; transition:width .3s}
-.prog-label{font-size:0.72rem; font-weight:600; color:var(--soft); white-space:nowrap; min-width:48px; text-align:right}
 
 /* ── TOPICS ─────────────────────────────────── */
 .topics-wrap{
@@ -240,15 +246,14 @@ body{
 
 <div class="topbar">
   <div class="wordmark">Écrire<em>.</em></div>
-  <div class="seg">
-    <button id="btnA" class="on" onclick="setSection('A')">Section A</button>
-    <button id="btnB"           onclick="setSection('B')">Section B</button>
+  <div class="prog-inline">
+    <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
+    <div class="prog-label" id="progLabel">1 / 1</div>
   </div>
-</div>
-
-<div class="prog-row">
-  <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
-  <div class="prog-label" id="progLabel">1 / 1</div>
+  <div class="seg">
+    <button id="btnA" class="on" onclick="setSection('A')">A</button>
+    <button id="btnB"           onclick="setSection('B')">B</button>
+  </div>
 </div>
 
 <div class="topics-wrap"><div class="topics-row" id="topicsRow"></div></div>
