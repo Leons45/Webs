@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NB 2.1 Prompt Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #08090E;
+  --surface: #0F1018;
+  --card: #161720;
+  --card-hover: #1C1D2A;
+  --border: rgba(255,255,255,0.07);
+  --border-hover: rgba(255,255,255,0.14);
+  --text: #EEEEF4;
+  --muted: #6E6E8A;
+  --muted2: #4A4A62;
+  --mode-color: #A78BFA;
+  --mode-color-dim: rgba(167,139,250,0.10);
+  --radius: 14px;
+  --radius-sm: 9px;
+  --radius-xs: 6px;
+  --gold: #FBBF24;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--muted2); border-radius: 3px; }
+
+/* ─── LAYOUT ─── */
+.app { max-width: 760px; margin: 0 auto; padding: 40px 24px 100px; }
+
+/* ─── HEADER ─── */
+.header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 36px; }
+.logo {
+  width: 42px; height: 42px;
+  border-radius: 11px;
+  border: 1px solid var(--mode-color);
+  background: var(--mode-color-dim);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; flex-shrink: 0;
+  transition: all 0.4s ease;
+}
+.app-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px; font-weight: 800;
+  letter-spacing: -0.5px; color: var(--text); line-height: 1.2;
+}
+.app-desc { font-size: 12.5px; color: var(--muted); margin-top: 3px; }
+
+/* ─── SECTION LABEL ─── */
+.section-label {
+  font-size: 11px; font-weight: 600; color: var(--muted);
+  letter-spacing: 0.3px; margin-bottom: 10px;
+}
+
+/* ─── MODE GRID ─── */
+.mode-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 7px; margin-bottom: 16px;
+}
+.mode-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 13px 8px 11px;
+  cursor: pointer; text-align: center; user-select: none;
+  transition: border-color 0.2s, background 0.2s, transform 0.15s, box-shadow 0.2s;
+}
+.mode-card:hover { border-color: var(--border-hover); background: var(--card-hover); transform: translateY(-1px); }
+.mode-card.active {
+  border-color: var(--mc, #A78BFA);
+  background: var(--mc-dim, rgba(167,139,250,0.1));
+  box-shadow: 0 0 0 1px var(--mc, #A78BFA), 0 4px 24px var(--mc-glow, rgba(167,139,250,0.2));
+}
+.mode-icon { font-size: 22px; display: block; margin-bottom: 6px; line-height: 1; }
+.mode-name { font-size: 11px; font-weight: 500; color: var(--muted); line-height: 1.3; transition: color 0.2s; }
+.mode-card.active .mode-name { color: var(--mc, #A78BFA); font-weight: 600; }
+
+/* ─── MODE TIP ─── */
+.mode-tip {
+  display: flex; align-items: flex-start; gap: 9px;
+  padding: 11px 14px;
+  border: 1px solid var(--mode-color); border-radius: var(--radius-sm);
+  background: var(--mode-color-dim); margin-bottom: 28px;
+  transition: all 0.4s ease;
+}
+.tip-pulse {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--mode-color); flex-shrink: 0; margin-top: 5px;
+  transition: background 0.4s;
+  animation: blink 2.5s ease infinite;
+}
+@keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+.tip-text { font-size: 12.5px; color: var(--text); line-height: 1.55; opacity: 0.88; }
+
+/* ─── INPUTS ─── */
+.inputs-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 11px; margin-bottom: 20px;
+}
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field-label {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 500; color: var(--muted);
+}
+.field-required {
+  font-size: 9px; font-weight: 600;
+  padding: 1px 5px; border-radius: 3px;
+  background: var(--mode-color-dim); color: var(--mode-color);
+  border: 1px solid color-mix(in srgb, var(--mode-color) 30%, transparent);
+  transition: all 0.4s;
+}
+.field input {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 10px 13px;
+  font-size: 13px; color: var(--text);
+  font-family: 'Inter', sans-serif;
+  outline: none; width: 100%;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.field input::placeholder { color: var(--muted2); }
+.field input:focus {
+  border-color: var(--mode-color);
+  box-shadow: 0 0 0 3px var(--mode-color-dim);
+}
+
+/* ─── LIVE PREVIEW CARD ─── */
+.preview-card {
+  background: var(--surface);
+  border: 1px dashed color-mix(in srgb, var(--mode-color) 40%, var(--border));
+  border-radius: var(--radius);
+  padding: 16px 18px 14px;
+  margin-bottom: 20px;
+  transition: border-color 0.4s, background 0.4s;
+  position: relative; overflow: hidden;
+}
+.preview-card.has-content {
+  background: var(--card);
+  border-style: solid;
+  border-color: color-mix(in srgb, var(--mode-color) 25%, var(--border));
+}
+.preview-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px;
+}
+.preview-label-wrap { display: flex; align-items: center; gap: 7px; }
+.preview-live-indicator {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--mode-color);
+  animation: blink 2s ease infinite;
+  transition: background 0.4s;
+  flex-shrink: 0;
+}
+.preview-label { font-size: 11px; font-weight: 600; color: var(--muted); }
+.preview-words { font-size: 11px; color: var(--muted2); }
+.preview-text {
+  font-size: 13.5px; line-height: 1.72; color: var(--text);
+  min-height: 60px; word-break: break-word;
+  transition: color 0.3s;
+}
+.preview-text.empty { color: var(--muted2); font-style: italic; font-size: 13px; }
+.preview-text.updating { opacity: 0.5; }
+.preview-footer {
+  display: flex; align-items: center; gap: 7px;
+  margin-top: 12px; padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+/* ─── ACTION ROW ─── */
+.actions-row { display: flex; gap: 10px; margin-bottom: 28px; }
+.btn-shuffle {
+  padding: 11px 16px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); background: var(--card);
+  color: var(--text); font-size: 13px; font-weight: 500;
+  cursor: pointer; display: flex; align-items: center; gap: 7px;
+  transition: all 0.15s; font-family: 'Inter', sans-serif;
+  white-space: nowrap;
+}
+.btn-shuffle:hover { border-color: var(--border-hover); background: var(--card-hover); }
+.btn-generate {
+  flex: 1; padding: 12px 20px; border-radius: var(--radius-sm);
+  border: none; background: var(--mode-color); color: #000;
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: filter 0.2s, transform 0.15s, box-shadow 0.2s;
+  font-family: 'Inter', sans-serif; letter-spacing: -0.2px;
+  box-shadow: 0 4px 20px var(--mode-color-dim);
+}
+.btn-generate:hover { filter: brightness(1.08) saturate(1.1); transform: translateY(-1px); }
+.btn-generate:active { transform: translateY(0); filter: brightness(0.96); }
+
+/* ─── SHARED SMALL BUTTONS ─── */
+.btn-sm {
+  padding: 6px 12px; border-radius: var(--radius-xs);
+  font-size: 12px; font-weight: 500; cursor: pointer;
+  border: 1px solid var(--border); background: var(--surface);
+  color: var(--text); transition: all 0.15s;
+  font-family: 'Inter', sans-serif;
+  display: flex; align-items: center; gap: 5px;
+  white-space: nowrap;
+}
+.btn-sm:hover { border-color: var(--border-hover); background: var(--card); }
+.btn-sm-copy:hover { border-color: var(--mode-color); color: var(--mode-color); }
+.btn-sm-save { transition: all 0.2s; }
+.btn-sm-save.saved {
+  border-color: var(--mode-color);
+  color: var(--mode-color);
+  background: var(--mode-color-dim);
+}
+.btn-sm-del:hover { border-color: rgba(239,68,68,0.5); color: #EF4444; }
+
+/* ─── ANGLES SECTION ─── */
+.angles-section { margin-bottom: 28px; }
+.angles-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px;
+}
+.angles-count {
+  font-size: 11px; font-weight: 600; color: var(--muted);
+}
+.angles-mode-badge {
+  font-size: 10px; font-weight: 600;
+  padding: 2px 9px; border-radius: 4px;
+  background: var(--mode-color-dim); color: var(--mode-color);
+  border: 1px solid color-mix(in srgb, var(--mode-color) 25%, transparent);
+}
+
+.angle-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 14px 16px;
+  margin-bottom: 8px;
+  transition: border-color 0.2s;
+}
+.angle-card:hover { border-color: var(--border-hover); }
+.angle-card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px;
+}
+.angle-label {
+  font-size: 10px; font-weight: 700;
+  padding: 2px 9px; border-radius: 4px;
+  background: var(--mode-color-dim); color: var(--mode-color);
+  border: 1px solid color-mix(in srgb, var(--mode-color) 25%, transparent);
+  transition: all 0.4s;
+}
+.angle-actions { display: flex; gap: 6px; }
+.angle-text {
+  font-size: 13.5px; line-height: 1.68;
+  color: var(--text); word-break: break-word;
+}
+
+/* ─── DIVIDER ─── */
+.divider { height: 1px; background: var(--border); margin: 28px 0; }
+
+/* ─── SAVED SECTION ─── */
+.saved-section { }
+.saved-top {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.saved-tabs { display: flex; gap: 5px; }
+.saved-tab {
+  padding: 5px 13px; border-radius: var(--radius-xs);
+  font-size: 12px; font-weight: 500; cursor: pointer;
+  border: 1px solid var(--border); background: var(--card);
+  color: var(--muted); transition: all 0.15s;
+  font-family: 'Inter', sans-serif;
+}
+.saved-tab:hover { border-color: var(--border-hover); color: var(--text); }
+.saved-tab.active {
+  background: var(--mode-color-dim);
+  border-color: var(--mode-color); color: var(--mode-color);
+  font-weight: 600;
+}
+.saved-tab .tab-count {
+  font-size: 10px; font-weight: 700;
+  background: var(--mode-color);
+  color: #000; border-radius: 10px;
+  padding: 0px 5px; margin-left: 4px;
+  display: inline-block; line-height: 1.6;
+}
+.saved-tab.active .tab-count { background: var(--mode-color); }
+.btn-txt {
+  font-size: 11px; color: var(--muted2);
+  cursor: pointer; background: none; border: none;
+  font-family: 'Inter', sans-serif; transition: color 0.15s;
+}
+.btn-txt:hover { color: #EF4444; }
+
+.saved-item {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 12px 14px;
+  margin-bottom: 7px; transition: border-color 0.15s;
+}
+.saved-item:hover { border-color: var(--border-hover); }
+.saved-item-top {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 7px;
+}
+.saved-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.saved-meta { flex: 1; font-size: 10px; font-weight: 600; color: var(--muted); }
+.btn-star {
+  background: none; border: none; cursor: pointer;
+  font-size: 15px; color: var(--muted2);
+  transition: color 0.15s, transform 0.15s;
+  padding: 0 2px; line-height: 1;
+  flex-shrink: 0;
+}
+.btn-star:hover { transform: scale(1.2); }
+.btn-star.active { color: var(--gold); }
+.saved-text {
+  font-size: 12.5px; color: var(--text); line-height: 1.5;
+  display: -webkit-box; -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical; overflow: hidden;
+  margin-bottom: 10px;
+}
+.saved-actions { display: flex; gap: 6px; }
+
+.empty-state {
+  text-align: center; padding: 24px 16px;
+  font-size: 13px; color: var(--muted2);
+}
+
+/* ─── TOAST ─── */
+.toast {
+  position: fixed; bottom: 28px; right: 24px;
+  background: var(--card); border: 1px solid var(--mode-color);
+  border-radius: var(--radius-sm); padding: 10px 16px;
+  font-size: 13px; color: var(--text);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  transform: translateY(80px) scale(0.96); opacity: 0;
+  transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 999; display: flex; align-items: center; gap: 9px;
+  pointer-events: none;
+}
+.toast.show { transform: translateY(0) scale(1); opacity: 1; }
+
+/* ─── FOOTER ─── */
+.footer {
+  margin-top: 56px; padding-top: 20px;
+  border-top: 1px solid var(--border);
+  text-align: center; font-size: 11px; color: var(--muted2);
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 540px) {
+  .app { padding: 24px 16px 80px; }
+  .mode-grid { gap: 5px; }
+  .mode-name { font-size: 10px; }
+  .mode-icon { font-size: 18px; }
+  .inputs-grid { grid-template-columns: 1fr; }
+  .app-name { font-size: 18px; }
+  .angle-card-header { flex-wrap: wrap; gap: 8px; }
+}
+@media (max-width: 360px) {
+  .mode-grid { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="logo" id="logo">✦</div>
+    <div>
+      <div class="app-name">NB 2.1 Prompt Studio</div>
+      <div class="app-desc">Rejection-proof prompts for Nano Banana 2.1 in Google Flow</div>
+    </div>
+  </div>
+
+  <!-- Mode selector -->
+  <div class="section-label">Shoot mode</div>
+  <div class="mode-grid" id="modeGrid"></div>
+
+  <!-- Mode tip -->
+  <div class="mode-tip" id="modeTip">
+    <div class="tip-pulse" id="tipPulse"></div>
+    <div class="tip-text" id="tipText">Select a mode to get started.</div>
+  </div>
+
+  <!-- Fields -->
+  <div class="section-label">Describe your shot</div>
+  <div class="inputs-grid">
+    <div class="field">
+      <div class="field-label">
+        Subject <span class="field-required" id="reqBadge">required</span>
+      </div>
+      <input id="f-subject" placeholder="e.g. a woman in her 20s, two friends, a man" />
+    </div>
+    <div class="field">
+      <div class="field-label">Scene / Location</div>
+      <input id="f-scene" placeholder="e.g. rooftop at golden hour, busy Tokyo street" />
+    </div>
+    <div class="field">
+      <div class="field-label">Outfit</div>
+      <input id="f-outfit" placeholder="e.g. oversized white hoodie, leather jacket" />
+    </div>
+    <div class="field">
+      <div class="field-label">Expression / Mood</div>
+      <input id="f-expression" placeholder="e.g. laughing, looking away, intense gaze" />
+    </div>
+  </div>
+
+  <!-- Live Preview -->
+  <div class="preview-card" id="previewCard">
+    <div class="preview-header">
+      <div class="preview-label-wrap">
+        <div class="preview-live-indicator" id="previewDot"></div>
+        <span class="preview-label">Live preview</span>
+      </div>
+      <span class="preview-words" id="previewWords"></span>
+    </div>
+    <div class="preview-text empty" id="previewText">Start typing above — your prompt updates live.</div>
+    <div class="preview-footer" id="previewFooter" style="display:none">
+      <button class="btn-sm btn-sm-copy" onclick="copyText(currentPreview)">Copy</button>
+      <button class="btn-sm btn-sm-save" id="previewSaveBtn" onclick="savePreviewPrompt()">Save</button>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="actions-row">
+    <button class="btn-shuffle" onclick="shuffle()">🎲 Shuffle</button>
+    <button class="btn-generate" id="genBtn" onclick="generateAngles()">
+      <span id="genBtnIcon">✦</span>
+      <span id="genBtnLabel">Generate 5 Angles</span>
+    </button>
+  </div>
+
+  <!-- Angles section -->
+  <div class="angles-section" id="anglesSection" style="display:none">
+    <div class="angles-header">
+      <div class="angles-count">5 angles</div>
+      <div class="angles-mode-badge" id="anglesBadge"></div>
+    </div>
+    <div id="anglesList"></div>
+  </div>
+
+  <!-- Saved section -->
+  <div class="saved-section" id="savedSection" style="display:none">
+    <div class="divider"></div>
+    <div class="saved-top">
+      <div class="saved-tabs">
+        <button class="saved-tab active" id="tabAll" onclick="switchTab('all')">
+          Saved <span class="tab-count" id="countAll">0</span>
+        </button>
+        <button class="saved-tab" id="tabFav" onclick="switchTab('favorites')">
+          ★ Favorites <span class="tab-count" id="countFav">0</span>
+        </button>
+      </div>
+      <button class="btn-txt" onclick="clearSaved()">Clear all</button>
+    </div>
+    <div id="savedList"></div>
+  </div>
+
+  <div class="footer">NB 2.1 Prompt Studio &nbsp;·&nbsp; Built for Google Flow</div>
+</div>
+
+<div class="toast" id="toast">
+  <span id="toastIcon">✓</span>
+  <span id="toastMsg">Done</span>
+</div>
+
+<script>
+// ─── MODE DATA ─────────────────────────────────────────────────────────────────
+const MODES = [
+  {
+    id: 'snapchat', label: 'Snapchat Pic', shortLabel: 'Snap',
+    icon: '👻', color: '#FDE047', textColor: '#000000',
+    tip: 'Casual, authentic, real-moment energy. Handheld candid with imperfect framing. Best at 9:16.',
+    shuffles: {
+      subject:    ['a young woman laughing', 'two friends hanging out', 'a guy in his early 20s', 'a girl with curly hair', 'a college student'],
+      scene:      ['a convenience store at night', 'inside a moving car', 'a kitchen counter', 'a sunny park', 'a dorm room', 'a stairwell'],
+      outfit:     ['oversized white hoodie', 'crop top and jeans', 'vintage graphic tee', 'cozy knit sweater', 'baggy cargos and tank'],
+      expression: ['mid-laugh, eyes crinkled', 'looking away candidly', 'caught off-guard smiling', 'big grin at camera', 'squinting in sunlight']
+    },
+    build: (s) => {
+      let p = s.subject || 'a person';
+      if (s.expression) p += `, ${s.expression}`;
+      if (s.scene) p += `, ${s.scene}`;
+      p += '. Casual handheld POV snapshot, natural available light, authentic candid moment';
+      if (s.outfit) p += `, ${s.outfit}`;
+      p += '. Slightly imperfect framing, real-life texture, no filters, no staging. No watermarks, no text, no duplicate subjects.';
+      return p;
+    }
+  },
+  {
+    id: 'photoshoot', label: 'Photoshoot', shortLabel: 'Studio',
+    icon: '📸', color: '#38BDF8', textColor: '#000000',
+    tip: 'Editorial studio quality. Three-quarter angle, clean commercial finish. 4:5 for feed-ready results.',
+    shuffles: {
+      subject:    ['a model in her mid-20s', 'a young couple', 'a man with strong features', 'a woman with short hair', 'a teenager'],
+      scene:      ['a white cyclorama studio', 'an ivy-covered brick wall', 'a rooftop in golden hour', 'a minimal loft with concrete walls', 'an empty warehouse'],
+      outfit:     ['a sharp black blazer and trousers', 'a flowy white silk dress', 'fitted cream turtleneck', 'oversized tailored coat', 'structured denim set'],
+      expression: ['confident direct gaze', 'soft smile, eyes slightly down', 'looking over shoulder', 'neutral, jaw relaxed', 'chin tilted up, composed']
+    },
+    build: (s) => {
+      let p = s.subject || 'a person';
+      if (s.outfit) p += ` wearing ${s.outfit}`;
+      if (s.expression) p += `, ${s.expression}`;
+      if (s.scene) p += `, ${s.scene}`;
+      p += '. Editorial photography, three-quarter angle, soft box light from the left, shallow depth of field, clean commercial finish. No watermarks, no extra people, no text.';
+      return p;
+    }
+  },
+  {
+    id: 'cinematic', label: 'Cinematic', shortLabel: 'Film',
+    icon: '🎬', color: '#FB923C', textColor: '#000000',
+    tip: 'Film still energy. Anamorphic lens, dramatic backlight, deep color grading. 16:9 for widescreen.',
+    shuffles: {
+      subject:    ['a lone figure', 'a detective', 'a young soldier', 'a scientist', 'a woman in her 40s standing still'],
+      scene:      ['a rain-soaked city street at night', 'a desert highway at dusk', 'an empty subway car', 'a fog-covered bridge', 'a burning warehouse exterior'],
+      outfit:     ['a dark trench coat', 'worn military fatigues', 'a weathered leather jacket', 'a white lab coat, open', 'a tailored suit, collar up'],
+      expression: ['stoic, forward gaze', 'jaw set, determined', 'haunted, distant look', 'fearless, eyes sharp', 'resigned, looking down']
+    },
+    build: (s) => {
+      let p = s.subject || 'a person';
+      if (s.outfit) p += ` in ${s.outfit}`;
+      if (s.expression) p += `, ${s.expression}`;
+      if (s.scene) p += `, ${s.scene}`;
+      p += '. Cinematic film still, anamorphic lens, dramatic backlight, deep color grading, wide establishing angle. No text, no watermarks, no duplicate figures.';
+      return p;
+    }
+  },
+  {
+    id: 'editorial', label: 'Editorial', shortLabel: 'Magazine',
+    icon: '✦', color: '#F472B6', textColor: '#000000',
+    tip: 'Magazine and high-fashion grade. Overhead rim light, clean editorial backdrop. 2:3 for a natural cover format.',
+    shuffles: {
+      subject:    ['a fashion figure', 'a model with strong bone structure', 'a woman in her 30s', 'a man with striking presence'],
+      scene:      ['a marble floor gallery', 'a Paris courtyard in soft daylight', 'a minimal all-white room', 'a coastal cliff at magic hour'],
+      outfit:     ['a sculptural couture gown in ivory', 'a sharp double-breasted suit', 'a sheer layered top with wide-leg trousers', 'bold printed co-ord set'],
+      expression: ['aloof, slightly parted lips', 'intense direct stare', 'chin raised, composed', 'eyes closed, serene']
+    },
+    build: (s) => {
+      let p = s.subject || 'a fashion figure';
+      if (s.outfit) p += ` wearing ${s.outfit}`;
+      if (s.expression) p += `, ${s.expression}`;
+      if (s.scene) p += `, ${s.scene}`;
+      p += '. High fashion editorial photography, overhead rim light, clean editorial backdrop, magazine quality finish. No watermarks, no text overlay, no extra figures.';
+      return p;
+    }
+  },
+  {
+    id: 'portrait', label: 'Dramatic Portrait', shortLabel: 'Portrait',
+    icon: '🎭', color: '#A78BFA', textColor: '#ffffff',
+    tip: 'Moody, close-up, artistic. Dramatic single-source light with fine skin texture. 1:1 for square portraits.',
+    shuffles: {
+      subject:    ['a middle-aged man', 'a young woman with striking eyes', 'an elderly person with deep lines', 'a person with natural textured hair'],
+      scene:      ['a dark studio background', 'warm candlelight from below', 'a blue hour window', 'morning fog outside, diffused'],
+      outfit:     ['a collarless linen shirt', 'bare shoulders, draped fabric', 'a dark turtleneck', 'nothing, shoulders only'],
+      expression: ['intense, slightly furrowed', 'eyes glistening with held emotion', 'calm, deeply inward', 'a barely-there smirk']
+    },
+    build: (s) => {
+      let p = `Close-up portrait of ${s.subject || 'a person'}`;
+      if (s.expression) p += `, ${s.expression}`;
+      if (s.scene) p += `, ${s.scene}`;
+      if (s.outfit) p += `, ${s.outfit}`;
+      p += '. Dramatic single-source side lighting, shallow depth of field, fine skin texture, artistic mood. No text, no watermarks.';
+      return p;
+    }
+  },
+  {
+    id: 'street', label: 'Street', shortLabel: 'Street',
+    icon: '🏙️', color: '#4ADE80', textColor: '#000000',
+    tip: 'Raw, urban, documentary style. 35mm grain, available light, environmental context.',
+    shuffles: {
+      subject:    ['a street vendor', 'a commuter mid-step', 'a skateboarder in motion', 'a person on a phone call', 'a couple arguing quietly'],
+      scene:      ['a wet neon-lit street in Tokyo at night', 'a New York subway platform', 'a London market in the morning', 'a Mumbai side alley at noon'],
+      outfit:     ['a worn denim jacket', 'a business suit, slightly disheveled', 'a bright orange tracksuit', 'a long floral dress, wind-caught'],
+      expression: ['unaware of camera', 'mid-step, focused ahead', 'eyes on the horizon', 'talking, hands gesturing']
+    },
+    build: (s) => {
+      let p = s.subject || 'a person';
+      if (s.outfit) p += ` in ${s.outfit}`;
+      if (s.expression) p += `, ${s.expression}`;
+      if (s.scene) p += `, ${s.scene}`;
+      p += '. Street documentary photography, 35mm grain, available light, environmental context, candid moment. No watermarks, no text.';
+      return p;
+    }
+  },
+  {
+    id: 'fantasy', label: 'Fantasy', shortLabel: 'Fantasy',
+    icon: '✨', color: '#818CF8', textColor: '#ffffff',
+    tip: 'Surreal and imaginative. God-ray lighting, hyper-detailed painterly realism. Best at 2:3.',
+    shuffles: {
+      subject:    ['a warrior goddess', 'a celestial being made of light', 'an ancient mage', 'a fallen angel', 'a cyborg oracle'],
+      scene:      ['a crumbling floating palace above storm clouds', 'an underwater cathedral filled with bioluminescence', 'a burning forest at night, frozen in time', 'a cosmic void with floating ancient ruins'],
+      outfit:     ['ethereal white armor with golden runes', 'flowing iridescent robes, wind-torn', 'obsidian plate mail with ember cracks', 'a cloak woven from starlight and shadow'],
+      expression: ['commanding, eyes glowing faintly', 'serene, all-knowing', 'fierce and unbreakable', 'quiet grief, otherworldly calm']
+    },
+    build: (s) => {
+      let p = s.subject || 'a figure';
+      if (s.outfit) p += ` wearing ${s.outfit}`;
+      if (s.expression) p += `, ${s.expression}`;
+      if (s.scene) p += `, ${s.scene}`;
+      p += '. Fantasy concept art, god-ray lighting, surreal atmosphere, hyper-detailed painterly realism. No watermarks, no text, no extra figures.';
+      return p;
+    }
+  },
+  {
+    id: 'product', label: 'Product Shot', shortLabel: 'Product',
+    icon: '🛍️', color: '#CBD5E1', textColor: '#000000',
+    tip: 'Commercial-clean product photography. Leave Outfit and Expression blank — focus on Subject and Surface.',
+    shuffles: {
+      subject:    ['a glass perfume bottle with gold cap', 'a matte black coffee mug', 'a skincare serum in an amber dropper bottle', 'a pair of white minimalist sneakers', 'a leather wallet, open'],
+      scene:      ['a white marble surface with soft shadows', 'a dark linen fabric background', 'a wet black stone surface', 'a pastel peach gradient backdrop', 'a rough concrete shelf'],
+      outfit:     ['', '', '', '', ''],
+      expression: ['', '', '', '', '']
+    },
+    build: (s) => {
+      let p = s.subject || 'a product';
+      p += ` on ${s.scene || 'a clean white surface'}`;
+      p += ', centered, three-quarter angle, soft diffused light from the left, shallow depth of field, commercial product photography. No additional objects, no watermarks, no text.';
+      return p;
+    }
+  }
+];
+
+// ─── ANGLE DEFINITIONS ───────────────────────────────────────────────────────
+const ANGLE_DEFS = [
+  { label: 'Standard',      frame: null }, // uses base build as-is
+  { label: 'Close-up',      frame: 'tight close-up frame, subject fills the shot' },
+  { label: 'Wide shot',     frame: 'wide environmental frame, subject small in context' },
+  { label: 'Over-shoulder', frame: 'over-the-shoulder camera angle, looking past subject' },
+  { label: 'Low angle',     frame: 'low camera angle looking upward, dramatic perspective' }
+];
+
+function buildAngles(fields) {
+  const base = activeMode.build(fields);
+  const dotIdx = base.indexOf('. ');
+  if (dotIdx === -1) {
+    return ANGLE_DEFS.map(a => ({ label: a.label, prompt: base }));
+  }
+  const desc  = base.slice(0, dotIdx);
+  const style = base.slice(dotIdx + 2);
+
+  return ANGLE_DEFS.map(a => ({
+    label: a.label,
+    prompt: a.frame
+      ? `${desc}, ${a.frame}. ${style}`
+      : base
+  }));
+}
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let activeMode   = MODES[0];
+let currentPreview = '';
+let activeTab    = 'all';
+let saved = [];
+try { saved = JSON.parse(localStorage.getItem('nb21_saved') || '[]'); } catch(e) {}
+
+let debounceTimer;
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+function init() {
+  buildModeGrid();
+  selectMode(MODES[0]);
+  renderSaved();
+
+  ['f-subject','f-scene','f-outfit','f-expression'].forEach(id => {
+    const el = document.getElementById(id);
+    el.addEventListener('input', () => {
+      clearTimeout(debounceTimer);
+      document.getElementById('previewText').classList.add('updating');
+      debounceTimer = setTimeout(updatePreview, 280);
+    });
+    el.addEventListener('keydown', e => {
+      if (e.key === 'Enter') generateAngles();
+    });
+  });
+}
+
+function buildModeGrid() {
+  const grid = document.getElementById('modeGrid');
+  MODES.forEach(mode => {
+    const card = document.createElement('div');
+    card.className = 'mode-card';
+    card.id = 'mcard-' + mode.id;
+    card.style.setProperty('--mc', mode.color);
+    card.style.setProperty('--mc-dim', hexAlpha(mode.color, 0.10));
+    card.style.setProperty('--mc-glow', hexAlpha(mode.color, 0.20));
+    card.onclick = () => selectMode(mode);
+    card.innerHTML = `<span class="mode-icon">${mode.icon}</span><div class="mode-name">${mode.label}</div>`;
+    grid.appendChild(card);
+  });
+}
+
+function selectMode(mode) {
+  activeMode = mode;
+
+  document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('active'));
+  document.getElementById('mcard-' + mode.id).classList.add('active');
+
+  const root = document.documentElement;
+  root.style.setProperty('--mode-color', mode.color);
+  root.style.setProperty('--mode-color-dim', hexAlpha(mode.color, 0.10));
+
+  const logo = document.getElementById('logo');
+  logo.textContent = mode.icon;
+  logo.style.borderColor = mode.color;
+  logo.style.background = hexAlpha(mode.color, 0.12);
+
+  document.getElementById('tipText').textContent = mode.tip;
+  document.getElementById('tipPulse').style.background = mode.color;
+  const tip = document.getElementById('modeTip');
+  tip.style.borderColor = mode.color;
+  tip.style.background = hexAlpha(mode.color, 0.07);
+
+  const btn = document.getElementById('genBtn');
+  btn.style.background = mode.color;
+  btn.style.color = mode.textColor;
+  btn.style.boxShadow = `0 4px 20px ${hexAlpha(mode.color, 0.3)}`;
+  document.getElementById('genBtnIcon').textContent = mode.icon;
+  document.getElementById('genBtnLabel').textContent = `Generate 5 Angles`;
+
+  document.getElementById('reqBadge').style.background = hexAlpha(mode.color, 0.12);
+  document.getElementById('reqBadge').style.color = mode.color;
+  document.getElementById('reqBadge').style.borderColor = hexAlpha(mode.color, 0.3);
+
+  document.getElementById('previewDot').style.background = mode.color;
+
+  if (mode.id === 'product') {
+    document.getElementById('f-outfit').placeholder = 'Leave blank for products';
+    document.getElementById('f-expression').placeholder = 'Leave blank for products';
+  } else {
+    document.getElementById('f-outfit').placeholder = 'e.g. oversized white hoodie, leather jacket';
+    document.getElementById('f-expression').placeholder = 'e.g. laughing, looking away, intense gaze';
+  }
+
+  // Re-run preview with updated mode
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(updatePreview, 50);
+
+  // Hide old angles on mode switch
+  document.getElementById('anglesSection').style.display = 'none';
+}
+
+// ─── LIVE PREVIEW ────────────────────────────────────────────────────────────
+function getFields() {
+  return {
+    subject:    document.getElementById('f-subject').value.trim(),
+    scene:      document.getElementById('f-scene').value.trim(),
+    outfit:     document.getElementById('f-outfit').value.trim(),
+    expression: document.getElementById('f-expression').value.trim()
+  };
+}
+
+function updatePreview() {
+  const f = getFields();
+  const textEl = document.getElementById('previewText');
+  const footerEl = document.getElementById('previewFooter');
+  const wordsEl = document.getElementById('previewWords');
+  const card = document.getElementById('previewCard');
+
+  textEl.classList.remove('updating');
+
+  if (!f.subject) {
+    currentPreview = '';
+    textEl.textContent = 'Start typing above — your prompt updates live.';
+    textEl.classList.add('empty');
+    footerEl.style.display = 'none';
+    wordsEl.textContent = '';
+    card.classList.remove('has-content');
+    return;
+  }
+
+  const prompt = activeMode.build(f);
+  currentPreview = prompt;
+
+  textEl.textContent = prompt;
+  textEl.classList.remove('empty');
+  card.classList.add('has-content');
+  footerEl.style.display = 'flex';
+
+  const words = prompt.split(/\s+/).filter(Boolean).length;
+  wordsEl.textContent = `${words}w`;
+
+  // Update save button state
+  updatePreviewSaveBtn();
+}
+
+function updatePreviewSaveBtn() {
+  const btn = document.getElementById('previewSaveBtn');
+  if (!btn) return;
+  const isSaved = currentPreview && saved.some(s => s.prompt === currentPreview);
+  btn.textContent = isSaved ? 'Saved ✓' : 'Save';
+  btn.className = 'btn-sm btn-sm-save' + (isSaved ? ' saved' : '');
+}
+
+function savePreviewPrompt() {
+  if (!currentPreview) return;
+  const isSaved = saved.some(s => s.prompt === currentPreview);
+  if (isSaved) {
+    saved = saved.filter(s => s.prompt !== currentPreview);
+    persistSaved();
+    updatePreviewSaveBtn();
+    renderSaved();
+    showToast('−', 'Removed from saved');
+  } else {
+    addToSaved(currentPreview, 'Live preview');
+    updatePreviewSaveBtn();
+  }
+}
+
+// ─── GENERATE ANGLES ─────────────────────────────────────────────────────────
+function generateAngles() {
+  const f = getFields();
+  if (!f.subject) {
+    showToast('⚠', 'Add a subject first');
+    document.getElementById('f-subject').focus();
+    return;
+  }
+
+  const angles = buildAngles(f);
+  const list = document.getElementById('anglesList');
+  list.innerHTML = '';
+
+  angles.forEach(angle => {
+    const isSaved = saved.some(s => s.prompt === angle.prompt);
+    const card = document.createElement('div');
+    card.className = 'angle-card';
+    card.dataset.prompt = angle.prompt;
+
+    const words = angle.prompt.split(/\s+/).filter(Boolean).length;
+
+    card.innerHTML = `
+      <div class="angle-card-header">
+        <span class="angle-label">${angle.label}</span>
+        <div class="angle-actions">
+          <span style="font-size:11px;color:var(--muted2);margin-right:4px">${words}w</span>
+          <button class="btn-sm btn-sm-copy" onclick="copyText(${JSON.stringify(angle.prompt)})">Copy</button>
+          <button class="btn-sm btn-sm-save${isSaved ? ' saved' : ''}"
+            id="asave-${btoa(angle.prompt).slice(0,12)}"
+            onclick="toggleAngleSave(this, ${JSON.stringify(angle.prompt)}, ${JSON.stringify(angle.label)})">
+            ${isSaved ? 'Saved ✓' : 'Save'}
+          </button>
+        </div>
+      </div>
+      <div class="angle-text">${esc(angle.prompt)}</div>
+    `;
+    list.appendChild(card);
+  });
+
+  document.getElementById('anglesSection').style.display = 'block';
+  document.getElementById('anglesBadge').textContent = activeMode.label;
+  document.getElementById('anglesSection').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  showToast(activeMode.icon, '5 angles generated');
+}
+
+function toggleAngleSave(btn, prompt, angleLabel) {
+  const isSaved = saved.some(s => s.prompt === prompt);
+  if (isSaved) {
+    saved = saved.filter(s => s.prompt !== prompt);
+    persistSaved();
+    btn.textContent = 'Save';
+    btn.classList.remove('saved');
+    renderSaved();
+    showToast('−', 'Removed');
+  } else {
+    addToSaved(prompt, angleLabel);
+    btn.textContent = 'Saved ✓';
+    btn.classList.add('saved');
+  }
+}
+
+// ─── SHUFFLE ─────────────────────────────────────────────────────────────────
+function shuffle() {
+  const s = activeMode.shuffles;
+  const pick = arr => {
+    const valid = arr.filter(x => x.trim());
+    return valid.length ? valid[Math.floor(Math.random() * valid.length)] : '';
+  };
+  document.getElementById('f-subject').value    = pick(s.subject);
+  document.getElementById('f-scene').value      = pick(s.scene);
+  document.getElementById('f-outfit').value     = pick(s.outfit);
+  document.getElementById('f-expression').value = pick(s.expression);
+  clearTimeout(debounceTimer);
+  updatePreview();
+  showToast('🎲', 'Fields shuffled');
+}
+
+// ─── SAVED / FAVORITES ───────────────────────────────────────────────────────
+function addToSaved(prompt, angleLabel) {
+  const item = {
+    id: Date.now(),
+    modeId:     activeMode.id,
+    modeLabel:  activeMode.label,
+    modeColor:  activeMode.color,
+    angleLabel: angleLabel || 'Prompt',
+    prompt,
+    savedAt:    new Date().toISOString(),
+    favorite:   false
+  };
+  saved.unshift(item);
+  if (saved.length > 50) saved.pop();
+  persistSaved();
+  renderSaved();
+  showToast('💾', 'Prompt saved');
+}
+
+function persistSaved() {
+  try { localStorage.setItem('nb21_saved', JSON.stringify(saved)); } catch(e) {}
+}
+
+function toggleFavorite(id) {
+  const item = saved.find(s => s.id === id);
+  if (!item) return;
+  item.favorite = !item.favorite;
+  persistSaved();
+  renderSaved();
+  showToast(item.favorite ? '★' : '☆', item.favorite ? 'Added to favorites' : 'Removed from favorites');
+}
+
+function removeFromSaved(id) {
+  saved = saved.filter(s => s.id !== id);
+  persistSaved();
+  renderSaved();
+  // Also update preview save button
+  updatePreviewSaveBtn();
+  // Update any angle card buttons
+  refreshAngleCardSaveStates();
+  showToast('−', 'Removed');
+}
+
+function clearSaved() {
+  saved = [];
+  persistSaved();
+  renderSaved();
+  updatePreviewSaveBtn();
+  refreshAngleCardSaveStates();
+  showToast('🗑', 'Cleared');
+}
+
+function switchTab(tab) {
+  activeTab = tab;
+  document.getElementById('tabAll').classList.toggle('active', tab === 'all');
+  document.getElementById('tabFav').classList.toggle('active', tab === 'favorites');
+  renderSaved();
+}
+
+function renderSaved() {
+  const section  = document.getElementById('savedSection');
+  const list     = document.getElementById('savedList');
+  const countAll = document.getElementById('countAll');
+  const countFav = document.getElementById('countFav');
+
+  const favCount = saved.filter(s => s.favorite).length;
+  countAll.textContent = saved.length;
+  countFav.textContent = favCount;
+
+  if (!saved.length) {
+    section.style.display = 'none';
+    return;
+  }
+  section.style.display = 'block';
+
+  const items = activeTab === 'favorites'
+    ? saved.filter(s => s.favorite)
+    : saved;
+
+  if (!items.length) {
+    list.innerHTML = '<div class="empty-state">No favorites yet — star a saved prompt.</div>';
+    return;
+  }
+
+  list.innerHTML = items.map(item => `
+    <div class="saved-item">
+      <div class="saved-item-top">
+        <div class="saved-dot" style="background:${item.modeColor}"></div>
+        <div class="saved-meta">${item.modeLabel} · ${item.angleLabel}</div>
+        <button class="btn-star ${item.favorite ? 'active' : ''}"
+          onclick="toggleFavorite(${item.id})"
+          title="${item.favorite ? 'Remove from favorites' : 'Add to favorites'}">★</button>
+      </div>
+      <div class="saved-text">${esc(item.prompt)}</div>
+      <div class="saved-actions">
+        <button class="btn-sm btn-sm-copy" onclick="copyText(${JSON.stringify(item.prompt)})">Copy</button>
+        <button class="btn-sm btn-sm-del" onclick="removeFromSaved(${item.id})">Remove</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function refreshAngleCardSaveStates() {
+  document.querySelectorAll('#anglesList .angle-card').forEach(card => {
+    const prompt = card.dataset.prompt;
+    const btn = card.querySelector('.btn-sm-save');
+    if (!btn || !prompt) return;
+    const isSaved = saved.some(s => s.prompt === prompt);
+    btn.textContent = isSaved ? 'Saved ✓' : 'Save';
+    btn.classList.toggle('saved', isSaved);
+  });
+}
+
+// ─── COPY ───────────────────────────────────────────────────────────────────
+function copyText(text) {
+  if (!text) return;
+  navigator.clipboard.writeText(text)
+    .then(() => showToast('✓', 'Copied'))
+    .catch(() => {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      showToast('✓', 'Copied');
+    });
+}
+
+// ─── TOAST ───────────────────────────────────────────────────────────────────
+let toastTimer;
+function showToast(icon, msg) {
+  const toast = document.getElementById('toast');
+  document.getElementById('toastIcon').textContent = icon;
+  document.getElementById('toastMsg').textContent = msg;
+  toast.style.borderColor = activeMode.color;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+}
+
+// ─── UTILS ───────────────────────────────────────────────────────────────────
+function hexAlpha(hex, alpha) {
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+function esc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─── START ───────────────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
