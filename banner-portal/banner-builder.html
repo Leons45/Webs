@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leon's Banner Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d0f;
+    --panel: #141416;
+    --border: #242428;
+    --accent: #FFD700;
+    --accent2: #FF1493;
+    --text: #f0f0f0;
+    --muted: #666;
+    --input-bg: #1a1a1e;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  header {
+    padding: 18px 32px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--panel);
+  }
+
+  .logo-mark {
+    width: 32px; height: 32px;
+    background: var(--accent);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900;
+    font-size: 14px;
+    color: #000;
+    font-family: 'Barlow Condensed', sans-serif;
+  }
+
+  header h1 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 0.5px;
+  }
+
+  header span {
+    font-size: 12px;
+    color: var(--muted);
+    margin-left: 4px;
+  }
+
+  .badge {
+    margin-left: auto;
+    background: rgba(255,215,0,0.1);
+    border: 1px solid rgba(255,215,0,0.25);
+    color: var(--accent);
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+
+  .workspace {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 0;
+    overflow: hidden;
+  }
+
+  /* ── LEFT PANEL ── */
+  .left-panel {
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  /* Upload zones */
+  .upload-zone {
+    border: 1.5px dashed var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .upload-zone:hover { border-color: var(--accent); background: rgba(255,215,0,0.03); }
+  .upload-zone.has-file { border-style: solid; border-color: rgba(255,215,0,0.4); }
+  .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .upload-zone .icon { font-size: 22px; margin-bottom: 6px; }
+  .upload-zone p { font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .upload-zone strong { font-size: 12px; color: var(--text); display: block; margin-bottom: 2px; }
+  .upload-zone img.preview {
+    width: 100%; border-radius: 6px; display: none; margin-top: 10px;
+    max-height: 100px; object-fit: cover;
+  }
+
+  /* Color swatch row */
+  .swatch-row {
+    display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap;
+  }
+  .swatch {
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.1);
+    cursor: pointer; transition: transform 0.15s;
+  }
+  .swatch:hover { transform: scale(1.2); }
+
+  /* Form fields */
+  .field {
+    display: flex; flex-direction: column; gap: 5px;
+  }
+  .field label {
+    font-size: 11px; font-weight: 600; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.8px;
+  }
+  .field input, .field select {
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 12px;
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .field input:focus, .field select:focus { border-color: rgba(255,215,0,0.5); }
+  .field input::placeholder { color: #3a3a3e; }
+
+  .fields-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  /* Color picker row */
+  .color-row {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;
+  }
+  .color-field {
+    display: flex; flex-direction: column; gap: 5px;
+  }
+  .color-field label { font-size: 10px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; }
+  .color-field input[type="color"] {
+    width: 100%; height: 34px; border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--input-bg); cursor: pointer; padding: 2px;
+  }
+
+  /* Toggle */
+  .toggle-row {
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .toggle-row span { font-size: 12px; color: var(--muted); }
+  .toggle {
+    width: 36px; height: 20px;
+    background: var(--border);
+    border-radius: 20px; cursor: pointer;
+    position: relative; transition: background 0.2s;
+  }
+  .toggle.on { background: var(--accent); }
+  .toggle::after {
+    content: ''; position: absolute;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: white; top: 3px; left: 3px;
+    transition: left 0.2s;
+  }
+  .toggle.on::after { left: 19px; }
+
+  /* Buttons */
+  .btn-group { display: flex; gap: 8px; }
+
+  .btn {
+    flex: 1; padding: 11px; border-radius: 8px;
+    border: none; cursor: pointer;
+    font-family: 'Barlow', sans-serif;
+    font-weight: 600; font-size: 13px;
+    transition: all 0.2s;
+  }
+  .btn-primary {
+    background: var(--accent); color: #000;
+  }
+  .btn-primary:hover { background: #ffe033; }
+
+  .btn-secondary {
+    background: var(--input-bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid rgba(255,215,0,0.3);
+  }
+  .btn-outline:hover { background: rgba(255,215,0,0.08); }
+
+  /* ── RIGHT PANEL (Preview) ── */
+  .right-panel {
+    display: flex;
+    flex-direction: column;
+    background: #0a0a0c;
+    overflow: hidden;
+  }
+
+  .preview-toolbar {
+    padding: 12px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px;
+    background: var(--panel);
+  }
+  .preview-toolbar span { font-size: 12px; color: var(--muted); }
+  .size-pill {
+    background: var(--input-bg); border: 1px solid var(--border);
+    border-radius: 6px; padding: 4px 10px; font-size: 11px; color: var(--muted);
+    font-weight: 600;
+  }
+  .preview-toolbar .spacer { flex: 1; }
+
+  .preview-area {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+    overflow: auto;
+  }
+
+  #bannerCanvas {
+    max-width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  }
+
+  .export-bar {
+    padding: 14px 24px;
+    border-top: 1px solid var(--border);
+    background: var(--panel);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .export-bar span { font-size: 12px; color: var(--muted); margin-right: 4px; }
+
+  .export-btn {
+    padding: 9px 18px; border-radius: 7px; border: none;
+    font-family: 'Barlow', sans-serif; font-weight: 600; font-size: 12px;
+    cursor: pointer; display: flex; align-items: center; gap: 7px;
+    transition: all 0.2s;
+  }
+  .export-png { background: #1e3a1e; color: #4ade80; border: 1px solid #2d5a2d; }
+  .export-png:hover { background: #2d5a2d; }
+  .export-mp4 { background: #1e1e3a; color: #818cf8; border: 1px solid #2d2d5a; }
+  .export-mp4:hover { background: #2d2d5a; }
+
+  .rec-dot {
+    width: 7px; height: 7px; border-radius: 50%; background: #818cf8;
+    animation: recPulse 1s ease-in-out infinite;
+  }
+  @keyframes recPulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  #recordingStatus {
+    font-size: 11px; color: #818cf8; display: none;
+  }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-mark">L</div>
+  <h1>Banner Builder <span>— No API · v1.0</span></h1>
+  <div class="badge">Version A</div>
+</header>
+
+<div class="workspace">
+
+  <!-- ════ LEFT PANEL ════ -->
+  <div class="left-panel">
+
+    <!-- Flyer Upload -->
+    <div>
+      <div class="section-label">1 — Upload Flyer</div>
+      <div class="upload-zone" id="flyerZone">
+        <input type="file" accept="image/*" id="flyerInput">
+        <div class="icon">🗂</div>
+        <strong>Drop flyer here</strong>
+        <p>Colors extracted automatically</p>
+        <img class="preview" id="flyerPreview">
+      </div>
+      <div class="swatch-row" id="swatchRow"></div>
+    </div>
+
+    <!-- Product Upload -->
+    <div>
+      <div class="section-label">2 — Product Image (bg removed)</div>
+      <div class="upload-zone" id="productZone">
+        <input type="file" accept="image/*" id="productInput">
+        <div class="icon">🛋</div>
+        <strong>Drop product PNG</strong>
+        <p>Transparent background recommended</p>
+        <img class="preview" id="productPreview">
+      </div>
+    </div>
+
+    <!-- Sample Banner Upload -->
+    <div>
+      <div class="section-label">3 — Sample Banner <span style="color:var(--accent);font-size:10px;font-weight:600;letter-spacing:1px">AI REFERENCE</span></div>
+      <div class="upload-zone" id="sampleZone">
+        <input type="file" accept="image/*" id="sampleInput">
+        <div class="icon">🎯</div>
+        <strong>Drop sample banner</strong>
+        <p>Helps AI match the exact format</p>
+        <img class="preview" id="samplePreview">
+      </div>
+    </div>
+
+    <!-- AI Generate -->
+    <div id="aiSection">
+      <div class="section-label">4 — AI Generate</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="field">
+          <label>What product do you want?</label>
+          <input type="text" id="aiProductRequest" placeholder="e.g. Stockholm Sectional Sofa, beige">
+        </div>
+        <button class="btn" id="aiBtn" onclick="triggerAIGenerate()" style="background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;border:none;font-weight:700;font-size:13px;letter-spacing:0.5px;position:relative;overflow:hidden;">
+          <span id="aiBtnLabel">🤖 Generate with AI</span>
+        </button>
+        <div id="aiStatus" style="display:none;font-size:11px;color:var(--accent);text-align:center;padding:6px 0;"></div>
+        <div id="aiInstructions" style="display:none;background:#1a1a2e;border:1px solid #4f46e5;border-radius:8px;padding:12px;font-size:11px;color:#ccc;line-height:1.6;"></div>
+      </div>
+    </div>
+
+    <!-- Content Fields -->
+    <div>
+      <div class="section-label">5 — Banner Content</div>
+      <div style="display:flex;flex-direction:column;gap:11px;">
+        <div class="field">
+          <label>Product Name</label>
+          <input type="text" id="productName" placeholder="Dianna II Sofa" value="Dianna II Sofa">
+        </div>
+        <div class="fields-grid">
+          <div class="field">
+            <label>Sale Price</label>
+            <input type="text" id="salePrice" placeholder="$799" value="$799">
+          </div>
+          <div class="field">
+            <label>Save Amount</label>
+            <input type="text" id="saveAmount" placeholder="SAVE $800" value="SAVE $800">
+          </div>
+          <div class="field">
+            <label>% Off</label>
+            <input type="text" id="pctOff" placeholder="50%" value="50%">
+          </div>
+          <div class="field">
+            <label>Campaign</label>
+            <input type="text" id="campaign" placeholder="Black Friday" value="Black Friday">
+          </div>
+        </div>
+        <div class="field">
+          <label>Financing Line 1</label>
+          <input type="text" id="fin1" placeholder="3 YEARS TO PAY*" value="3 YEARS TO PAY*">
+        </div>
+        <div class="field">
+          <label>Financing Line 2</label>
+          <input type="text" id="fin2" placeholder="0% INTEREST" value="0% INTEREST">
+        </div>
+        <div class="field">
+          <label>Fine Print</label>
+          <input type="text" id="finePrint" placeholder="36 Equal Monthly Payments*" value="36 Equal Monthly Payments*">
+        </div>
+      </div>
+    </div>
+
+    <!-- Colors -->
+    <div>
+      <div class="section-label">6 — Colors</div>
+      <div class="color-row">
+        <div class="color-field">
+          <label>Background</label>
+          <input type="color" id="colBg" value="#FFD700">
+        </div>
+        <div class="color-field">
+          <label>Circle</label>
+          <input type="color" id="colCircle" value="#111111">
+        </div>
+        <div class="color-field">
+          <label>Accent</label>
+          <input type="color" id="colAccent" value="#FF1493">
+        </div>
+      </div>
+    </div>
+
+    <!-- Toggles -->
+    <div>
+      <div class="section-label">7 — Options</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="toggle-row">
+          <span>Snow particles</span>
+          <div class="toggle on" id="toggleSnow"></div>
+        </div>
+        <div class="toggle-row">
+          <span>Canadian flag badge</span>
+          <div class="toggle on" id="toggleFlag"></div>
+        </div>
+        <div class="toggle-row">
+          <span>Vignette</span>
+          <div class="toggle on" id="toggleVig"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="renderBanner()">↻ Refresh Preview</button>
+    </div>
+
+  </div>
+
+  <!-- ════ RIGHT PANEL ════ -->
+  <div class="right-panel">
+
+    <div class="preview-toolbar">
+      <span>Live Preview</span>
+      <div class="size-pill" id="sizeLabel">1200 × 400</div>
+      <div class="spacer"></div>
+      <div class="size-pill" style="cursor:pointer" onclick="cycleSize()">Switch Size ↕</div>
+    </div>
+
+    <div class="preview-area">
+      <canvas id="bannerCanvas" width="1200" height="400"></canvas>
+    </div>
+
+    <div class="export-bar">
+      <span>Export</span>
+      <button class="export-btn export-png" onclick="exportPNG()">
+        ⬇ Save PNG
+      </button>
+      <button class="export-btn export-mp4" id="mp4Btn" onclick="exportMP4()">
+        <div class="rec-dot"></div> Record MP4
+      </button>
+      <span id="recordingStatus">Recording… 0s</span>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════
+//  State
+// ════════════════════════════════════════════
+const state = {
+  flyerImg: null,
+  flyerDataURL: null,
+  productImg: null,
+  sampleImg: null,
+  sampleDataURL: null,
+  snow: true,
+  flag: true,
+  vig: true,
+  sizes: [[1200,400],[1920,640],[1080,384]],
+  sizeIdx: 0
+};
+
+// Snow particles
+let flakes = [];
+let animFrame = null;
+let isAnimating = false;
+
+// ════════════════════════════════════════════
+//  Toggles
+// ════════════════════════════════════════════
+['toggleSnow','toggleFlag','toggleVig'].forEach(id => {
+  document.getElementById(id).addEventListener('click', function() {
+    this.classList.toggle('on');
+    const key = id === 'toggleSnow' ? 'snow' : id === 'toggleFlag' ? 'flag' : 'vig';
+    state[key] = this.classList.contains('on');
+    renderBanner();
+  });
+});
+
+// ════════════════════════════════════════════
+//  Size cycle
+// ════════════════════════════════════════════
+function cycleSize() {
+  state.sizeIdx = (state.sizeIdx + 1) % state.sizes.length;
+  const [w,h] = state.sizes[state.sizeIdx];
+  const canvas = document.getElementById('bannerCanvas');
+  canvas.width = w; canvas.height = h;
+  document.getElementById('sizeLabel').textContent = w + ' × ' + h;
+  initSnow();
+  renderBanner();
+}
+
+// ════════════════════════════════════════════
+//  File uploads
+// ════════════════════════════════════════════
+document.getElementById('flyerInput').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    const img = new Image();
+    img.onload = function() {
+      state.flyerImg = img;
+      state.flyerDataURL = ev.target.result;
+      const prev = document.getElementById('flyerPreview');
+      prev.src = ev.target.result; prev.style.display='block';
+      document.getElementById('flyerZone').classList.add('has-file');
+      extractColors(img);
+      renderBanner();
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+// Sample banner upload
+document.getElementById('sampleInput').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    const img = new Image();
+    img.onload = function() {
+      state.sampleImg = img;
+      state.sampleDataURL = ev.target.result;
+      const prev = document.getElementById('samplePreview');
+      prev.src = ev.target.result; prev.style.display='block';
+      document.getElementById('sampleZone').classList.add('has-file');
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+document.getElementById('productInput').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    const img = new Image();
+    img.onload = function() {
+      state.productImg = img;
+      const prev = document.getElementById('productPreview');
+      prev.src = ev.target.result; prev.style.display='block';
+      document.getElementById('productZone').classList.add('has-file');
+      renderBanner();
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+// ════════════════════════════════════════════
+//  Color extraction from flyer
+// ════════════════════════════════════════════
+function extractColors(img) {
+  const c = document.createElement('canvas');
+  c.width = 80; c.height = Math.round(80 * img.height / img.width);
+  const ctx = c.getContext('2d');
+  ctx.drawImage(img, 0, 0, c.width, c.height);
+  const data = ctx.getImageData(0, 0, c.width, c.height).data;
+
+  // Sample 6 strategic points
+  const points = [
+    [0.08, 0.5],  // left
+    [0.5,  0.5],  // center
+    [0.85, 0.5],  // right
+    [0.5,  0.1],  // top
+    [0.15, 0.3],  // top-left
+    [0.75, 0.75], // bottom-right
+  ];
+
+  const colors = points.map(([px,py]) => {
+    const x = Math.floor(px * c.width);
+    const y = Math.floor(py * c.height);
+    const i = (y * c.width + x) * 4;
+    return [data[i], data[i+1], data[i+2]];
+  });
+
+  // Show swatches
+  const row = document.getElementById('swatchRow');
+  row.innerHTML = '';
+  colors.forEach(([r,g,b], i) => {
+    const hex = '#' + [r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('');
+    const sw = document.createElement('div');
+    sw.className = 'swatch';
+    sw.style.background = hex;
+    sw.title = hex;
+    sw.onclick = () => {
+      // Click swatch to apply to bg color
+      if (i === 0) document.getElementById('colCircle').value = hex;
+      else if (i === 1) document.getElementById('colBg').value = hex;
+      else document.getElementById('colAccent').value = hex;
+      renderBanner();
+    };
+    row.appendChild(sw);
+  });
+
+  // Auto-apply dominant colors
+  // Find brightest as bg, darkest as circle
+  colors.sort((a,b) => (b[0]+b[1]+b[2]) - (a[0]+a[1]+a[2]));
+  const bright = colors[0];
+  const dark   = colors[colors.length-1];
+  document.getElementById('colBg').value     = '#'+bright.map(v=>v.toString(16).padStart(2,'0')).join('');
+  document.getElementById('colCircle').value = '#'+dark.map(v=>v.toString(16).padStart(2,'0')).join('');
+}
+
+// Live update on any input change
+document.querySelectorAll('input[type=text], input[type=color]').forEach(el => {
+  el.addEventListener('input', renderBanner);
+});
+
+// ════════════════════════════════════════════
+//  Snow
+// ════════════════════════════════════════════
+function initSnow() {
+  const canvas = document.getElementById('bannerCanvas');
+  const W = canvas.width, H = canvas.height;
+  flakes = [];
+  for (let i = 0; i < 55; i++) {
+    flakes.push({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      r: Math.random() * 3.5 + 0.8,
+      speed: Math.random() * 0.7 + 0.2,
+      drift: (Math.random() - 0.5) * 0.3,
+      wobble: Math.random() * Math.PI * 2,
+      wSpeed: Math.random() * 0.02 + 0.006,
+      alpha: Math.random() * 0.55 + 0.2
+    });
+  }
+}
+initSnow();
+
+function tickSnow() {
+  const canvas = document.getElementById('bannerCanvas');
+  const W = canvas.width, H = canvas.height;
+  flakes.forEach(f => {
+    f.wobble += f.wSpeed;
+    f.x += f.drift + Math.sin(f.wobble) * 0.3;
+    f.y += f.speed;
+    if (f.y > H + 5) { f.y = -5; f.x = Math.random() * W; }
+    if (f.x > W + 5) f.x = -5;
+    if (f.x < -5) f.x = W + 5;
+  });
+}
+
+// ════════════════════════════════════════════
+//  MAIN RENDER
+// ════════════════════════════════════════════
+function renderBanner(animate) {
+  const canvas = document.getElementById('bannerCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const cx = W / 2, cy = H / 2;
+
+  // Values
+  const bgColor     = document.getElementById('colBg').value;
+  const circleColor = document.getElementById('colCircle').value;
+  const accentColor = document.getElementById('colAccent').value;
+  const productName = document.getElementById('productName').value || 'Product Name';
+  const salePrice   = document.getElementById('salePrice').value  || '$0';
+  const saveAmount  = document.getElementById('saveAmount').value || 'SAVE $0';
+  const pctOff      = document.getElementById('pctOff').value     || '50%';
+  const campaign    = document.getElementById('campaign').value   || 'SALE';
+  const fin1        = document.getElementById('fin1').value       || '3 YEARS TO PAY*';
+  const fin2        = document.getElementById('fin2').value       || '0% INTEREST';
+  const finePrint   = document.getElementById('finePrint').value  || '';
+
+  ctx.clearRect(0, 0, W, H);
+
+  // ── Scale factor (designed at 1200×400) ──
+  const sc = W / 1200;
+  const s = n => n * sc;
+
+  // Helper: hex → rgb parts
+  function hexRGB(hex) {
+    const h = hex.replace('#','');
+    return [parseInt(h.slice(0,2),16), parseInt(h.slice(2,4),16), parseInt(h.slice(4,6),16)];
+  }
+
+  // ════════════════════════════════════════════════════
+  //  FLYER-BASED PATH — use uploaded flyer as the canvas
+  // ════════════════════════════════════════════════════
+  if (state.flyerImg) {
+    const fi = state.flyerImg;
+
+    // 1. Scale flyer to fill canvas exactly
+    const fScale = Math.max(W / fi.width, H / fi.height);
+    const fw = fi.width * fScale, fh = fi.height * fScale;
+    ctx.drawImage(fi, (W - fw) / 2, (H - fh) / 2, fw, fh);
+
+    // 2. Cover the old product zone with bg colour
+    //    Gradient edges so it blends cleanly with the circle edges
+    const [r, g, b] = hexRGB(bgColor);
+    const coverGrad = ctx.createLinearGradient(s(370), 0, s(850), 0);
+    coverGrad.addColorStop(0,    `rgba(${r},${g},${b},0)`);
+    coverGrad.addColorStop(0.08, `rgba(${r},${g},${b},1)`);
+    coverGrad.addColorStop(0.92, `rgba(${r},${g},${b},1)`);
+    coverGrad.addColorStop(1,    `rgba(${r},${g},${b},0)`);
+    ctx.fillStyle = coverGrad;
+    ctx.fillRect(s(360), 0, s(500), H);
+
+    // 3. Cover the old 50% OFF badge (sits just outside the gradient zone)
+    ctx.beginPath();
+    ctx.arc(s(810), cy - s(118), s(72), 0, Math.PI * 2);
+    ctx.fillStyle = `rgb(${r},${g},${b})`;
+    ctx.fill();
+
+    // 4. Draw new product image
+    const prodZoneCX = s(590), prodZoneCY = cy - s(10);
+    const prodMaxW = s(400), prodMaxH = s(310);
+    if (state.productImg) {
+      const pi = state.productImg;
+      const ratio = pi.width / pi.height;
+      let pw = prodMaxW, ph = prodMaxW / ratio;
+      if (ph > prodMaxH) { ph = prodMaxH; pw = ph * ratio; }
+      ctx.save();
+      ctx.shadowColor = 'rgba(0,0,0,0.25)';
+      ctx.shadowBlur = s(28);
+      ctx.shadowOffsetY = s(12);
+      ctx.drawImage(pi, prodZoneCX - pw/2, prodZoneCY - ph/2, pw, ph);
+      ctx.restore();
+    }
+
+    // 5. Price badge (covers old one)
+    const pbX = s(483), pbY = cy + s(142);
+    const pbW = s(130), pbH = s(50);
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,0.5)';
+    ctx.shadowBlur = s(14);
+    ctx.fillStyle = '#111';
+    ctx.beginPath();
+    ctx.roundRect(pbX - pbW/2, pbY - pbH/2, pbW, pbH, s(8));
+    ctx.fill();
+    ctx.restore();
+    ctx.fillStyle = '#fff';
+    ctx.font = `900 ${s(26)}px 'Barlow Condensed', sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText(salePrice, pbX, pbY - s(2));
+    ctx.fillStyle = accentColor;
+    ctx.font = `700 ${s(11)}px 'Barlow', sans-serif`;
+    ctx.fillText(saveAmount.toUpperCase(), pbX, pbY + s(16));
+
+    // Product name (covers old one)
+    ctx.fillStyle = 'rgba(0,0,0,0.75)';
+    ctx.font = `600 ${s(15)}px 'Barlow', sans-serif`;
+    ctx.textAlign = 'left';
+    ctx.fillText(productName, pbX + pbW/2 + s(14), pbY - s(4));
+
+    // 6. 50% OFF badge (covers old one)
+    const badgeX = s(810), badgeY = cy - s(118), badgeR = s(54);
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,0.5)';
+    ctx.shadowBlur = s(16);
+    ctx.beginPath();
+    ctx.arc(badgeX, badgeY, badgeR, 0, Math.PI * 2);
+    ctx.fillStyle = '#111';
+    ctx.fill();
+    ctx.restore();
+    const pctM = pctOff.match(/^(\d+)(%?)(.*)$/);
+    if (pctM) {
+      ctx.fillStyle = '#fff';
+      ctx.font = `900 ${s(36)}px 'Barlow Condensed', sans-serif`;
+      ctx.textAlign = 'center';
+      const nw = ctx.measureText(pctM[1]).width;
+      ctx.fillText(pctM[1], badgeX - s(5), badgeY - s(2));
+      ctx.font = `700 ${s(18)}px 'Barlow Condensed', sans-serif`;
+      ctx.fillText('%', badgeX + nw/2 - s(2), badgeY - s(16));
+    } else {
+      ctx.fillStyle = '#fff';
+      ctx.font = `900 ${s(30)}px 'Barlow Condensed', sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.fillText(pctOff, badgeX, badgeY);
+    }
+    ctx.fillStyle = '#fff';
+    ctx.font = `600 ${s(12)}px 'Barlow', sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText('OFF', badgeX, badgeY + s(16));
+
+    // 7. Animated snow on top
+    if (state.snow) {
+      flakes.forEach(f => {
+        ctx.beginPath();
+        ctx.arc(f.x, f.y, f.r * sc, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${f.alpha})`;
+        ctx.fill();
+      });
+    }
+
+    return; // done — skip from-scratch path
+  }
+
+  // ════════════════════════════════════════════════════
+  //  FROM-SCRATCH PATH — no flyer uploaded yet
+  // ════════════════════════════════════════════════════
+
+  // ─── 1. BACKGROUND ───
+  ctx.fillStyle = bgColor;
+  ctx.fillRect(0, 0, W, H);
+
+  // Snowflake pattern on background (small static dots)
+  ctx.save();
+  const bgFlakeSeed = [
+    [0.08,0.15],[0.18,0.42],[0.28,0.08],[0.38,0.62],[0.48,0.22],[0.55,0.78],
+    [0.62,0.35],[0.72,0.12],[0.78,0.55],[0.85,0.28],[0.92,0.68],[0.96,0.18],
+    [0.14,0.72],[0.32,0.88],[0.44,0.48],[0.66,0.82],[0.82,0.42],[0.52,0.92]
+  ];
+  bgFlakeSeed.forEach(([fx,fy]) => {
+    ctx.beginPath();
+    ctx.arc(fx*W, fy*H, s(3), 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(255,255,255,0.35)';
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(fx*W+s(20), fy*H+s(30), s(1.5), 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(255,255,255,0.25)';
+    ctx.fill();
+  });
+  ctx.restore();
+
+  // ─── 2. LEFT BLACK CIRCLE ───
+  // In the original: circle is large, left half bleeds off edge
+  const circX = s(222);
+  const circR = s(218);
+
+  ctx.save();
+  ctx.shadowColor = 'rgba(0,0,0,0.5)';
+  ctx.shadowBlur = s(40);
+  ctx.beginPath();
+  ctx.arc(circX, cy, circR, 0, Math.PI * 2);
+  ctx.fillStyle = circleColor;
+  ctx.fill();
+  ctx.restore();
+
+  // Clip ALL left-circle content
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(circX, cy, circR, 0, Math.PI * 2);
+  ctx.clip();
+
+  // Leon's logo pill at top of circle
+  const logoY = cy - s(118);
+  const logoPillW = s(90), logoPillH = s(28);
+  ctx.fillStyle = 'rgba(255,255,255,0.12)';
+  ctx.beginPath();
+  ctx.roundRect(circX - logoPillW/2, logoY - logoPillH/2, logoPillW, logoPillH, s(14));
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+  ctx.lineWidth = s(1.5);
+  ctx.stroke();
+  ctx.fillStyle = '#fff';
+  ctx.font = `italic 900 ${s(16)}px 'Barlow Condensed', sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.fillText("Leon's", circX, logoY + s(5.5));
+
+  // "That's comfortable." tagline
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  ctx.font = `${s(11)}px 'Barlow', sans-serif`;
+  ctx.fillText("That's comfortable.", circX, cy - s(90));
+
+  // BLACK FRIDAY
+  ctx.fillStyle = '#fff';
+  ctx.font = `900 ${s(19)}px 'Barlow Condensed', sans-serif`;
+  ctx.letterSpacing = s(2) + 'px';
+  ctx.fillText('BLACK FRIDAY', circX, cy - s(70));
+  ctx.letterSpacing = '0px';
+
+  // SALE — the hero text, must be BIG
+  ctx.fillStyle = '#fff';
+  ctx.font = `900 ${s(105)}px 'Barlow Condensed', sans-serif`;
+  ctx.fillText('SALE', circX, cy + s(28));
+
+  // STARTS EARLY
+  ctx.fillStyle = accentColor;
+  ctx.font = `800 ${s(23)}px 'Barlow Condensed', sans-serif`;
+  ctx.fillText('STARTS EARLY!', circX, cy + s(55));
+
+  // SHOP FLYER button
+  const btnW = s(138), btnH = s(30), btnX = circX - btnW/2, btnY = cy + s(74);
+  ctx.fillStyle = 'rgba(255,255,255,0.14)';
+  ctx.beginPath();
+  ctx.roundRect(btnX, btnY, btnW, btnH, s(15));
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+  ctx.lineWidth = s(1);
+  ctx.stroke();
+  ctx.fillStyle = '#fff';
+  ctx.font = `600 ${s(11.5)}px 'Barlow', sans-serif`;
+  ctx.fillText('SHOP FLYER  →', circX, btnY + btnH/2 + s(4));
+
+  ctx.restore(); // end left circle clip
+
+  // ─── Canadian flag badge (overlaps circle edge, top right) ───
+  if (state.flag) {
+    const fBadgeX = circX + s(148);
+    const fBadgeY = cy - s(130);
+    const fR = s(30);
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,0.35)';
+    ctx.shadowBlur = s(10);
+    ctx.beginPath();
+    ctx.arc(fBadgeX, fBadgeY, fR, 0, Math.PI * 2);
+    ctx.fillStyle = '#fff';
+    ctx.fill();
+    ctx.restore();
+    ctx.fillStyle = '#D52B1E';
+    ctx.font = `bold ${s(20)}px sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText('🍁', fBadgeX, fBadgeY + s(5));
+    ctx.fillStyle = '#D52B1E';
+    ctx.font = `bold ${s(6.5)}px 'Barlow', sans-serif`;
+    ctx.letterSpacing = s(0.3) + 'px';
+    ctx.fillText('PROUDLY', fBadgeX, fBadgeY + s(16));
+    ctx.fillText('CANADIAN', fBadgeX, fBadgeY + s(23));
+    ctx.letterSpacing = '0px';
+  }
+
+  // ─── 3. PRODUCT IMAGE ───
+  // Center zone: x=430 to x=820, vertically centered with slight upward offset
+  const prodZoneCX = s(590);
+  const prodZoneCY = cy - s(10);
+  const prodMaxW = s(400);
+  const prodMaxH = s(310);
+
+  if (state.productImg) {
+    const pi = state.productImg;
+    const ratio = pi.width / pi.height;
+    let pw = prodMaxW, ph = prodMaxW / ratio;
+    if (ph > prodMaxH) { ph = prodMaxH; pw = ph * ratio; }
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,0.25)';
+    ctx.shadowBlur = s(28);
+    ctx.shadowOffsetY = s(12);
+    ctx.drawImage(pi, prodZoneCX - pw/2, prodZoneCY - ph/2, pw, ph);
+    ctx.restore();
+  } else {
+    // Dashed placeholder matching original style
+    ctx.save();
+    ctx.setLineDash([s(6), s(5)]);
+    ctx.strokeStyle = 'rgba(0,0,0,0.18)';
+    ctx.lineWidth = s(1.5);
+    ctx.beginPath();
+    ctx.roundRect(prodZoneCX - prodMaxW/2, prodZoneCY - prodMaxH/2, prodMaxW, prodMaxH, s(10));
+    ctx.stroke();
+    ctx.restore();
+    ctx.fillStyle = 'rgba(0,0,0,0.22)';
+    ctx.font = `500 ${s(13)}px 'Barlow', sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText('Upload product image', prodZoneCX, prodZoneCY + s(5));
+  }
+
+  // ─── 4. PRICE BADGE (black pill, bottom of product zone) ───
+  // Original: left of center, with product name to its right
+  const pbX = s(483);
+  const pbY = cy + s(142);
+  const pbW = s(130), pbH = s(50);
+  ctx.save();
+  ctx.shadowColor = 'rgba(0,0,0,0.5)';
+  ctx.shadowBlur = s(14);
+  ctx.fillStyle = '#111';
+  ctx.beginPath();
+  ctx.roundRect(pbX - pbW/2, pbY - pbH/2, pbW, pbH, s(8));
+  ctx.fill();
+  ctx.restore();
+
+  ctx.fillStyle = '#fff';
+  ctx.font = `900 ${s(26)}px 'Barlow Condensed', sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.fillText(salePrice, pbX, pbY - s(2));
+
+  ctx.fillStyle = accentColor;
+  ctx.font = `700 ${s(11)}px 'Barlow', sans-serif`;
+  ctx.fillText(saveAmount.toUpperCase(), pbX, pbY + s(16));
+
+  // Product name — to the right of price badge
+  ctx.fillStyle = 'rgba(0,0,0,0.75)';
+  ctx.font = `600 ${s(15)}px 'Barlow', sans-serif`;
+  ctx.textAlign = 'left';
+  ctx.fillText(productName, pbX + pbW/2 + s(14), pbY - s(4));
+
+  // ─── 5. 50% OFF BADGE ───
+  // Original: top right of product zone, black circle
+  const badgeX = s(810);
+  const badgeY = cy - s(118);
+  const badgeR = s(54);
+
+  ctx.save();
+  ctx.shadowColor = 'rgba(0,0,0,0.5)';
+  ctx.shadowBlur = s(16);
+  ctx.beginPath();
+  ctx.arc(badgeX, badgeY, badgeR, 0, Math.PI * 2);
+  ctx.fillStyle = '#111';
+  ctx.fill();
+  ctx.restore();
+
+  // Number BIG, % smaller superscript
+  const pctMatch = pctOff.match(/^(\d+)(%?)(.*)$/);
+  if (pctMatch) {
+    // Large number
+    ctx.fillStyle = '#fff';
+    ctx.font = `900 ${s(36)}px 'Barlow Condensed', sans-serif`;
+    ctx.textAlign = 'center';
+    const numW = ctx.measureText(pctMatch[1]).width;
+    ctx.fillText(pctMatch[1], badgeX - s(5), badgeY - s(2));
+    // % sign slightly smaller, upper right
+    ctx.font = `700 ${s(18)}px 'Barlow Condensed', sans-serif`;
+    ctx.fillText('%', badgeX + s(numW/2) - s(2), badgeY - s(16));
+  } else {
+    ctx.fillStyle = '#fff';
+    ctx.font = `900 ${s(30)}px 'Barlow Condensed', sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText(pctOff, badgeX, badgeY);
+  }
+  ctx.fillStyle = '#fff';
+  ctx.font = `600 ${s(12)}px 'Barlow', sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.fillText('OFF', badgeX, badgeY + s(16));
+
+  // ─── 6. RIGHT PANEL (white circle) ───
+  // Original: large white circle, right half bleeds off edge
+  const rPanelX = s(972);
+  const rPanelY = cy;
+  const rPanelR = s(205);
+
+  ctx.save();
+  ctx.shadowColor = 'rgba(0,0,0,0.12)';
+  ctx.shadowBlur = s(24);
+  ctx.beginPath();
+  ctx.arc(rPanelX, rPanelY, rPanelR, 0, Math.PI * 2);
+  ctx.fillStyle = '#fff';
+  ctx.fill();
+  ctx.restore();
+
+  // Clip right panel content
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(rPanelX, rPanelY, rPanelR - s(10), 0, Math.PI * 2);
+  ctx.clip();
+
+  // "OTHER THAN" / "THE TAXES AND FEES,"
+  ctx.fillStyle = '#444';
+  ctx.font = `500 ${s(10)}px 'Barlow', sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.fillText('OTHER THAN', rPanelX, rPanelY - s(100));
+  ctx.fillText('THE TAXES AND FEES,', rPanelX, rPanelY - s(88));
+
+  // "TAKE"
+  ctx.fillStyle = '#222';
+  ctx.font = `700 ${s(14)}px 'Barlow Condensed', sans-serif`;
+  ctx.fillText('TAKE', rPanelX, rPanelY - s(68));
+
+  // Parse fin1 — split into two lines at "TO PAY"
+  // e.g. "3 YEARS TO PAY*" → line1="3 YEARS", line2="TO PAY*"
+  const fin1Clean = fin1.trim();
+  const toPayIdx = fin1Clean.toUpperCase().indexOf('TO PAY');
+  let finLine1, finLine2;
+  if (toPayIdx > 0) {
+    finLine1 = fin1Clean.substring(0, toPayIdx).trim();
+    finLine2 = fin1Clean.substring(toPayIdx).trim();
+  } else {
+    // Try splitting on last space if too long
+    const spaceIdx = fin1Clean.lastIndexOf(' ');
+    if (spaceIdx > 0 && fin1Clean.length > 10) {
+      finLine1 = fin1Clean.substring(0, spaceIdx);
+      finLine2 = fin1Clean.substring(spaceIdx+1);
+    } else {
+      finLine1 = fin1Clean;
+      finLine2 = '';
+    }
+  }
+
+  ctx.fillStyle = accentColor;
+  ctx.font = `900 ${s(52)}px 'Barlow Condensed', sans-serif`;
+  ctx.fillText(finLine1, rPanelX, rPanelY - s(15));
+  if (finLine2) {
+    ctx.fillText(finLine2, rPanelX, rPanelY + s(42));
+  }
+
+  // fin2 — "0% INTEREST"
+  ctx.fillStyle = accentColor;
+  ctx.font = `900 ${s(18)}px 'Barlow Condensed', sans-serif`;
+  ctx.fillText(fin2, rPanelX, rPanelY + s(63));
+
+  // "36 EQUAL MONTHLY PAYMENTS*"
+  ctx.fillStyle = '#444';
+  ctx.font = `500 ${s(9.5)}px 'Barlow', sans-serif`;
+  ctx.fillText('36 EQUAL MONTHLY PAYMENTS*', rPanelX, rPanelY + s(78));
+
+  // Fine print — auto wrap
+  if (finePrint) {
+    ctx.fillStyle = '#888';
+    ctx.font = `${s(7.5)}px 'Barlow', sans-serif`;
+    const fpMaxW = rPanelR * 1.55;
+    const fpWords = finePrint.split(' ');
+    let fpLine = '', fpY = rPanelY + s(94);
+    fpWords.forEach((word, i) => {
+      const test = fpLine ? fpLine + ' ' + word : word;
+      if (ctx.measureText(test).width > fpMaxW && fpLine) {
+        ctx.fillText(fpLine, rPanelX, fpY);
+        fpLine = word; fpY += s(9.5);
+      } else { fpLine = test; }
+      if (i === fpWords.length - 1 && fpLine) ctx.fillText(fpLine, rPanelX, fpY);
+    });
+  }
+
+  ctx.restore(); // end right panel clip
+
+  // ─── 7. SNOW ───
+  if (state.snow) {
+    flakes.forEach(f => {
+      ctx.beginPath();
+      ctx.arc(f.x, f.y, f.r * sc, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,255,${f.alpha})`;
+      ctx.fill();
+    });
+  }
+
+  // ─── 8. VIGNETTE ───
+  if (state.vig) {
+    const vg = ctx.createRadialGradient(cx, cy, H * 0.2, cx, cy, W * 0.72);
+    vg.addColorStop(0, 'rgba(0,0,0,0)');
+    vg.addColorStop(1, 'rgba(0,0,0,0.25)');
+    ctx.fillStyle = vg;
+    ctx.fillRect(0, 0, W, H);
+  }
+}
+
+// ════════════════════════════════════════════
+//  Animation loop (for MP4 recording)
+// ════════════════════════════════════════════
+function startAnimation() {
+  isAnimating = true;
+  function loop() {
+    if (!isAnimating) return;
+    tickSnow();
+    renderBanner(true);
+    animFrame = requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+function stopAnimation() {
+  isAnimating = false;
+  if (animFrame) cancelAnimationFrame(animFrame);
+}
+
+// Initial render
+renderBanner();
+
+// ════════════════════════════════════════════
+//  AI GENERATE — builds prompt for ChatGPT
+// ════════════════════════════════════════════
+function triggerAIGenerate() {
+  if (!state.flyerDataURL) {
+    alert('Please upload the flyer first (Section 1).');
+    return;
+  }
+
+  const productRequest = document.getElementById('aiProductRequest').value.trim()
+    || document.getElementById('productName').value.trim()
+    || 'the featured product';
+
+  const formData = {
+    productName:  document.getElementById('productName').value,
+    salePrice:    document.getElementById('salePrice').value,
+    saveAmount:   document.getElementById('saveAmount').value,
+    pctOff:       document.getElementById('pctOff').value,
+    campaign:     document.getElementById('campaign').value,
+    fin1:         document.getElementById('fin1').value,
+    fin2:         document.getElementById('fin2').value,
+    finePrint:    document.getElementById('finePrint').value,
+  };
+
+  const hasSample = !!state.sampleDataURL;
+
+  const prompt = `You are a professional retail banner designer for Leon's Furniture, a Canadian retailer.
+
+I am uploading:
+${hasSample
+  ? '• Image 1: SOURCE FLYER — reference for design language, colors, layout\n• Image 2: SAMPLE BANNER — exact output format to replicate\n\nGenerate a new banner matching Image 2\'s format using the product details below.'
+  : '• Image 1: SOURCE FLYER — replicate its design as a 1200×400px banner.'}
+
+PRODUCT DETAILS:
+- Product: ${productRequest}
+- Sale Price: ${formData.salePrice || 'as shown'}
+- Save: ${formData.saveAmount || 'as shown'}
+- % Off: ${formData.pctOff || 'as shown'}
+- Campaign: ${formData.campaign || 'Black Friday'}
+- Financing: ${formData.fin1} / ${formData.fin2}
+
+BANNER LAYOUT (must match exactly):
+• 1200 × 400px wide horizontal format
+• LEFT: large black circle — Leon's logo, "BLACK FRIDAY", "SALE" (huge), "STARTS EARLY!", "SHOP FLYER" button
+• CENTER: yellow background, product image "${productRequest}" as hero, black pill price badge "${formData.salePrice}" + "${formData.saveAmount}"
+• TOP-RIGHT of product: black circle "${formData.pctOff} OFF"
+• RIGHT: large white circle — financing text "${formData.fin1}" / "${formData.fin2}"
+• Subtle snowflakes across yellow background
+
+Generate the complete 1200×400px banner image now.`;
+
+  const statusEl = document.getElementById('aiStatus');
+  const instrEl  = document.getElementById('aiInstructions');
+  statusEl.style.display = 'block';
+  statusEl.textContent   = '📋 Prompt ready — follow steps below';
+  instrEl.style.display  = 'block';
+
+  instrEl.innerHTML = `
+    <div style="color:var(--accent);font-weight:700;margin-bottom:8px;font-size:12px;">STEP-BY-STEP</div>
+    <div style="margin-bottom:5px;">1. Click <strong style="color:#fff">Open ChatGPT</strong> below</div>
+    <div style="margin-bottom:5px;">2. Upload <strong style="color:#fff">your flyer</strong>${hasSample ? ' + <strong style="color:#fff">sample banner</strong>' : ''} to the chat</div>
+    <div style="margin-bottom:5px;">3. Paste the copied prompt &amp; send</div>
+    <div style="margin-bottom:5px;">4. Right-click the generated image → <strong style="color:#fff">Save image</strong></div>
+    <div style="margin-bottom:10px;">5. Upload it as <strong style="color:#fff">Product Image (Section 2)</strong> here</div>
+    <button onclick="copyPromptAndOpen()" style="width:100%;background:#10a37f;color:#fff;border:none;border-radius:6px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;margin-bottom:8px;">📋 Copy Prompt &amp; Open ChatGPT</button>
+    <div style="padding:8px;background:#0d0d0f;border-radius:6px;max-height:110px;overflow-y:auto;font-size:9px;color:#666;white-space:pre-wrap;line-height:1.5;">${prompt.replace(/</g,'&lt;')}</div>
+  `;
+
+  window._aiPrompt = prompt;
+}
+
+async function copyPromptAndOpen() {
+  try {
+    await navigator.clipboard.writeText(window._aiPrompt);
+  } catch(e) {
+    const ta = document.createElement('textarea');
+    ta.value = window._aiPrompt; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+  }
+  window.open('https://chatgpt.com', '_blank');
+  document.getElementById('aiStatus').textContent = '✅ Prompt copied! Paste into ChatGPT with your images.';
+}
+
+// Auto-fill form from JSON (called by Claude or pasted in console)
+function bannerAutoFill(data) {
+  const fields = ['productName','salePrice','saveAmount','pctOff','campaign','fin1','fin2','finePrint'];
+  fields.forEach(id => { if (data[id]) document.getElementById(id).value = data[id]; });
+  if (data.bgColor)     document.getElementById('colBg').value     = data.bgColor;
+  if (data.circleColor) document.getElementById('colCircle').value = data.circleColor;
+  if (data.accentColor) document.getElementById('colAccent').value = data.accentColor;
+  renderBanner();
+  const s = document.getElementById('aiStatus');
+  if (s) { s.style.display='block'; s.textContent='✅ Form auto-filled!'; }
+}
+window.bannerAutoFill = bannerAutoFill;
+
+// ════════════════════════════════════════════
+//  EXPORT — PNG
+// ════════════════════════════════════════════
+async function exportPNG() {
+  renderBanner();
+  const canvas = document.getElementById('bannerCanvas');
+  const name = (document.getElementById('campaign').value || 'Banner').replace(/\s+/g,'-');
+  const filename = 'Leons-' + name + '-' + Date.now() + '.png';
+
+  const downloads = await claude.use('downloads');
+  if (downloads) {
+    // Convert dataURL to Uint8Array
+    const dataURL = canvas.toDataURL('image/png');
+    const base64 = dataURL.split(',')[1];
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    await downloads.save({ filename, data: bytes });
+  } else {
+    // Fallback for non-artifact contexts
+    const link = document.createElement('a');
+    link.download = filename;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  }
+}
+
+// ════════════════════════════════════════════
+//  EXPORT — MP4 (10s animation)
+// ════════════════════════════════════════════
+function exportMP4() {
+  const canvas = document.getElementById('bannerCanvas');
+  const statusEl = document.getElementById('recordingStatus');
+  const btn = document.getElementById('mp4Btn');
+
+  if (!window.MediaRecorder) {
+    alert('MediaRecorder not supported in this browser. Use Chrome.');
+    return;
+  }
+
+  const mimeType = ['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'].find(
+    m => MediaRecorder.isTypeSupported(m)
+  );
+  if (!mimeType) { alert('No supported video format found.'); return; }
+
+  const chunks = [];
+  const stream = canvas.captureStream(30);
+  const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 8000000 });
+
+  recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+
+  let elapsed = 0;
+  const DURATION = 10000;
+
+  recorder.onstop = async () => {
+    stopAnimation();
+    const blob = new Blob(chunks, { type: mimeType });
+    const name = (document.getElementById('campaign').value || 'Banner').replace(/\s+/g,'-');
+    const filename = 'Leons-' + name + '-' + Date.now() + '.webm';
+
+    const downloads = await claude.use('downloads');
+    if (downloads) {
+      const arrayBuf = await blob.arrayBuffer();
+      await downloads.save({ filename, data: new Uint8Array(arrayBuf) });
+    } else {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.download = filename;
+      a.href = url; a.click();
+      URL.revokeObjectURL(url);
+    }
+    btn.style.opacity = '1'; btn.disabled = false;
+    statusEl.style.display = 'none';
+  };
+
+  recorder.start(100);
+  startAnimation();
+  btn.style.opacity = '0.4'; btn.disabled = true;
+  statusEl.style.display = 'inline';
+
+  const timer = setInterval(() => {
+    elapsed += 100;
+    statusEl.textContent = 'Recording… ' + (elapsed/1000).toFixed(1) + 's';
+    if (elapsed >= DURATION) { clearInterval(timer); recorder.stop(); }
+  }, 100);
+}
+</script>
+</body>
+</html>
