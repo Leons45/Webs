@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leon's Banner Animator</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    background: #0a0a0a;
+    color: #f0f0f0;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 20px;
+  }
+
+  .top-bar {
+    width: 100%;
+    max-width: 1280px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  .logo {
+    font-size: 20px;
+    font-weight: 900;
+    color: #FFC107;
+    letter-spacing: -0.5px;
+  }
+
+  .logo span { color: #fff; font-weight: 400; font-size: 13px; margin-left: 8px; vertical-align: middle; }
+
+  .controls-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  .btn {
+    padding: 9px 20px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn-primary { background: #FFC107; color: #111; }
+  .btn-primary:hover { background: #FFD54F; }
+  .btn-secondary { background: #222; color: #ccc; border: 1px solid #333; }
+  .btn-secondary:hover { background: #2a2a2a; border-color: #555; }
+  .btn-export { background: #1a3a1a; color: #66BB6A; border: 1px solid #2d5a2d; }
+  .btn-export:hover { background: #224422; }
+
+  .canvas-wrap {
+    width: 100%;
+    max-width: 1280px;
+    background: #111;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #222;
+    margin-bottom: 20px;
+  }
+
+  canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+  }
+
+  .settings-panel {
+    width: 100%;
+    max-width: 1280px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .setting-card {
+    background: #111;
+    border: 1px solid #222;
+    border-radius: 10px;
+    padding: 14px;
+  }
+
+  .setting-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #888;
+    margin-bottom: 10px;
+  }
+
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .toggle-label { font-size: 12px; color: #ccc; }
+
+  .toggle {
+    width: 36px;
+    height: 20px;
+    background: #333;
+    border-radius: 10px;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.2s;
+  }
+
+  .toggle.on { background: #FFC107; }
+
+  .toggle::after {
+    content: '';
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    background: white;
+    border-radius: 50%;
+    top: 3px;
+    left: 3px;
+    transition: left 0.2s;
+  }
+
+  .toggle.on::after { left: 19px; }
+
+  .slider-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .slider-label { font-size: 11px; color: #888; min-width: 70px; }
+  .slider-val { font-size: 11px; color: #FFC107; min-width: 28px; text-align: right; }
+
+  input[type=range] {
+    flex: 1;
+    appearance: none;
+    height: 4px;
+    background: #333;
+    border-radius: 2px;
+    outline: none;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    background: #FFC107;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+
+  .status-label {
+    font-size: 13px;
+    color: #888;
+    text-align: center;
+    padding: 20px;
+  }
+
+  .progress-bar-wrap {
+    display: none;
+    width: 100%;
+    max-width: 400px;
+    background: #222;
+    border-radius: 4px;
+    height: 6px;
+    margin: 10px auto;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: #FFC107;
+    width: 0%;
+    transition: width 0.2s;
+    border-radius: 4px;
+  }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="logo">LEON'S <span>Banner Animator</span></div>
+  <button class="btn btn-secondary" onclick="window.close()">✕ Close</button>
+</div>
+
+<div class="controls-row">
+  <button class="btn btn-primary" id="btnPlay" onclick="togglePlay()">▶ Play</button>
+  <button class="btn btn-secondary" onclick="restartAnim()">↺ Restart</button>
+  <button class="btn btn-export" id="btnPNG" onclick="exportPNG()">📸 Export PNG</button>
+  <button class="btn btn-export" id="btnMP4" onclick="exportWebM()">🎬 Export WebM</button>
+</div>
+
+<div class="progress-bar-wrap" id="progressWrap">
+  <div class="progress-bar-fill" id="progressFill"></div>
+</div>
+
+<div class="canvas-wrap">
+  <canvas id="bannerCanvas" width="1200" height="400"></canvas>
+</div>
+
+<div class="settings-panel">
+  <div class="setting-card">
+    <div class="setting-title">🎞️ Animation</div>
+    <div class="toggle-row">
+      <span class="toggle-label">Ken Burns Zoom</span>
+      <div class="toggle on" id="togKenBurns" onclick="toggleOpt('kenBurns')"></div>
+    </div>
+    <div class="toggle-row">
+      <span class="toggle-label">Fade In</span>
+      <div class="toggle on" id="togFadeIn" onclick="toggleOpt('fadeIn')"></div>
+    </div>
+    <div class="toggle-row">
+      <span class="toggle-label">Price Pulse</span>
+      <div class="toggle on" id="togPulse" onclick="toggleOpt('pulse')"></div>
+    </div>
+  </div>
+
+  <div class="setting-card">
+    <div class="setting-title">❄️ Snow Particles</div>
+    <div class="toggle-row">
+      <span class="toggle-label">Enable Snow</span>
+      <div class="toggle on" id="togSnow" onclick="toggleOpt('snow')"></div>
+    </div>
+    <div class="slider-row">
+      <span class="slider-label">Count</span>
+      <input type="range" id="snowCount" min="20" max="150" value="70" oninput="updateSlider('snowCount', this.value)">
+      <span class="slider-val" id="valSnowCount">70</span>
+    </div>
+    <div class="slider-row">
+      <span class="slider-label">Speed</span>
+      <input type="range" id="snowSpeed" min="1" max="5" value="2" step="0.5" oninput="updateSlider('snowSpeed', this.value)">
+      <span class="slider-val" id="valSnowSpeed">2</span>
+    </div>
+  </div>
+
+  <div class="setting-card">
+    <div class="setting-title">⏱️ Timing</div>
+    <div class="slider-row">
+      <span class="slider-label">Duration (s)</span>
+      <input type="range" id="duration" min="5" max="30" value="15" oninput="updateSlider('duration', this.value)">
+      <span class="slider-val" id="valDuration">15</span>
+    </div>
+    <div class="slider-row">
+      <span class="slider-label">Zoom Scale</span>
+      <input type="range" id="zoomScale" min="1.02" max="1.3" value="1.1" step="0.01" oninput="updateSlider('zoomScale', this.value)">
+      <span class="slider-val" id="valZoomScale">1.1</span>
+    </div>
+  </div>
+</div>
+
+<div class="status-label" id="statusLabel">Loading banner…</div>
+
+<script>
+// ── State ─────────────────────────────────────────────────────────────────────
+
+const canvas = document.getElementById('bannerCanvas');
+const ctx    = canvas.getContext('2d');
+const W = 1200, H = 400;
+
+const opts = {
+  kenBurns: true,
+  fadeIn:   true,
+  pulse:    true,
+  snow:     true
+};
+
+let bannerImg = null;
+let playing   = false;
+let animFrame = null;
+let startTime = null;
+let snowflakes = [];
+
+// ── Load Banner ───────────────────────────────────────────────────────────────
+
+async function loadBanner() {
+  // Check URL param first
+  const urlParams = new URLSearchParams(window.location.search);
+  let src = urlParams.get('src');
+
+  // Then check chrome.storage
+  if (!src || src === 'null') {
+    if (typeof chrome !== 'undefined' && chrome.storage) {
+      const data = await new Promise(r => chrome.storage.local.get(['leons_result'], r));
+      src = data.leons_result;
+    }
+  }
+
+  if (!src) {
+    document.getElementById('statusLabel').textContent = 'No banner found. Run the generator from the extension popup.';
+    return;
+  }
+
+  document.getElementById('statusLabel').textContent = 'Loading generated banner…';
+
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+
+  img.onload = () => {
+    bannerImg = img;
+    initSnow();
+    document.getElementById('statusLabel').textContent = '';
+    startPlay();
+  };
+
+  img.onerror = () => {
+    // If cross-origin fails, draw a placeholder
+    document.getElementById('statusLabel').textContent = 'Could not load the generated image (CORS). Try right-clicking the image in ChatGPT → Copy Image → paste the URL here.';
+    // Still init snow on a black canvas
+    initSnow();
+    startPlay();
+  };
+
+  img.src = src;
+}
+
+// ── Snow ──────────────────────────────────────────────────────────────────────
+
+function initSnow() {
+  const count = parseInt(document.getElementById('snowCount').value);
+  snowflakes = [];
+  for (let i = 0; i < count; i++) {
+    snowflakes.push({
+      x:     Math.random() * W,
+      y:     Math.random() * H,
+      r:     Math.random() * 3 + 1,
+      speed: Math.random() * 1.5 + 0.5,
+      drift: Math.random() * 0.4 - 0.2,
+      alpha: Math.random() * 0.5 + 0.4
+    });
+  }
+}
+
+function drawSnow() {
+  const speedMult = parseFloat(document.getElementById('snowSpeed').value);
+  for (const flake of snowflakes) {
+    ctx.save();
+    ctx.globalAlpha = flake.alpha;
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(flake.x, flake.y, flake.r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    flake.y += flake.speed * speedMult;
+    flake.x += flake.drift;
+    if (flake.y > H + 10) { flake.y = -10; flake.x = Math.random() * W; }
+    if (flake.x > W + 10) flake.x = 0;
+    if (flake.x < -10)    flake.x = W;
+  }
+}
+
+// ── Animation Loop ────────────────────────────────────────────────────────────
+
+function render(ts) {
+  if (!startTime) startTime = ts;
+  const duration = parseFloat(document.getElementById('duration').value) * 1000;
+  const elapsed  = ts - startTime;
+  const t        = Math.min(elapsed / duration, 1); // 0..1
+
+  ctx.clearRect(0, 0, W, H);
+
+  if (bannerImg) {
+    ctx.save();
+
+    // Ken Burns: slow zoom from 1.0 → zoomScale
+    if (opts.kenBurns) {
+      const zoomScale = parseFloat(document.getElementById('zoomScale').value);
+      const scale = 1 + (zoomScale - 1) * t;
+      const ox = (W - W * scale) / 2;
+      const oy = (H - H * scale) / 2;
+      ctx.translate(ox, oy);
+      ctx.scale(scale, scale);
+    }
+
+    ctx.drawImage(bannerImg, 0, 0, W, H);
+    ctx.restore();
+
+    // Fade in overlay
+    if (opts.fadeIn) {
+      const fadeT = Math.min(t * 4, 1); // fade in first 25%
+      if (fadeT < 1) {
+        ctx.fillStyle = `rgba(0,0,0,${1 - fadeT})`;
+        ctx.fillRect(0, 0, W, H);
+      }
+    }
+
+    // Price pulse: glow effect in center zone
+    if (opts.pulse) {
+      const pulseT  = (Math.sin(elapsed / 600) + 1) / 2; // 0..1 pulsing
+      const opacity = 0.06 + pulseT * 0.08;
+      ctx.save();
+      const grad = ctx.createRadialGradient(W * 0.42, H * 0.5, 0, W * 0.42, H * 0.5, 160);
+      grad.addColorStop(0, `rgba(255,193,7,${opacity})`);
+      grad.addColorStop(1, 'rgba(255,193,7,0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, W, H);
+      ctx.restore();
+    }
+
+  } else {
+    // No image — draw placeholder
+    ctx.fillStyle = '#1a1a1a';
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#444';
+    ctx.font = 'bold 20px system-ui';
+    ctx.textAlign = 'center';
+    ctx.fillText('Banner loading…', W / 2, H / 2);
+    ctx.textAlign = 'left';
+  }
+
+  // Snow layer (always on top)
+  if (opts.snow) drawSnow();
+
+  if (t < 1 && playing) {
+    animFrame = requestAnimationFrame(render);
+  } else if (t >= 1) {
+    // Loop
+    startTime = null;
+    animFrame = requestAnimationFrame(render);
+  }
+}
+
+function startPlay() {
+  playing   = true;
+  startTime = null;
+  document.getElementById('btnPlay').textContent = '⏸ Pause';
+  if (animFrame) cancelAnimationFrame(animFrame);
+  animFrame = requestAnimationFrame(render);
+}
+
+function togglePlay() {
+  if (playing) {
+    playing = false;
+    if (animFrame) cancelAnimationFrame(animFrame);
+    document.getElementById('btnPlay').textContent = '▶ Play';
+  } else {
+    startPlay();
+  }
+}
+
+function restartAnim() {
+  startTime = null;
+  if (!playing) startPlay();
+}
+
+// ── Settings ──────────────────────────────────────────────────────────────────
+
+function toggleOpt(key) {
+  opts[key] = !opts[key];
+  document.getElementById('tog' + key.charAt(0).toUpperCase() + key.slice(1)).className =
+    'toggle' + (opts[key] ? ' on' : '');
+}
+
+function updateSlider(id, val) {
+  document.getElementById('val' + id.charAt(0).toUpperCase() + id.slice(1)).textContent = val;
+  if (id === 'snowCount') initSnow();
+}
+
+// ── Export PNG ────────────────────────────────────────────────────────────────
+
+function exportPNG() {
+  // Render one clean frame (no snow, full brightness)
+  const wasPlaying = playing;
+  if (wasPlaying) togglePlay();
+
+  // Redraw without snow for static export
+  ctx.clearRect(0, 0, W, H);
+  if (bannerImg) ctx.drawImage(bannerImg, 0, 0, W, H);
+
+  canvas.toBlob(blob => {
+    const url  = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href  = url;
+    link.download = 'Leons-Banner-' + Date.now() + '.png';
+    link.click();
+    URL.revokeObjectURL(url);
+    if (wasPlaying) startPlay();
+  }, 'image/png');
+}
+
+// ── Export WebM ───────────────────────────────────────────────────────────────
+
+async function exportWebM() {
+  const btn = document.getElementById('btnMP4');
+  btn.disabled = true;
+  btn.textContent = '⏳ Recording…';
+
+  const progressWrap = document.getElementById('progressWrap');
+  const progressFill = document.getElementById('progressFill');
+  progressWrap.style.display = 'block';
+
+  const duration = parseFloat(document.getElementById('duration').value) * 1000;
+  const stream   = canvas.captureStream(30);
+  const mime     = MediaRecorder.isTypeSupported('video/webm;codecs=vp9')
+                   ? 'video/webm;codecs=vp9' : 'video/webm';
+  const recorder = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 8_000_000 });
+  const chunks   = [];
+
+  recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+
+  recorder.onstop = () => {
+    const blob = new Blob(chunks, { type: mime });
+    const url  = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href  = url;
+    link.download = 'Leons-Banner-' + Date.now() + '.webm';
+    link.click();
+    URL.revokeObjectURL(url);
+    btn.disabled = false;
+    btn.textContent = '🎬 Export WebM';
+    progressWrap.style.display = 'none';
+    progressFill.style.width = '0%';
+  };
+
+  // Restart animation cleanly for recording
+  startTime = null;
+  playing   = true;
+  recorder.start();
+
+  const recordStart = performance.now();
+  function checkEnd() {
+    const elapsed = performance.now() - recordStart;
+    const pct = Math.min(elapsed / duration * 100, 100);
+    progressFill.style.width = pct + '%';
+    if (elapsed < duration) {
+      requestAnimationFrame(checkEnd);
+    } else {
+      recorder.stop();
+    }
+  }
+  requestAnimationFrame(checkEnd);
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+loadBanner();
+</script>
+</body>
+</html>
