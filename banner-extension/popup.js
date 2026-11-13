@@ -109,17 +109,33 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
 
   const prompt = buildPrompt();
 
+  // Step 1: Download both images to Desktop so user can attach them
+  setStep(1);
+  showStatus('Saving images to Desktop…');
+
+  // Download flyer as file
+  const flyerFilename = 'leons-flyer-upload.png';
+  const sampleFilename = 'leons-sample-upload.png';
+
+  await chrome.downloads.download({ url: state.flyerData,  filename: flyerFilename,  saveAs: false, conflictAction: 'overwrite' });
+  await chrome.downloads.download({ url: state.sampleData, filename: sampleFilename, saveAs: false, conflictAction: 'overwrite' });
+
   // Store everything in chrome.storage for the content script
   await chrome.storage.local.set({
-    leons_flyer:   state.flyerData,
-    leons_sample:  state.sampleData,
-    leons_prompt:  prompt,
-    leons_status:  'pending',
-    leons_result:  null
+    leons_flyer:         state.flyerData,
+    leons_sample:        state.sampleData,
+    leons_prompt:        prompt,
+    leons_flyer_name:    flyerFilename,
+    leons_sample_name:   sampleFilename,
+    leons_status:        'pending',
+    leons_result:        null,
+    leons_error:         null
   });
 
-  // Step 1: Open ChatGPT
-  setStep(1);
+  await new Promise(r => setTimeout(r, 1200)); // give downloads a moment
+
+  // Step 2: Open ChatGPT
+  setStep(2);
   showStatus('Opening ChatGPT…');
 
   const tab = await chrome.tabs.create({ url: 'https://chatgpt.com/', active: true });
@@ -148,9 +164,9 @@ document.getElementById('btnGenerate').addEventListener('click', async () => {
       if (st === lastStatus) return;
       lastStatus = st;
 
-      if (st === 'uploading') { setStep(2); showStatus('Uploading images to ChatGPT…'); }
-      else if (st === 'prompting') { setStep(3); showStatus('Sending banner prompt…'); }
-      else if (st === 'waiting')   { setStep(4); showStatus('Waiting for DALL-E generation (1–3 min)…'); }
+      if (st === 'uploading') { setStep(3); showStatus('Attach the 2 files in ChatGPT…'); }
+      else if (st === 'prompting') { setStep(4); showStatus('Sending banner prompt…'); }
+      else if (st === 'waiting')   { setStep(5); showStatus('Waiting for DALL-E generation (1–3 min)…'); }
       else if (st === 'done')      {
         clearInterval(stepInterval);
         setStep(5);
