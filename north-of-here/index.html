@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>North of Here</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #000; overflow: hidden; }
+canvas { display: block; position: fixed; inset: 0; }
+
+/* LETTERBOX */
+.lb { position: fixed; left: 0; right: 0; height: 68px; background: #000; z-index: 50; }
+.lb-t { top: 0; }
+.lb-b { bottom: 0; }
+
+/* UI LAYER */
+#ui {
+  position: fixed; inset: 0; z-index: 20;
+  pointer-events: none;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Show badge */
+.show-badge {
+  position: absolute; top: 24px; left: 44px;
+  display: flex; align-items: center; gap: 14px;
+}
+.show-badge-line { width: 28px; height: 1px; background: rgba(255,255,255,0.25); }
+.show-badge-text {
+  font-size: 9px; letter-spacing: 0.45em; text-transform: uppercase;
+  color: rgba(255,255,255,0.35); font-weight: 300;
+}
+
+/* Episode block */
+.episode-block {
+  position: absolute; bottom: 95px; left: 44px;
+}
+.ep-eyebrow {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+}
+.ep-label {
+  font-size: 9px; letter-spacing: 0.45em; color: rgba(255,255,255,0.3);
+  text-transform: uppercase;
+}
+.ep-dot {
+  width: 4px; height: 4px; border-radius: 50%;
+  background: #f0a060; box-shadow: 0 0 6px #f0a060;
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+.ep-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 44px; font-weight: 300; color: rgba(255,255,255,0.92);
+  letter-spacing: 0.02em; line-height: 1;
+  margin-bottom: 14px;
+}
+.ep-title em { font-style: italic; color: rgba(240,180,100,0.85); }
+.ep-meta {
+  font-size: 9.5px; letter-spacing: 0.28em;
+  color: rgba(255,255,255,0.22); text-transform: uppercase;
+}
+
+/* Divider */
+.ep-divider {
+  width: 1px; height: 40px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.15), transparent);
+  margin: 16px 0;
+}
+
+/* Summary text */
+.ep-summary {
+  max-width: 320px;
+  font-size: 11.5px; line-height: 1.8;
+  color: rgba(255,255,255,0.35);
+  font-weight: 300; letter-spacing: 0.03em;
+}
+
+/* Character list */
+.char-panel {
+  position: absolute; bottom: 95px; right: 44px;
+  display: flex; flex-direction: column; gap: 0; align-items: flex-end;
+}
+.char-label {
+  font-size: 8px; letter-spacing: 0.45em; color: rgba(255,255,255,0.18);
+  text-transform: uppercase; margin-bottom: 18px;
+}
+.char-row {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 16px;
+  opacity: 0;
+  animation: fadeRow 0.6s ease forwards;
+}
+.char-row:nth-child(2) { animation-delay: 0.1s; }
+.char-row:nth-child(3) { animation-delay: 0.2s; }
+.char-row:nth-child(4) { animation-delay: 0.3s; }
+.char-row:nth-child(5) { animation-delay: 0.4s; }
+.char-row:nth-child(6) { animation-delay: 0.5s; }
+@keyframes fadeRow {
+  to { opacity: 1; }
+}
+.char-name {
+  font-size: 10px; letter-spacing: 0.22em; color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+}
+.char-role {
+  font-size: 8.5px; color: rgba(255,255,255,0.18);
+  letter-spacing: 0.1em;
+  margin-top: 1px;
+  text-align: right;
+}
+.char-info { text-align: right; }
+.char-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  flex-shrink: 0;
+}
+.char-dot.active { background: #f0a060; box-shadow: 0 0 8px #f0a060; }
+.char-dot.idle { background: rgba(255,255,255,0.12); }
+.char-dot.asleep { background: rgba(80,80,120,0.4); }
+
+/* Scan line overlay */
+.scanlines {
+  position: fixed; inset: 0; z-index: 15;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.03) 2px,
+    rgba(0,0,0,0.03) 4px
+  );
+  pointer-events: none;
+}
+
+/* Vignette */
+.vignette {
+  position: fixed; inset: 0; z-index: 14;
+  background: radial-gradient(ellipse at center,
+    transparent 55%,
+    rgba(0,0,0,0.65) 100%
+  );
+  pointer-events: none;
+}
+
+/* Loading Screen */
+#loader {
+  position: fixed; inset: 0; background: #000;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  z-index: 999;
+  transition: opacity 2s ease;
+}
+#loader.fade { opacity: 0; pointer-events: none; }
+
+.loader-eyebrow {
+  font-size: 8px; letter-spacing: 0.6em; color: rgba(255,255,255,0.15);
+  text-transform: uppercase; margin-bottom: 20px;
+}
+.loader-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 60px; font-weight: 300; color: #fff;
+  letter-spacing: 0.2em; text-transform: uppercase;
+}
+.loader-title em { font-style: italic; color: rgba(240,180,100,0.7); }
+.loader-sub {
+  font-size: 9px; letter-spacing: 0.5em; color: rgba(255,255,255,0.15);
+  text-transform: uppercase; margin-top: 8px; margin-bottom: 60px;
+}
+.loader-bar {
+  width: 180px; height: 1px;
+  background: rgba(255,255,255,0.07);
+}
+.loader-fill {
+  height: 100%; background: rgba(255,255,255,0.3);
+  width: 0%; transition: width 0.5s ease;
+}
+.loader-status {
+  font-size: 8px; letter-spacing: 0.35em; color: rgba(255,255,255,0.12);
+  text-transform: uppercase; margin-top: 16px;
+  min-height: 14px;
+}
+</style>
+</head>
+<body>
+
+<!-- Loading -->
+<div id="loader">
+  <div class="loader-eyebrow">A self-writing series</div>
+  <div class="loader-title">North <em>of</em> Here</div>
+  <div class="loader-sub">North York, Ontario · Season One</div>
+  <div class="loader-bar"><div class="loader-fill" id="lf"></div></div>
+  <div class="loader-status" id="ls">Initializing scene</div>
+</div>
+
+<!-- Cinematic bars -->
+<div class="lb lb-t"></div>
+<div class="lb lb-b"></div>
+
+<!-- Overlays -->
+<div class="vignette"></div>
+<div class="scanlines"></div>
+
+<!-- UI -->
+<div id="ui">
+  <div class="show-badge">
+    <div class="show-badge-line"></div>
+    <div class="show-badge-text">North of Here &nbsp;·&nbsp; Season 1</div>
+  </div>
+
+  <div class="episode-block">
+    <div class="ep-eyebrow">
+      <div class="ep-label">Episode 01</div>
+      <div class="ep-dot"></div>
+    </div>
+    <div class="ep-title">First <em>Snow</em></div>
+    <div class="ep-meta">November 23, 2026 &nbsp;·&nbsp; North York, ON &nbsp;·&nbsp; 11°C</div>
+    <div class="ep-divider"></div>
+    <div class="ep-summary">
+      Priya steps outside and sees snow for the first time.<br>
+      Marcus's car won't start. Dev has a midterm at 9am.<br>
+      Carol makes soup. Nobody asked her to.
+    </div>
+  </div>
+
+  <div class="char-panel">
+    <div class="char-label">Residents</div>
+    <div class="char-row">
+      <div class="char-info">
+        <div class="char-name">Priya</div>
+        <div class="char-role">Apt 4B &nbsp;·&nbsp; awake</div>
+      </div>
+      <div class="char-dot active"></div>
+    </div>
+    <div class="char-row">
+      <div class="char-info">
+        <div class="char-name">Marcus</div>
+        <div class="char-role">Apt 2A &nbsp;·&nbsp; awake</div>
+      </div>
+      <div class="char-dot active"></div>
+    </div>
+    <div class="char-row">
+      <div class="char-info">
+        <div class="char-name">Sophie</div>
+        <div class="char-role">Apt 6C &nbsp;·&nbsp; asleep</div>
+      </div>
+      <div class="char-dot asleep"></div>
+    </div>
+    <div class="char-row">
+      <div class="char-info">
+        <div class="char-name">Dev</div>
+        <div class="char-role">Apt 1D &nbsp;·&nbsp; awake</div>
+      </div>
+      <div class="char-dot active"></div>
+    </div>
+    <div class="char-row">
+      <div class="char-info">
+        <div class="char-name">Carol</div>
+        <div class="char-role">Apt 5A &nbsp;·&nbsp; awake</div>
+      </div>
+      <div class="char-dot idle"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Three.js via importmap -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.169.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.169.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { EffectComposer }  from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass }      from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { FilmPass }        from 'three/addons/postprocessing/FilmPass.js';
+import { OutputPass }      from 'three/addons/postprocessing/OutputPass.js';
+import { ShaderPass }      from 'three/addons/postprocessing/ShaderPass.js';
+import { FXAAShader }      from 'three/addons/shaders/FXAAShader.js';
+
+// ── Loader helpers ──────────────────────────────────────────────
+const setLoad = (pct, msg) => {
+  document.getElementById('lf').style.width = pct + '%';
+  document.getElementById('ls').textContent  = msg;
+};
+
+// ── Renderer ────────────────────────────────────────────────────
+const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'high-performance' });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.toneMapping         = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 0.9;
+renderer.shadowMap.enabled   = true;
+renderer.shadowMap.type      = THREE.PCFSoftShadowMap;
+renderer.outputColorSpace    = THREE.SRGBColorSpace;
+document.body.insertBefore(renderer.domElement, document.getElementById('loader'));
+
+setLoad(8, 'Building scene geometry');
+
+// ── Scene & Camera ───────────────────────────────────────────────
+const scene  = new THREE.Scene();
+scene.background = new THREE.Color(0x04060d);
+scene.fog        = new THREE.FogExp2(0x06080f, 0.014);
+
+const camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.1, 500);
+camera.position.set(0, 5, 34);
+camera.lookAt(0, 10, 0);
+
+// ── Lighting ─────────────────────────────────────────────────────
+// Moonlight — cold blue-white, casts shadows
+const moon = new THREE.DirectionalLight(0xa0b4d0, 0.5);
+moon.position.set(-18, 45, 15);
+moon.castShadow = true;
+moon.shadow.mapSize.set(2048, 2048);
+moon.shadow.camera.near   = 1;
+moon.shadow.camera.far    = 160;
+moon.shadow.camera.left   = -45;
+moon.shadow.camera.right  = 45;
+moon.shadow.camera.top    = 45;
+moon.shadow.camera.bottom = -20;
+moon.shadow.bias = -0.0005;
+scene.add(moon);
+
+// Deep ambient — dark indigo
+scene.add(new THREE.AmbientLight(0x08102a, 1.8));
+
+// Hemisphere — sky vs ground bounce
+scene.add(new THREE.HemisphereLight(0x101828, 0x040608, 0.4));
+
+// Street lights — sodium orange
+const streetLightXs = [-11, -4, 3, 10];
+streetLightXs.forEach(x => {
+  const pt = new THREE.PointLight(0xff8820, 4, 20, 2);
+  pt.position.set(x, 5.8, 9);
+  scene.add(pt);
+
+  // Pole
+  const pole = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.055, 0.075, 6.2, 7),
+    new THREE.MeshStandardMaterial({ color: 0x1a1a2e, roughness: 0.85 })
+  );
+  pole.position.set(x, 3.1, 9);
+  pole.castShadow = true;
+  scene.add(pole);
+
+  // Head
+  const head = new THREE.Mesh(
+    new THREE.BoxGeometry(0.55, 0.14, 0.32),
+    new THREE.MeshStandardMaterial({ color: 0x222232, roughness: 0.9,
+      emissive: new THREE.Color(0xff8820), emissiveIntensity: 0.5 })
+  );
+  head.position.set(x, 6.08, 9.1);
+  scene.add(head);
+});
+
+setLoad(20, 'Constructing The Pines Apartments');
+
+// ── Materials ────────────────────────────────────────────────────
+const matConcrete    = new THREE.MeshStandardMaterial({ color: 0x272a35, roughness: 0.95 });
+const matDarkConc    = new THREE.MeshStandardMaterial({ color: 0x1b1d26, roughness: 0.92 });
+const matBalcony     = new THREE.MeshStandardMaterial({ color: 0x20222d, roughness: 0.9, metalness: 0.05 });
+const matWindowFrame = new THREE.MeshStandardMaterial({ color: 0x161820, roughness: 0.9 });
+
+// ── Main Building ────────────────────────────────────────────────
+const FLOORS  = 9;
+const FLOOR_H = 3.0;
+const BW = 17, BD = 6, BH = FLOORS * FLOOR_H;
+const bGroup = new THREE.Group();
+
+// Core body
+const bodyMesh = new THREE.Mesh(new THREE.BoxGeometry(BW, BH, BD), matConcrete);
+bodyMesh.position.y = BH / 2;
+bodyMesh.castShadow = true;
+bodyMesh.receiveShadow = true;
+bGroup.add(bodyMesh);
+
+// Slight facade protrusion centre section (architectural detail)
+const centrePanel = new THREE.Mesh(new THREE.BoxGeometry(7, BH, 0.3), matDarkConc);
+centrePanel.position.set(0, BH / 2, BD / 2);
+bGroup.add(centrePanel);
+
+// Left + right vertical ribs
+[-7, 7].forEach(x => {
+  const rib = new THREE.Mesh(new THREE.BoxGeometry(0.3, BH, 0.25), matDarkConc);
+  rib.position.set(x, BH / 2, BD / 2);
+  bGroup.add(rib);
+});
+
+// Horizontal floor bands
+for (let f = 0; f <= FLOORS; f++) {
+  const band = new THREE.Mesh(new THREE.BoxGeometry(BW + 0.4, 0.14, BD + 0.15), matDarkConc);
+  band.position.y = f * FLOOR_H;
+  band.castShadow = true;
+  bGroup.add(band);
+}
+
+// Roof parapet
+const parapet = new THREE.Mesh(new THREE.BoxGeometry(BW + 0.6, 0.5, BD + 0.4), matDarkConc);
+parapet.position.y = BH + 0.25;
+bGroup.add(parapet);
+
+// Water tower
+const tankMat = new THREE.MeshStandardMaterial({ color: 0x3a2c1e, roughness: 0.95 });
+const tank    = new THREE.Mesh(new THREE.CylinderGeometry(1.3, 1.3, 2.8, 14), tankMat);
+tank.position.set(-5, BH + 1.65, -1);
+bGroup.add(tank);
+const tankCap = new THREE.Mesh(new THREE.ConeGeometry(1.45, 1.1, 14),
+  new THREE.MeshStandardMaterial({ color: 0x2a1e0e, roughness: 0.9 }));
+tankCap.position.set(-5, BH + 3.45, -1);
+bGroup.add(tankCap);
+// Tank legs
+[-0.9, 0.9].forEach(dx => [-0.9, 0.9].forEach(dz => {
+  const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1.5, 4),
+    new THREE.MeshStandardMaterial({ color: 0x1a1a1a }));
+  leg.position.set(-5 + dx, BH + 0.75, -1 + dz);
+  bGroup.add(leg);
+}));
+
+// HVAC units
+[[2, 0], [5, 1], [-2, -1]].forEach(([x, z]) => {
+  const hvac = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.75, 1.0),
+    new THREE.MeshStandardMaterial({ color: 0x2e3040, roughness: 0.9 }));
+  hvac.position.set(x, BH + 0.78, z);
+  bGroup.add(hvac);
+});
+
+// ── Windows ───────────────────────────────────────────────────────
+const COLS = 5;
+const colXs = [-6.8, -3.4, 0, 3.4, 6.8];
+const windowData = [];
+
+const makeWinMat = (type) => {
+  if (type === 'warm')
+    return new THREE.MeshStandardMaterial({ color: 0xffe8b0, emissive: new THREE.Color(0xf0b050), emissiveIntensity: 1.6 });
+  if (type === 'tv')
+    return new THREE.MeshStandardMaterial({ color: 0x90b8f0, emissive: new THREE.Color(0x5080d0), emissiveIntensity: 1.1 });
+  return new THREE.MeshStandardMaterial({ color: 0x0c1020, emissive: new THREE.Color(0x0c1020), emissiveIntensity: 0.1 });
+};
+
+for (let f = 1; f < FLOORS; f++) {
+  for (let c = 0; c < COLS; c++) {
+    const x  = colXs[c];
+    const y  = f * FLOOR_H + FLOOR_H * 0.42;
+    const rnd = Math.random();
+    const type = rnd < 0.42 ? 'warm' : rnd < 0.60 ? 'tv' : 'dark';
+
+    // Frame recess
+    const frame = new THREE.Mesh(new THREE.BoxGeometry(1.65, 2.0, 0.18), matWindowFrame);
+    frame.position.set(x, y, BD / 2 + 0.04);
+    bGroup.add(frame);
+
+    // Glass pane
+    const pane = new THREE.Mesh(new THREE.PlaneGeometry(1.35, 1.65), makeWinMat(type));
+    pane.position.set(x, y, BD / 2 + 0.14);
+    bGroup.add(pane);
+    windowData.push({ mesh: pane, type, timer: Math.random() * 12 });
+
+    // Balcony (floors 2+)
+    if (f >= 2) {
+      const slab = new THREE.Mesh(new THREE.BoxGeometry(1.95, 0.1, 1.0), matBalcony);
+      slab.position.set(x, y - 1.1, BD / 2 + 0.55);
+      slab.castShadow = true;
+      bGroup.add(slab);
+
+      const railing = new THREE.Mesh(new THREE.BoxGeometry(1.95, 0.5, 0.05),
+        new THREE.MeshStandardMaterial({ color: 0x1a1c28, roughness: 0.8, metalness: 0.2 }));
+      railing.position.set(x, y - 0.75, BD / 2 + 1.02);
+      bGroup.add(railing);
+    }
+  }
+}
+
+// Ground-floor lobby glow
+const lobbyPane = new THREE.Mesh(new THREE.PlaneGeometry(5.5, FLOOR_H - 0.4),
+  new THREE.MeshStandardMaterial({ color: 0xffe8a0, emissive: new THREE.Color(0xffd060), emissiveIntensity: 2.2 }));
+lobbyPane.position.set(0, FLOOR_H / 2, BD / 2 + 0.14);
+bGroup.add(lobbyPane);
+
+const lobbyLight = new THREE.PointLight(0xffc860, 3.5, 12, 2);
+lobbyLight.position.set(0, 2.2, BD / 2 + 1.5);
+bGroup.add(lobbyLight);
+
+// Entrance canopy
+const canopy = new THREE.Mesh(new THREE.BoxGeometry(6, 0.12, 1.8),
+  new THREE.MeshStandardMaterial({ color: 0x1a1c28, roughness: 0.9 }));
+canopy.position.set(0, FLOOR_H - 0.1, BD / 2 + 1.0);
+canopy.castShadow = true;
+bGroup.add(canopy);
+
+// Fire escape — right side
+for (let f = 1; f < FLOORS - 1; f++) {
+  const platform = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.07, 1.0),
+    new THREE.MeshStandardMaterial({ color: 0x151520, roughness: 0.9, metalness: 0.3 }));
+  platform.position.set(BW / 2 + 1.0, f * FLOOR_H + 0.1, BD / 2 - 0.5);
+  bGroup.add(platform);
+
+  const ladder = new THREE.Mesh(new THREE.BoxGeometry(0.06, FLOOR_H - 0.2, 0.06),
+    new THREE.MeshStandardMaterial({ color: 0x101018, roughness: 0.9 }));
+  ladder.position.set(BW / 2 + 1.5, f * FLOOR_H + FLOOR_H / 2, BD / 2 - 0.5);
+  bGroup.add(ladder);
+}
+
+scene.add(bGroup);
+
+setLoad(42, 'Adding city depth');
+
+// ── Background Buildings ──────────────────────────────────────────
+const bgBuildings = [
+  { x: -24, w: 11, h: 24, d: 5.5, z: -9,  col: 0x131520 },
+  { x:  24, w: 13, h: 19, d: 5.5, z: -7,  col: 0x111420 },
+  { x: -42, w:  9, h: 16, d: 4.5, z: -18, col: 0x0e1018 },
+  { x:  40, w: 10, h: 22, d: 4.5, z: -14, col: 0x101320 },
+  { x:   0, w: 25, h:  8, d: 8,   z: -24, col: 0x0c0f18 },
+];
+
+bgBuildings.forEach(b => {
+  const bg = new THREE.Mesh(new THREE.BoxGeometry(b.w, b.h, b.d),
+    new THREE.MeshStandardMaterial({ color: b.col, roughness: 0.95 }));
+  bg.position.set(b.x, b.h / 2, b.z);
+  bg.castShadow = true;
+  scene.add(bg);
+
+  // Scatter lit windows
+  const rows = Math.floor(b.h / 3.2);
+  const cols = Math.floor(b.w / 3.0);
+  for (let r = 1; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (Math.random() > 0.48) {
+        const isTV  = Math.random() < 0.22;
+        const wx    = b.x - b.w / 2 + (c + 0.5) * (b.w / cols) + (b.w / cols) * 0.1;
+        const wy    = r * 3.2;
+        const wPane = new THREE.Mesh(new THREE.PlaneGeometry(0.65, 0.85),
+          new THREE.MeshStandardMaterial({
+            color: 0x000000,
+            emissive: new THREE.Color(isTV ? 0x3860c8 : 0xd08830),
+            emissiveIntensity: isTV ? 0.75 : 0.95
+          }));
+        wPane.position.set(wx, wy, b.z + b.d / 2 + 0.01);
+        scene.add(wPane);
+      }
+    }
+  }
+});
+
+setLoad(55, 'Paving wet asphalt');
+
+// ── Ground (wet asphalt) ──────────────────────────────────────────
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(220, 110),
+  new THREE.MeshStandardMaterial({ color: 0x080a0e, roughness: 0.12, metalness: 0.55 }));
+ground.rotation.x = -Math.PI / 2;
+ground.receiveShadow = true;
+scene.add(ground);
+
+// Sidewalk
+const sidewalk = new THREE.Mesh(new THREE.BoxGeometry(32, 0.09, 5.5),
+  new THREE.MeshStandardMaterial({ color: 0x141620, roughness: 0.92 }));
+sidewalk.position.set(0, 0.045, 7);
+sidewalk.receiveShadow = true;
+scene.add(sidewalk);
+
+// Curb
+const curb = new THREE.Mesh(new THREE.BoxGeometry(32, 0.18, 0.25),
+  new THREE.MeshStandardMaterial({ color: 0x1a1c28, roughness: 0.88 }));
+curb.position.set(0, 0.09, 9.6);
+scene.add(curb);
+
+setLoad(64, 'Parking cars');
+
+// ── Parked Cars ───────────────────────────────────────────────────
+[
+  { x: -11.5, z: 11.5, rot: 0,    col: 0x14162a },
+  { x:  -5.5, z: 11.8, rot: 0.03, col: 0x1e2232 },
+  { x:   4.5, z: 11.4, rot:-0.02, col: 0x1a1420 },
+  { x:  10.5, z: 11.6, rot: 0.01, col: 0x101828 },
+].forEach(c => {
+  const g = new THREE.Group();
+  g.rotation.y = c.rot;
+
+  const bodyM = new THREE.MeshStandardMaterial({ color: c.col, roughness: 0.5, metalness: 0.35 });
+  const cb    = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.72, 1.65), bodyM);
+  cb.position.y = 0.76;
+  cb.castShadow = true;
+  g.add(cb);
+
+  const cab = new THREE.Mesh(new THREE.BoxGeometry(2.1, 0.62, 1.55), bodyM);
+  cab.position.set(-0.15, 1.42, 0);
+  cab.castShadow = true;
+  g.add(cab);
+
+  [[1.1, 0.36, 0.86], [-1.1, 0.36, 0.86], [1.1, 0.36, -0.86], [-1.1, 0.36, -0.86]].forEach(([wx, wy, wz]) => {
+    const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.36, 0.22, 10),
+      new THREE.MeshStandardMaterial({ color: 0x080808, roughness: 0.95 }));
+    wheel.rotation.z = Math.PI / 2;
+    wheel.position.set(wx, wy, wz);
+    g.add(wheel);
+  });
+
+  g.position.set(c.x, 0, c.z);
+  scene.add(g);
+});
+
+setLoad(74, 'Calling the first snow');
+
+// ── Snow System (Instanced) ───────────────────────────────────────
+const SNOW_COUNT = 10000;
+const snowMesh   = new THREE.InstancedMesh(
+  new THREE.SphereGeometry(0.025, 4, 4),
+  new THREE.MeshBasicMaterial({ color: 0xd8e8f8, transparent: true, opacity: 0.8 }),
+  SNOW_COUNT
+);
+const snowPos = [], snowVel = [], dummy = new THREE.Object3D();
+
+for (let i = 0; i < SNOW_COUNT; i++) {
+  const p = new THREE.Vector3(
+    (Math.random() - 0.5) * 90,
+    Math.random() * 55,
+    (Math.random() - 0.5) * 70
+  );
+  snowPos.push(p);
+  snowVel.push({
+    x: (Math.random() - 0.5) * 0.007,
+    y: -(0.028 + Math.random() * 0.035),
+    z: (Math.random() - 0.5) * 0.005
+  });
+  dummy.position.copy(p);
+  dummy.updateMatrix();
+  snowMesh.setMatrixAt(i, dummy.matrix);
+}
+snowMesh.instanceMatrix.needsUpdate = true;
+scene.add(snowMesh);
+
+setLoad(84, 'Setting up cinematic post-processing');
+
+// ── Post-Processing ───────────────────────────────────────────────
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+
+// Bloom — windows and street lights glow warmly
+const bloom = new UnrealBloomPass(
+  new THREE.Vector2(window.innerWidth, window.innerHeight),
+  0.65,   // strength
+  0.55,   // radius
+  0.72    // threshold
+);
+composer.addPass(bloom);
+
+// Film grain — cinematic texture
+composer.addPass(new FilmPass(0.22, false));
+
+// FXAA
+const fxaa = new ShaderPass(FXAAShader);
+const px = renderer.getPixelRatio();
+fxaa.material.uniforms['resolution'].value.set(1 / (window.innerWidth * px), 1 / (window.innerHeight * px));
+composer.addPass(fxaa);
+
+composer.addPass(new OutputPass());
+
+setLoad(94, 'Final passes');
+
+// ── Window Animation ──────────────────────────────────────────────
+const TV_COLS = [0x3860d8, 0x5090f0, 0x2850b8, 0x7090c8, 0x406090];
+
+function tickWindows(dt) {
+  for (const w of windowData) {
+    w.timer -= dt;
+    if (w.timer > 0) continue;
+
+    if (w.type === 'tv') {
+      const col = TV_COLS[Math.floor(Math.random() * TV_COLS.length)];
+      w.mesh.material.emissive.setHex(col);
+      w.mesh.material.emissiveIntensity = 0.7 + Math.random() * 0.9;
+      w.timer = 0.06 + Math.random() * 0.28;
+    } else if (w.type === 'warm' && Math.random() < 0.003) {
+      w.mesh.material.emissiveIntensity = 0.08;
+      w.type  = 'dark';
+      w.timer = 20 + Math.random() * 80;
+    } else if (w.type === 'dark' && Math.random() < 0.004) {
+      w.mesh.material.emissive.setHex(0xf0b050);
+      w.mesh.material.emissiveIntensity = 1.6;
+      w.type  = 'warm';
+      w.timer = 15 + Math.random() * 50;
+    } else {
+      w.timer = 4 + Math.random() * 18;
+    }
+  }
+}
+
+// ── Camera Animation (slow cinematic drift) ───────────────────────
+const camO  = new THREE.Vector3(0, 5, 34);
+const camT  = new THREE.Vector3(-1.5, 6.5, 24);
+const lookT = new THREE.Vector3(0, 10, 0);
+let camElapsed = 0;
+
+function tickCamera(dt) {
+  camElapsed += dt;
+  const t    = Math.min(camElapsed / 240, 1);               // 4-min push
+  const ease = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+  camera.position.lerpVectors(camO, camT, ease);
+
+  // Slow organic sway
+  camera.position.x += Math.sin(camElapsed * 0.025) * 0.25;
+  camera.position.y += Math.sin(camElapsed * 0.055) * 0.08;
+  camera.lookAt(lookT);
+}
+
+// ── Snow Tick ─────────────────────────────────────────────────────
+function tickSnow() {
+  for (let i = 0; i < SNOW_COUNT; i++) {
+    const p = snowPos[i], v = snowVel[i];
+    p.x += v.x + Math.sin(p.y * 0.08 + i * 0.01) * 0.0015;
+    p.y += v.y;
+    p.z += v.z;
+    if (p.y < -1) { p.y = 55; p.x = (Math.random() - 0.5) * 90; p.z = (Math.random() - 0.5) * 70; }
+    dummy.position.copy(p);
+    dummy.updateMatrix();
+    snowMesh.setMatrixAt(i, dummy.matrix);
+  }
+  snowMesh.instanceMatrix.needsUpdate = true;
+}
+
+// ── Resize ────────────────────────────────────────────────────────
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  composer.setSize(window.innerWidth, window.innerHeight);
+  const r = renderer.getPixelRatio();
+  fxaa.material.uniforms['resolution'].value.set(1 / (window.innerWidth * r), 1 / (window.innerHeight * r));
+});
+
+// ── Render Loop ───────────────────────────────────────────────────
+const clock = new THREE.Clock();
+
+(function animate() {
+  requestAnimationFrame(animate);
+  const dt = clock.getDelta();
+  tickSnow();
+  tickWindows(dt);
+  tickCamera(dt);
+  composer.render();
+})();
+
+// ── Launch ────────────────────────────────────────────────────────
+setLoad(100, 'Scene ready');
+setTimeout(() => {
+  const loader = document.getElementById('loader');
+  loader.classList.add('fade');
+  setTimeout(() => loader.remove(), 2200);
+}, 900);
+</script>
+</body>
+</html>
